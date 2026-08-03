@@ -12,7 +12,6 @@ use App\Models\SerialProduct;
 use App\Models\Supplier;
 use App\Models\Unit;
 use App\Models\VehicleMaintenanceLog;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -101,7 +100,7 @@ class FixedController extends Controller
         'Tools' => 'TLS',
     ];
 
-    private function generateAssetCode($type)
+    public function generateAssetCode($type)
     {
         $prefix = self::ASSET_CODE_PREFIXES[$type] ?? 'AST';
         $year = date('Y');
@@ -135,11 +134,7 @@ class FixedController extends Controller
     public function store(Request $request)
     {
         if ($request->type == 'Mesin') {
-            $request->validate([
-                'serial_number' => 'required',
-            ], [
-                'serial_number.required' => 'Serial Number mesin wajib diisi.',
-            ]);
+            return redirect('/unit-product-in/create')->with('error', 'Unit (kategori Mesin) sekarang diinput lewat Barang Masuk Unit, bukan lewat form Fixed Asset.');
         }
 
         if ($request->type == 'Kendaraan') {
@@ -170,21 +165,7 @@ class FixedController extends Controller
         $fixed->total = $request->total;
         $fixed->status = $request->status ?? 0;
 
-        if ($request->type == 'Mesin') {
-            $fixed->id_unit = $request->id_unit;
-            $fixed->serial_number = $request->serial_number;
-            $fixed->kondisi = $request->kondisi == 'Baru' ? 'Baru' : 'Second';
-
-            if ($fixed->kondisi == 'Baru') {
-                // Unit baru tidak perlu dicek/dikonfirmasi Admin — langsung siap ditawarkan.
-                $fixed->qc_status = 'ok';
-                $fixed->status_unit = 'OK';
-                $fixed->mulai_penyusutan = $fixed->beli;
-            } else {
-                $fixed->qc_status = 'checking';
-                $fixed->mulai_penyusutan = null;
-            }
-        } elseif ($request->type == 'Kendaraan') {
+        if ($request->type == 'Kendaraan') {
             $fixed->jenis_kendaraan = $request->jenis_kendaraan;
             $fixed->merk_model = $request->merk_model;
             $fixed->bahan_bakar = $request->bahan_bakar;
@@ -197,15 +178,6 @@ class FixedController extends Controller
 
         $fixedSave = $fixed->save();
         if ($fixedSave) {
-            if ($fixed->type == 'Mesin' && $fixed->qc_status == 'ok') {
-                $this->linkMachine($fixed);
-            }
-            if ($request->type == 'Mesin') {
-                $message = $fixed->kondisi == 'Baru'
-                    ? 'Unit baru berhasil didaftarkan dan langsung siap ditawarkan'
-                    : 'Unit berhasil didaftarkan, menunggu pengecekan';
-                return redirect('/fixed/' . $fixed->id)->with('success', $message);
-            }
             return redirect('fixed')->with('success', 'data telah di tambahkan');
         }
     }
@@ -222,20 +194,9 @@ class FixedController extends Controller
         $services = FixedAssetService::where('id_fixed_asset', $id)->with('detailProduct.product')->get();
         $maintenanceLogs = $fixed->type === 'Kendaraan' ? $fixed->maintenanceLogs()->get() : collect();
 
-        $totalPenyusutan = 0;
-        $nilaiBuku = $fixed->total;
-
-        // Unit yang masih "Dalam Pengecekan" belum boleh disusutkan sama sekali.
-        if ($fixed->qc_status !== 'checking') {
-            $startDate = Carbon::parse($fixed->mulai_penyusutan ?? $fixed->beli);
-            $endDate = Carbon::now();
-            $diffMonth = $startDate->greaterThan($endDate) ? 0 : $startDate->diffInMonths($endDate);
-            $umurAktiva = $fixed->umur;
-            $bulanPenyusutan = min($diffMonth, $umurAktiva);
-            $penyusutanPerBulan = ($fixed->total * 0.25) / 12;
-            $totalPenyusutan = $penyusutanPerBulan * $bulanPenyusutan;
-            $nilaiBuku = $fixed->total - $totalPenyusutan;
-        }
+        $hitung = $fixed->hitungNilaiBuku();
+        $totalPenyusutan = $hitung['total_penyusutan'];
+        $nilaiBuku = $hitung['nilai_buku'];
 
         return view('pages.finance.fixed.detail', compact('fixed', 'totalPenyusutan', 'nilaiBuku', 'services', 'maintenanceLogs'));
     }
@@ -579,19 +540,9 @@ class FixedController extends Controller
         $fixed = FixedAsset::find($id);
         $services = FixedAssetService::where('id_fixed_asset', $id)->with('detailProduct.product')->get();
 
-        $totalPenyusutan = 0;
-        $nilaiBuku = $fixed->total;
-
-        if ($fixed->qc_status !== 'checking') {
-            $startDate = Carbon::parse($fixed->mulai_penyusutan ?? $fixed->beli);
-            $endDate = Carbon::now();
-            $diffMonth = $startDate->greaterThan($endDate) ? 0 : $startDate->diffInMonths($endDate);
-            $umurAktiva = $fixed->umur;
-            $bulanPenyusutan = min($diffMonth, $umurAktiva);
-            $penyusutanPerBulan = ($fixed->total * 0.25) / 12;
-            $totalPenyusutan = $penyusutanPerBulan * $bulanPenyusutan;
-            $nilaiBuku = $fixed->total - $totalPenyusutan;
-        }
+        $hitung = $fixed->hitungNilaiBuku();
+        $totalPenyusutan = $hitung['total_penyusutan'];
+        $nilaiBuku = $hitung['nilai_buku'];
 
         return view('pages.warehouse.unit-acquisition.show', compact('fixed', 'totalPenyusutan', 'nilaiBuku', 'services'));
     }

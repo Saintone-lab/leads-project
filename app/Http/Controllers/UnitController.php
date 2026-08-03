@@ -597,6 +597,7 @@ class UnitController extends Controller
         $rule = [
             'id_equivalent' => 'required',
             'qty' => 'required',
+            'pm_level' => 'nullable|in:PM1,PM2',
         ];
 
         // Custom validation messages
@@ -610,6 +611,7 @@ class UnitController extends Controller
         $sparepart->id_unit = $id;
         $sparepart->id_equivalent = $request->id_equivalent;
         $sparepart->qty = $request->qty;
+        $sparepart->pm_level = $request->pm_level ?? 'PM1';
         $sparepartSave = $sparepart->save();
         if ($sparepartSave) {
             return redirect('/unit-global/' . $id)->with('message', 'data telah ditambahkan');
@@ -624,6 +626,22 @@ class UnitController extends Controller
         } else {
             return 0;
         }
-
+    }
+    public function updateSparepart(Request $request, $id)
+    {
+        $rule = [
+            'qty' => 'required',
+            'pm_level' => 'nullable|in:PM1,PM2',
+        ];
+        $this->validate($request, $rule);
+        $sparepart = Sparepart::find($id);
+        if ($sparepart) {
+            $sparepart->update([
+                'qty' => $request->qty,
+                'pm_level' => $request->pm_level ?? 'PM1',
+            ]);
+            return redirect()->back()->with('message', 'Sparepart berhasil diperbarui');
+        }
+        return redirect()->back()->with('error', 'Sparepart tidak ditemukan');
     }
 }

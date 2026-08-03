@@ -32,7 +32,7 @@ class LeadsController extends Controller
      */
     public function index()
     {
-        $client = Client::where("role", "Leads")->get();
+        $client = collect();
         $issue = Issues::get();
         $sales = User::where('role', 'sales')->get();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
@@ -303,6 +303,37 @@ class LeadsController extends Controller
                 'color' => $statusInfo['color'],
                 'no_quote' => $q->no_quote,
                 'url' => route('quotation.show', $q->id),
+            ]);
+        }
+
+        $unitQuotes = \App\Models\UnitQuotation::where(function($q) use ($id) {
+            $q->where('id_client', $id)->orWhereHas('pic', function($p) use ($id) {
+                $p->where('id_client', $id);
+            });
+        })->where('is_latest', 1)->get();
+
+        foreach ($unitQuotes as $uq) {
+            $unitStatusMap = [
+                'po_received' => ['label' => 'Done PO', 'color' => 'success'],
+                'loss' => ['label' => 'Loss', 'color' => 'danger'],
+                'cancelled' => ['label' => 'Loss', 'color' => 'danger'],
+                'hot_prospect' => ['label' => 'Hot Prospect', 'color' => 'warning'],
+                'negotiation' => ['label' => 'Negotiation / Revisi', 'color' => 'primary'],
+                'revision' => ['label' => 'Negotiation / Revisi', 'color' => 'primary'],
+                'sent' => ['label' => 'Send Quotation', 'color' => 'secondary'],
+                'draft' => ['label' => 'Send Quotation', 'color' => 'secondary'],
+            ];
+            $statusInfo = $unitStatusMap[$uq->status] ?? ['label' => $uq->status, 'color' => 'info'];
+
+            $activityTimeline->push([
+                'date' => $uq->created_at ?? Carbon::parse($uq->date),
+                'title' => 'Penawaran Unit Dibuat',
+                'category' => 'Quotation Unit',
+                'status' => $statusInfo['label'],
+                'note' => $uq->note ?? $uq->title,
+                'color' => $statusInfo['color'],
+                'no_quote' => $uq->no_quote,
+                'url' => route('unit-quotation.show', $uq->id),
             ]);
         }
 
@@ -634,7 +665,11 @@ class LeadsController extends Controller
 
         $client = Client::where("role", "Leads")->get();
         $issue = Issues::get();
-        $sales = User::where('role', 'sales')->where('active', '1')->get();
+        $sales = User::where('role', 'sales')->where('active', '1')->whereNotIn('id', [16, 23])->get();
+        $leadsCountBySales = Client::where('role', 'Leads')
+            ->select('id_sales', DB::raw('count(*) as total'))
+            ->groupBy('id_sales')
+            ->pluck('total', 'id_sales');
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
 
@@ -703,7 +738,7 @@ class LeadsController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.sales.clients.leads.indexBySales', compact('noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'client', 'sales', 'issue'));
+        return view('pages.sales.clients.leads.indexBySales', compact('noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'client', 'sales', 'issue', 'leadsCountBySales'));
     }
 
     protected function data($id)

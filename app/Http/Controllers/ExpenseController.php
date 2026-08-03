@@ -462,14 +462,24 @@ class Expensecontroller extends Controller
         // dd($months);
         return view('pages.finance.balance.index', compact('years', 'months'));
     }
-    public function printBulanBalance($year, $month)
+    /**
+     * Kumpulan data Balance Statement (dipakai bareng oleh halaman print & detail,
+     * baik mode bulanan maupun tahunan) supaya kalkulasinya cuma ada di satu tempat.
+     */
+    private function hitungDataBalance($year, $month = null)
     {
-        $bank = Bank::where('bank','BCA')->first();
-        $startDate = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
-        $endDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
-        $start = Carbon::create($year, $month, 1)->startOfMonth();
+        $bank = Bank::where('bank', 'BCA')->first();
+
+        if ($month) {
+            $startDate = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
+            $endDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
+            $start = Carbon::create($year, $month, 1)->startOfMonth();
+        } else {
+            $startDate = Carbon::create($year, 1, 1)->startOfMonth()->toDateString();
+            $endDate = Carbon::create($year, 12, 1)->endOfMonth()->toDateString();
+            $start = Carbon::create($year, 1, 1)->startOfMonth();
+        }
         $end = Carbon::today();
-        $grandTotalPenyusutan = 0;
 
         $piutang = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
@@ -510,15 +520,13 @@ class Expensecontroller extends Controller
         $ppnKel = $quotation * 11 / 100;
         $prive = DetailExpense::where('id_account', 51)->sum('amount');
 
-        $labaBulanIni = $this->hitungLabaBulanan($year, $month);
         $labaTahunLalu = $this->hitungLabaTahunan($year - 1);
-        $labaTahunTahun = $this->hitungLabaTahunSebelumnya($year, $month);
-        // $labaBulanBulan = $this->hitungLabaBulanSebelumnya($year, month: $month);
 
         $startStringYear = $start->translatedFormat('j M');
         $startString = $start->translatedFormat('j M Y');
         $endString = $end->translatedFormat('j M Y');
-        return view('pages.finance.balance.print', compact(
+
+        $data = compact(
             'bank',
             'startDate',
             'endDate',
@@ -534,91 +542,42 @@ class Expensecontroller extends Controller
             'penyusutan',
             'quotation',
             'prive',
-            'labaBulanIni',
             'labaTahunLalu',
-            'labaTahunTahun',
             'grandTotalPenyusutan',
             'month'
-        ));
+        );
+
+        if ($month) {
+            $data['labaBulanIni'] = $this->hitungLabaBulanan($year, $month);
+            $data['labaTahunTahun'] = $this->hitungLabaTahunSebelumnya($year, $month);
+        } else {
+            $data['labaTahunIni'] = $this->hitungLabaTahunan($year);
+            $data['labaTahunTahun'] = $this->hitungLabaTahunSebelumnya($year, month: 12);
+        }
+
+        return $data;
     }
+
+    public function printBulanBalance($year, $month)
+    {
+        return view('pages.finance.balance.print', $this->hitungDataBalance($year, $month));
+    }
+
     public function printTahunBalance($year)
     {
-        $bank = Bank::where('bank','BCA')->first();
-        $startDate = Carbon::create($year, 1, 1)->startOfMonth()->toDateString();
-        $endDate = Carbon::create($year, 12, 1)->endOfMonth()->toDateString();
-        $start = Carbon::create($year, 1, 1)->startOfMonth();
-        $end = Carbon::today();
-        $grandTotalPenyusutan = 0;
-
-        $piutang = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-            ->join('users as u', 'u.id', '=', 'q.id_sales')
-            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
-            ->whereBetween('po_date', [$startDate, $endDate])
-            ->where('payment.type', 'Tempo')
-            ->where('payment.level', 0)
-            ->whereNotNULL('payment.due_date')
-            ->groupBy('payment.id')
-            ->sum('payment.amount');
-        $replace = DetailProduct::all();
-        $asset = $replace->sum(function ($replacement) {
-            return $replacement->modal * $replacement->stock;
-        });
-        $pIn = ProductIn::where('tax', '11')->whereBetween('date', [$startDate, $endDate])->sum('total');
-        $ppnMas = $pIn * 11 / 100;
-        $totalFixed = FixedAsset::sum('total');
-        $fixedAsset = FixedAsset::select('type', DB::raw('SUM(total) as total_amount'))
-            ->groupBy('type')
-            ->get();
-        $penyusutan = FixedAsset::all()->groupBy('type')->map(function ($assets, $type) {
-            $total = 0;
-            foreach ($assets as $asset) {
-                $bulan = min(
-                    Carbon::parse($asset->beli)->diffInMonths(now()),
-                    $asset->umur
-                );
-
-                $total += (($asset->total * 0.25) / 12) * $bulan;
-            }
-            return [
-                'type' => $type,
-                'total_penyusutan' => $total
-            ];
-        });
-        $grandTotalPenyusutan = $penyusutan->sum('total_penyusutan');
-        $quotation = Quotation::where('status', '100')->whereBetween('po_date', [$startDate, $endDate])->where('level', '1')->where('is_primary', '1')->sum('nett');
-        // dd($endDate);
-        $ppnKel = $quotation * 11 / 100;
-        $prive = DetailExpense::where('id_account', 51)->sum('amount');
-
-        $labaTahunIni = $this->hitungLabaTahunan($year);
-        $labaTahunLalu = $this->hitungLabaTahunan($year - 1);
-        $labaTahunTahun = $this->hitungLabaTahunSebelumnya($year, month: 12);
-
-        $startStringYear = $start->translatedFormat('j M');
-        $startString = $start->translatedFormat('j M Y');
-        $endString = $end->translatedFormat('j M Y');
-        return view('pages.finance.balance.print', compact(
-            'bank',
-            'startDate',
-            'endDate',
-            'startString',
-            'startStringYear',
-            'endString',
-            'piutang',
-            'asset',
-            'ppnMas',
-            'ppnKel',
-            'totalFixed',
-            'fixedAsset',
-            'penyusutan',
-            'quotation',
-            'prive',
-            'labaTahunIni',
-            'labaTahunLalu',
-            'labaTahunTahun',
-            'grandTotalPenyusutan'
-        ));
+        return view('pages.finance.balance.print', $this->hitungDataBalance($year));
     }
+
+    public function detailBulanBalance($year, $month)
+    {
+        return view('pages.finance.balance.detail', $this->hitungDataBalance($year, $month));
+    }
+
+    public function detailTahunBalance($year)
+    {
+        return view('pages.finance.balance.detail', $this->hitungDataBalance($year));
+    }
+
     public function indexEquity()
     {
 
@@ -646,61 +605,70 @@ class Expensecontroller extends Controller
         // dd($months);
         return view('pages.finance.equity.index', compact('years', 'months'));
     }
+    /**
+     * Kumpulan data Equity Statement (dipakai bareng oleh halaman print & detail,
+     * baik mode bulanan maupun tahunan) supaya kalkulasinya cuma ada di satu tempat.
+     */
+    private function hitungDataEquity($year, $month = null)
+    {
+        if ($month) {
+            $startDate = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
+            $endDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
+            $start = Carbon::create($year, $month, 1)->startOfMonth();
+        } else {
+            $startDate = Carbon::create($year, 1, 1)->startOfMonth()->toDateString();
+            $endDate = Carbon::create($year, 12, 1)->endOfMonth()->toDateString();
+            $start = Carbon::create($year, 1, 1)->startOfMonth();
+        }
+        $end = Carbon::today();
+
+        $prive = DetailExpense::where('id_account', 51)->sum('amount');
+        $labaTahunLalu = $this->hitungLabaTahunan($year - 1);
+
+        $startStringYear = $start->translatedFormat('j M');
+        $startString = $start->translatedFormat('j M Y');
+        $endString = $end->translatedFormat('j M Y');
+
+        $data = compact(
+            'startDate',
+            'endDate',
+            'startString',
+            'startStringYear',
+            'endString',
+            'prive',
+            'labaTahunLalu',
+            'month'
+        );
+
+        if ($month) {
+            $data['labaBulanIni'] = $this->hitungLabaBulanan($year, $month);
+            $data['labaTahunTahun'] = $this->hitungLabaTahunSebelumnya($year, $month);
+        } else {
+            $data['labaTahunIni'] = $this->hitungLabaTahunan($year);
+            $data['labaTahunTahun'] = $this->hitungLabaTahunSebelumnya($year, month: 12);
+        }
+
+        return $data;
+    }
+
     public function printBulanEquity($year, $month)
     {
-        $startDate = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
-        $endDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
-        $start = Carbon::create($year, $month, 1)->startOfMonth();
-        $end = Carbon::today();
-
-        $prive = DetailExpense::where('id_account', 51)->sum('amount');
-        $labaBulanIni = $this->hitungLabaBulanan($year, $month);
-        $labaTahunLalu = $this->hitungLabaTahunan($year - 1);
-        $labaTahunTahun = $this->hitungLabaTahunSebelumnya($year, $month);
-        // $labaBulanBulan = $this->hitungLabaBulanSebelumnya($year, month: $month);
-
-        $startStringYear = $start->translatedFormat('j M');
-        $startString = $start->translatedFormat('j M Y');
-        $endString = $end->translatedFormat('j M Y');
-        return view('pages.finance.equity.print', compact(
-            'startDate',
-            'endDate',
-            'startString',
-            'startStringYear',
-            'endString',
-            'prive',
-            'labaBulanIni',
-            'labaTahunLalu',
-            'labaTahunTahun',
-            'month'
-        ));
+        return view('pages.finance.equity.print', $this->hitungDataEquity($year, $month));
     }
+
     public function printTahunEquity($year)
     {
-        $startDate = Carbon::create($year, 1, 1)->startOfMonth()->toDateString();
-        $endDate = Carbon::create($year, 12, 1)->endOfMonth()->toDateString();
-        $start = Carbon::create($year, 1, 1)->startOfMonth();
-        $end = Carbon::today();
+        return view('pages.finance.equity.print', $this->hitungDataEquity($year));
+    }
 
-        $prive = DetailExpense::where('id_account', 51)->sum('amount');
-        $labaTahunIni = $this->hitungLabaTahunan($year);
-        $labaTahunLalu = $this->hitungLabaTahunan($year - 1);
-        $labaTahunTahun = $this->hitungLabaTahunSebelumnya($year, month: 12);
+    public function detailBulanEquity($year, $month)
+    {
+        return view('pages.finance.equity.detail', $this->hitungDataEquity($year, $month));
+    }
 
-        $startStringYear = $start->translatedFormat('j M');
-        $startString = $start->translatedFormat('j M Y');
-        $endString = $end->translatedFormat('j M Y');
-        return view('pages.finance.equity.print', compact(
-            'startDate',
-            'endDate',
-            'startString',
-            'startStringYear',
-            'endString',
-            'prive',
-            'labaTahunIni',
-            'labaTahunLalu',
-            'labaTahunTahun',
-        ));
+    public function detailTahunEquity($year)
+    {
+        return view('pages.finance.equity.detail', $this->hitungDataEquity($year));
     }
     public function indexCashflow()
     {
@@ -726,16 +694,54 @@ class Expensecontroller extends Controller
 
             $cursor->addMonth();
         }
+        // Ringkasan bulan & tahun berjalan buat preview di halaman index (biar gak "blind pick" periode)
+        $now = Carbon::now();
+        $ringkasanBulan = $this->ringkasanCashflowDari($this->hitungDataCashflow($now->year, $now->month));
+        $ringkasanTahun = $this->ringkasanCashflowDari($this->hitungDataCashflow($now->year));
+        $ringkasanBulanLabel = $now->translatedFormat('F Y');
+        $ringkasanTahunLabel = $now->format('Y');
+
         // dd($months);
-        return view('pages.finance.cashflow.index', compact('years', 'months'));
+        return view('pages.finance.cashflow.index', compact(
+            'years',
+            'months',
+            'ringkasanBulan',
+            'ringkasanTahun',
+            'ringkasanBulanLabel',
+            'ringkasanTahunLabel'
+        ));
     }
-    public function printBulanCashflow($year, $month)
+
+    /**
+     * Ringkas hasil hitungDataCashflow() jadi 4 angka summary (Kas Masuk/Keluar Operasi,
+     * Net Investasi, Net Pendanaan) buat ditampilkan sebagai stat card di halaman index.
+     */
+    private function ringkasanCashflowDari(array $data)
     {
-        $startDate = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
-        $endDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
-        $start = Carbon::create($year, $month, 1)->startOfMonth();
+        return [
+            'kasMasuk' => $data['quotation'] + $data['income'],
+            'kasKeluar' => $data['expenseSum'] + $data['outcome'],
+            'netInvestasi' => $data['disposalProceeds'] - $data['assetPurchase'],
+            'netPendanaan' => -$data['prive'],
+        ];
+    }
+
+    /**
+     * Kumpulan data Cashflow Statement (dipakai bareng oleh halaman print & detail,
+     * baik mode bulanan maupun tahunan) supaya kalkulasinya cuma ada di satu tempat.
+     */
+    private function hitungDataCashflow($year, $month = null)
+    {
+        if ($month) {
+            $startDate = Carbon::create($year, $month, 1)->startOfMonth()->toDateString();
+            $endDate = Carbon::create($year, $month, 1)->endOfMonth()->toDateString();
+            $start = Carbon::create($year, $month, 1)->startOfMonth();
+        } else {
+            $startDate = Carbon::create($year, 1, 1)->startOfMonth()->toDateString();
+            $endDate = Carbon::create($year, 12, 1)->endOfMonth()->toDateString();
+            $start = Carbon::create($year, 1, 1)->startOfMonth();
+        }
         $end = Carbon::today();
-        $grandTotalPenyusutan = 0;
 
         $quotation = Quotation::whereBetween('po_date', [$startDate, $endDate])->where('status', '100')->where('level', '1')->where('is_primary', '1')->sum('nett');
         $pendapatan = LabaRugi::whereBetween('date', [$start, $end])
@@ -746,13 +752,6 @@ class Expensecontroller extends Controller
             ->where('type', 'Biaya Lain')
             ->get();
         $outcome = $biaya->sum('amount');
-        $modal = Quotation::join('detail_quotation', 'quotation.id', '=', 'detail_quotation.id_quotation')
-            ->join('serial_product', 'detail_quotation.id_equivalent', '=', 'serial_product.id')
-            ->whereBetween('quotation.po_date', [$start, $end])
-            ->where('quotation.status', '100')
-            ->where('quotation.level', '1')
-            ->where('quotation.is_primary', '1')
-            ->sum('serial_product.price');
         $expensePerAccount = DB::table('detail_expense')
             ->join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
             ->join('account', 'account.id', '=', 'detail_expense.id_account')
@@ -805,7 +804,10 @@ class Expensecontroller extends Controller
         $startStringYear = $start->translatedFormat('j M');
         $startString = $start->translatedFormat('j M Y');
         $endString = $end->translatedFormat('j M Y');
-        return view('pages.finance.cashflow.print', compact(
+
+        $investasi = $this->hitungCashflowInvestasi($startDate, $endDate, $start, $end);
+
+        return compact(
             'startDate',
             'endDate',
             'startString',
@@ -822,108 +824,64 @@ class Expensecontroller extends Controller
             'quotation',
             'pendapatan',
             'expensePerAccount',
+            'expenseSum',
             'biaya',
+            'outcome',
             'prive',
-            // 'labaBulanIni',
-            // 'labaTahunLalu',
-            // 'labaTahunTahun',
             'grandTotalPenyusutan',
             'month'
-        ));
+        ) + $investasi;
     }
+
+    public function printBulanCashflow($year, $month)
+    {
+        return view('pages.finance.cashflow.print', $this->hitungDataCashflow($year, $month));
+    }
+
     public function printTahunCashflow($year)
     {
-        $startDate = Carbon::create($year, 1, 1)->startOfMonth()->toDateString();
-        $endDate = Carbon::create($year, 12, 1)->endOfMonth()->toDateString();
-        $start = Carbon::create($year, 1, 1)->startOfMonth();
-        $end = Carbon::today();
-        $grandTotalPenyusutan = 0;
+        return view('pages.finance.cashflow.print', $this->hitungDataCashflow($year));
+    }
 
-        $piutang = Payment::join('quotation as q', 'q.id', '=', 'payment.id_quotation')
-            ->join('users as u', 'u.id', '=', 'q.id_sales')
-            ->join('pic as p', 'q.id_pic', '=', 'p.id')->join('client as c', 'p.id_client', '=', 'c.id')
-            ->whereBetween('po_date', [$startDate, $endDate])
-            ->where('payment.type', 'Tempo')
-            ->where('payment.level', 0)
-            ->whereNotNULL('payment.due_date')
-            ->groupBy('payment.id')
-            ->sum('payment.amount');
-        $replace = DetailProduct::all();
-        $asset = $replace->sum(function ($replacement) {
-            return $replacement->modal * $replacement->stock;
-        });
-        $pIn = ProductIn::where('tax', '11')->whereBetween('date', [$startDate, $endDate])->sum('total');
-        $ppnMas = $pIn * 11 / 100;
-        $totalFixed = FixedAsset::sum('total');
-        $fixedAsset = FixedAsset::select('type', DB::raw('SUM(total) as total_amount'))
-            ->groupBy('type')
+    public function detailBulanCashflow($year, $month)
+    {
+        return view('pages.finance.cashflow.detail', $this->hitungDataCashflow($year, $month));
+    }
+
+    public function detailTahunCashflow($year)
+    {
+        return view('pages.finance.cashflow.detail', $this->hitungDataCashflow($year));
+    }
+
+    /**
+     * Data Aktivitas Investasi untuk Cashflow Statement: pembelian aset tetap, hasil
+     * penjualan/disposal, laba-rugi disposal, dan penyusutan yang dibebankan HANYA
+     * di periode laporan (bukan akumulasi sepanjang umur aset).
+     */
+    private function hitungCashflowInvestasi($startDate, $endDate, $start, $end)
+    {
+        $assetPurchase = FixedAsset::whereBetween('beli', [$startDate, $endDate])->sum('total');
+
+        $disposedAssets = FixedAsset::where('is_disposed', true)
+            ->whereBetween('tanggal_disposal', [$startDate, $endDate])
             ->get();
-        $penyusutan = FixedAsset::all()->groupBy('type')->map(function ($assets, $type) {
-            $total = 0;
-            foreach ($assets as $asset) {
-                $bulan = min(
-                    Carbon::parse($asset->beli)->diffInMonths(now()),
-                    $asset->umur
-                );
+        $disposalProceeds = $disposedAssets->sum('harga_jual_final');
+        $labaRugiDisposal = $disposedAssets->sum(function ($a) {
+            return $a->harga_jual_final - $a->nilai_buku_disposal;
+        });
 
-                $total += (($asset->total * 0.25) / 12) * $bulan;
+        $penyusutanPeriode = FixedAsset::all()->sum(function ($asset) use ($start, $end) {
+            $assetStart = Carbon::parse($asset->beli);
+            $assetEnd = $assetStart->copy()->addMonths($asset->umur);
+            $overlapStart = $assetStart->greaterThan($start) ? $assetStart : $start;
+            $overlapEnd = $assetEnd->lessThan($end) ? $assetEnd : $end;
+            if ($overlapEnd->lessThanOrEqualTo($overlapStart)) {
+                return 0;
             }
-            return [
-                'type' => $type,
-                'total_penyusutan' => $total
-            ];
+            return (($asset->total * 0.25) / 12) * $overlapStart->diffInMonths($overlapEnd);
         });
-        $grandTotalPenyusutan = $penyusutan->sum('total_penyusutan');
-        $quotation = Quotation::where('status', '100')->whereBetween('po_date', [$startDate, $endDate])->where('level', '1')->where('is_primary', '1')->sum('nett');
-        $pendapatan = LabaRugi::whereBetween('date', [$start, $end])
-            ->where('type', 'Pendapatan Lain')
-            ->get();
-        $income = $pendapatan->sum('amount');
-        // dd($endDate);
-        $ppnKel = $quotation * 11 / 100;
-        $prive = DetailExpense::where('id_account', 51)->sum('amount');
-        $expensePerAccount = DB::table('detail_expense')
-            ->join('expense as e', 'e.id', '=', 'detail_expense.id_expense')
-            ->join('account', 'account.id', '=', 'detail_expense.id_account')
-            ->whereBetween('e.date', [$startDate, $endDate])
-            ->select(
-                'account.name',
-                DB::raw('SUM(detail_expense.amount) as total_amount')
-            )
-            ->groupBy('detail_expense.id_account', 'account.name')
-            ->get();
-        $expenseSum = $expensePerAccount->sum('total_amount');
 
-        $labaTahunIni = $this->hitungLabaTahunan($year);
-        $labaTahunLalu = $this->hitungLabaTahunan($year - 1);
-        $labaTahunTahun = $this->hitungLabaTahunSebelumnya($year, month: 12);
-
-        $startStringYear = $start->translatedFormat('j M');
-        $startString = $start->translatedFormat('j M Y');
-        $endString = $end->translatedFormat('j M Y');
-        return view('pages.finance.cashflow.print', compact(
-            'startDate',
-            'endDate',
-            'startString',
-            'startStringYear',
-            'endString',
-            'piutang',
-            'asset',
-            'income',
-            'pendapatan',
-            'expensePerAccount  ',
-            'ppnMas',
-            'ppnKel',
-            'totalFixed',
-            'fixedAsset',
-            'penyusutan',
-            'quotation',
-            'prive',
-            'labaTahunIni',
-            'labaTahunLalu',
-            'labaTahunTahun',
-            'grandTotalPenyusutan'
-        ));
+        return compact('assetPurchase', 'disposalProceeds', 'labaRugiDisposal', 'penyusutanPeriode');
     }
 
     private function hitungLabaTahunan($year)

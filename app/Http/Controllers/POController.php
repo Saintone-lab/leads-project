@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailPurchaseOrder;
+use App\Models\Product;
 use App\Models\PurchaseOrder;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
@@ -28,7 +29,9 @@ class POController extends Controller
     {
         $suppliers = Supplier::all();
         $previewNoPo = $this->generateNoPo();
-        return view('pages.accounting.purchase.form', compact('suppliers', 'previewNoPo'));
+        $units = \App\Models\Unit::where('type', 'global')->orderBy('brand')->get();
+        $products = Product::orderBy('commodity')->get();
+        return view('pages.accounting.purchase.form', compact('suppliers', 'previewNoPo', 'units', 'products'));
     }
 
     private function generateNoPo(): string
@@ -62,9 +65,11 @@ class POController extends Controller
         $this->validate($request, $rule);
 
         $supplier = Supplier::find($request->supplier);
+        $itemCategories = $request->item_category ?? [];
         $purchase = new PurchaseOrder();
         $purchase->id_supplier = $request->supplier;
         $purchase->no_po = $request->no_po;
+        $purchase->category = in_array('Unit', $itemCategories) ? 'Unit' : 'Sparepart';
         $purchase->company = $supplier->supplier;
         $purchase->attn = $request->attn;
         $purchase->mobile = $request->mobile ?? '';
@@ -83,9 +88,13 @@ class POController extends Controller
         $dPurchaseSave = true;
         if ($purchaseSave) {
             foreach ($request->product as $key => $value) {
+                $itemCategory = $itemCategories[$key] ?? 'Sparepart';
                 $dPurchase = new DetailPurchaseOrder();
                 $dPurchase->id_purchase_order = $purchase->id;
                 $dPurchase->product = $value;
+                $dPurchase->category = $itemCategory;
+                $dPurchase->id_unit = $itemCategory == 'Unit' ? ($request->id_unit[$key] ?? null) : null;
+                $dPurchase->id_product = $itemCategory == 'Sparepart' ? ($request->id_product[$key] ?? null) : null;
                 $dPurchase->qty = $request->qty[$key];
                 $dPurchase->info_qty = $request->info_qty[$key];
                 $dPurchase->price = $request->price[$key];
@@ -129,7 +138,9 @@ class POController extends Controller
         $purchase = PurchaseOrder::find($id);
         $dPurchase = DetailPurchaseOrder::where('id_purchase_order', $id)->get();
         $suppliers = Supplier::all();
-        return view('pages.accounting.purchase.form', compact('suppliers', 'purchase', 'dPurchase'));
+        $units = \App\Models\Unit::where('type', 'global')->orderBy('brand')->get();
+        $products = Product::orderBy('commodity')->get();
+        return view('pages.accounting.purchase.form', compact('suppliers', 'purchase', 'dPurchase', 'units', 'products'));
     }
 
     /**
@@ -145,9 +156,11 @@ class POController extends Controller
             'no_po' => 'required|string|unique:purchase_order,no_po,' . $id,
         ]);
         $supplier = Supplier::find($request->supplier);
+        $itemCategories = $request->item_category ?? [];
         $purchase = PurchaseOrder::find($id);
         $purchase->id_supplier = $request->supplier;
         $purchase->no_po = $request->no_po;
+        $purchase->category = in_array('Unit', $itemCategories) ? 'Unit' : 'Sparepart';
         $purchase->company = $supplier->supplier;
         $purchase->attn = $request->attn;
         $purchase->mobile = $request->mobile ?? '';
@@ -167,6 +180,7 @@ class POController extends Controller
         if ($purchaseSave) {
             $submittedIds = [];
             foreach ($request->product as $key => $value) {
+                $itemCategory = $itemCategories[$key] ?? 'Sparepart';
                 $detailId = $request->detail_id[$key] ?? null;
                 $dPurchase = $detailId ? DetailPurchaseOrder::find($detailId) : null;
                 if (!$dPurchase) {
@@ -174,6 +188,9 @@ class POController extends Controller
                     $dPurchase->id_purchase_order = $purchase->id;
                 }
                 $dPurchase->product = $value;
+                $dPurchase->category = $itemCategory;
+                $dPurchase->id_unit = $itemCategory == 'Unit' ? ($request->id_unit[$key] ?? null) : null;
+                $dPurchase->id_product = $itemCategory == 'Sparepart' ? ($request->id_product[$key] ?? null) : null;
                 $dPurchase->qty = $request->qty[$key];
                 $dPurchase->info_qty = $request->info_qty[$key];
                 $dPurchase->price = $request->price[$key];

@@ -18,6 +18,7 @@ use App\Models\MachineTemplate;
 use App\Models\Payment;
 use App\Models\PendingPO;
 use App\Models\Pic;
+use App\Models\PurchaseRequest;
 use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Quotation;
@@ -28,6 +29,7 @@ use App\Models\Termncon;
 use App\Models\Unit;
 use App\Models\Suo;
 use App\Models\User;
+use App\Services\DeletionGuardService;
 use Carbon\Carbon;
 use File;
 use Illuminate\Support\Facades\Auth;
@@ -58,8 +60,8 @@ class QuotationController extends Controller
         $loss = $salesStats['loss_sum'];
         $lossCount = $salesStats['loss_count'];
 
-        // Admin card stats:
-        $adminStats = $this->calculateCardStats($currentYear, null);
+        // Admin card stats: sama persis dengan $salesStats di atas (currentYear, null) — reuse, jangan query ulang
+        $adminStats = $salesStats;
         $forecastAdmin = $adminStats['forecast_sum'];
         $forecastAdminCount = $adminStats['forecast_count'];
         $prospectAdmin = $adminStats['prospect_sum'];
@@ -146,16 +148,16 @@ class QuotationController extends Controller
     {
         $year = $request->get('year', now()->year);
         $salesId = $request->get('sales_id');
-        
+
         $stats = $this->calculateCardStats($year, $salesId);
-        
+
         return response()->json($stats);
     }
 
     private function calculateCardStats($year, $salesId = null)
     {
         $isAdmin = Auth::user()->role === 'Admin';
-        
+
         // 1. Forecast (Quotation)
         $qForecast = \DB::table('quotation as q')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
@@ -163,7 +165,7 @@ class QuotationController extends Controller
             ->where('q.level', '1')
             ->where('q.is_primary', '1')
             ->where('q.type', '!=', 'Unit');
-            
+
         // 2. Hot Prospect
         $qProspect = \DB::table('quotation as q')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
@@ -171,24 +173,24 @@ class QuotationController extends Controller
             ->where('q.level', '1')
             ->where('q.is_primary', '1')
             ->where('q.type', '!=', 'Unit');
-            
+
         $uqProspect = \DB::table('unit_quotation as uq')
             ->join('users as u2', 'u2.id', '=', 'uq.id_sales')
             ->where('uq.status', 'hot_prospect')
             ->where('uq.is_latest', 1);
-            
+
         // 3. Purchase Order
         $qPo = \DB::table('quotation as q')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
             ->where('q.status', '100')
             ->where('q.level', '1')
             ->where('q.is_primary', '1');
-            
+
         $uqPo = \DB::table('unit_quotation as uq')
             ->join('users as u2', 'u2.id', '=', 'uq.id_sales')
             ->where('uq.status', 'po_received')
             ->where('uq.is_latest', 1);
-            
+
         // 4. Loss Order
         $qLoss = \DB::table('quotation as q')
             ->join('users as u', 'u.id', '=', 'q.id_sales')
@@ -221,7 +223,7 @@ class QuotationController extends Controller
             $qProspect->whereYear('q.estimated_date', $yearInt);
             $uqProspect->whereYear('uq.date', $yearInt);
             $qPo->whereYear('q.po_date', $yearInt);
-            
+
             $uqPo->whereExists(function($query) use ($yearInt) {
                 $query->select(\DB::raw(1))
                       ->from('unit_quotation_status_history as sh')
@@ -229,7 +231,7 @@ class QuotationController extends Controller
                       ->where('sh.status', 'po_received')
                       ->whereYear('sh.created_at', $yearInt);
             });
-            
+
             $qLoss->whereYear('q.estimated_date', $yearInt);
         }
 
@@ -242,11 +244,11 @@ class QuotationController extends Controller
         $prospectItems = $qProspect->select('q.primary_id', \DB::raw('MAX(q.subtotal) as subtotal'))->groupBy('q.primary_id')->get();
         $prospectSumQ = $prospectItems->sum('subtotal') ?? 0;
         $prospectCountQ = $prospectItems->count();
-        
+
         $uqProspectItems = $uqProspect->select('uq.subtotal')->get();
         $prospectSumUQ = $uqProspectItems->sum('subtotal') ?? 0;
         $prospectCountUQ = $uqProspectItems->count();
-        
+
         $prospectSum = $prospectSumQ + $prospectSumUQ;
         $prospectCount = $prospectCountQ + $prospectCountUQ;
 
@@ -254,11 +256,11 @@ class QuotationController extends Controller
         $poItems = $qPo->select('q.nett')->get();
         $poSumQ = $poItems->sum('nett') ?? 0;
         $poCountQ = $poItems->count();
-        
+
         $uqPoItems = $uqPo->select(\DB::raw('(uq.total - uq.tax_amount) as nett'))->get();
         $poSumUQ = $uqPoItems->sum('nett') ?? 0;
         $poCountUQ = $uqPoItems->count();
-        
+
         $poSum = $poSumQ + $poSumUQ;
         $poCount = $poCountQ + $poCountUQ;
 
@@ -282,7 +284,7 @@ class QuotationController extends Controller
     public function searchProducts(Request $request)
     {
         $search = $request->input('q');
-        
+
         $query = \DB::table('product')
             ->join('serial_product as s', 's.id_product', '=', 'product.id')
             ->select([
@@ -962,6 +964,20 @@ class QuotationController extends Controller
     public function destroy($id)
     {
         $quotation = Quotation::find($id);
+
+        if (!$quotation) {
+            return response()->json(['error' => 'Quotation not found.'], 404);
+        }
+
+        $guard = app(DeletionGuardService::class);
+        $check = $guard->checkQuotationDeletion($quotation);
+
+        if (!$check['allowed']) {
+            return response()->json([
+                'error' => 'Quotation tidak dapat dihapus karena masih memiliki relasi aktif: ' . implode(', ', $check['reasons']),
+            ], 422);
+        }
+
         $quote = Quotation::where('primary_id', $quotation->primary_id)->where('num_rev', $quotation->num_rev - 1)->first();
         $quotes = Quotation::where('primary_id', $quotation->primary_id)->where('level', '1')->get();
 
@@ -1124,8 +1140,97 @@ class QuotationController extends Controller
             }
             $pending->id_quotation = $quotation->primary_id;
             $pending->no_pending = $request->no_pending;
+            $pending->delivery = $request->ekspidisi;
+            $combine = $request->has('combine_shipping_and_parts') || $request->combine_shipping_and_parts == 1;
+            $pending->combine_shipping_and_parts = $combine;
+
+            $ship_type = $request->input('shipping_address_type', 'customer');
+            $ship_manual = $ship_type === 'manual' ? $request->input('shipping_address_manual') : ($ship_type !== 'customer' ? $ship_type : null);
+
+            $pending->shipping_address_type = ($ship_type === 'customer') ? 'customer' : 'manual';
+            $pending->shipping_address_manual = $ship_manual;
+
+            if ($combine) {
+                $pending->doc_address_type = $pending->shipping_address_type;
+                $pending->doc_address_manual = $pending->shipping_address_manual;
+                $pending->charged = $request->input('charged');
+                $pending->doc_charged = null;
+                $pending->shipping_charged = null;
+                $pending->doc_recipient_id = $request->input('shipping_recipient_id');
+                $pending->shipping_recipient_id = $request->input('shipping_recipient_id');
+            } else {
+                $doc_type = $request->input('doc_address_type', 'customer');
+                $doc_manual = $doc_type === 'manual' ? $request->input('doc_address_manual') : ($doc_type !== 'customer' ? $doc_type : null);
+
+                $pending->doc_address_type = ($doc_type === 'customer') ? 'customer' : 'manual';
+                $pending->doc_address_manual = $doc_manual;
+                $pending->charged = null;
+                $pending->doc_charged = $request->input('doc_charged');
+                $pending->shipping_charged = $request->input('shipping_charged');
+                $pending->doc_recipient_id = $request->input('doc_recipient_id');
+                $pending->shipping_recipient_id = $request->input('shipping_recipient_id');
+            }
             $pending->date = Carbon::now();
             $pending->save();
+
+            if ($quotation->type == 'Sparepart') {
+                foreach ($detQuote as $item) {
+                    if ($item->id_equivalent != '0') {
+                        $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')
+                            ->where('sp.id', $item->id_equivalent)
+                            ->select('product.*')
+                            ->first();
+
+                        if ($product) {
+                            $bdgStock = $product->stock ?? 0;
+                            $bksStock = $product->warehouse_stock ?? 0;
+                            $totalStock = $bdgStock + $bksStock;
+
+                            $bdgAlloc = 0;
+                            $bksAlloc = 0;
+
+                            if ($totalStock >= $item->qty) {
+                                $item->status = 2; // Ready Stock
+                                if ($bdgStock >= $item->qty) {
+                                    $bdgAlloc = $item->qty;
+                                    $bksAlloc = 0;
+                                } else {
+                                    $bdgAlloc = $bdgStock;
+                                    $bksAlloc = $item->qty - $bdgStock;
+                                }
+                                $item->note = 'Auto Allocated & Reserved (Ready Stock)';
+                            } else {
+                                $item->status = 3; // Kurang
+                                $bdgAlloc = $bdgStock;
+                                $bksAlloc = $bksStock;
+                                $item->note = 'Auto Allocated & Reserved (Kurang). Kept available stock: BDG ' . $bdgAlloc . ', BKS ' . $bksAlloc;
+
+                                // Auto Create Purchase Request for the missing quantity
+                                $missingQty = $item->qty - $totalStock;
+                                $pr = new PurchaseRequest();
+                                $pr->no_pr = $this->generateNoPr();
+                                $pr->id_pending = $pending->id;
+                                $pr->id_user = Auth::id() ?? $quotation->id_sales;
+                                $pr->id_equivalent = $item->id_equivalent;
+                                $pr->qty = $missingQty;
+                                $pr->status = '0';
+                                $pr->date = Carbon::now();
+                                $pr->note = 'Otomatis dibuat oleh sistem karena stok kurang (Butuh: ' . $item->qty . ', Tersedia: ' . $totalStock . ')';
+                                $pr->save();
+                            }
+
+                            $product->stock -= $bdgAlloc;
+                            $product->warehouse_stock -= $bksAlloc;
+                            $product->pending_stock += ($bdgAlloc + $bksAlloc);
+                            $product->save();
+
+                            $item->bdg = $bdgAlloc;
+                            $item->bks = $bksAlloc;
+                            $item->save();
+                        }
+                    }
+                }
+            }
 
             if ($quotation->type != 'Sparepart') {
                 foreach ($subQuote as $subtitle) {
@@ -1385,12 +1490,99 @@ class QuotationController extends Controller
             $pending->project_category = $request->input('project_category', 'Service PM');
             $pending->project_status_step = 1;
         }
-        $pending->charged = $request->charged;
         $pending->title = $request->title;
         $pending->no_pending = $request->no_pending;
         $pending->delivery = $request->ekspidisi;
+        $combine = $request->has('combine_shipping_and_parts') || $request->combine_shipping_and_parts == 1;
+        $pending->combine_shipping_and_parts = $combine;
+
+        $ship_type = $request->input('shipping_address_type', 'customer');
+        $ship_manual = $ship_type === 'manual' ? $request->input('shipping_address_manual') : ($ship_type !== 'customer' ? $ship_type : null);
+
+        $pending->shipping_address_type = ($ship_type === 'customer') ? 'customer' : 'manual';
+        $pending->shipping_address_manual = $ship_manual;
+
+        if ($combine) {
+            $pending->doc_address_type = $pending->shipping_address_type;
+            $pending->doc_address_manual = $pending->shipping_address_manual;
+            $pending->charged = $request->input('charged');
+            $pending->doc_charged = null;
+            $pending->shipping_charged = null;
+            $pending->doc_recipient_id = $request->input('shipping_recipient_id');
+            $pending->shipping_recipient_id = $request->input('shipping_recipient_id');
+        } else {
+            $doc_type = $request->input('doc_address_type', 'customer');
+            $doc_manual = $doc_type === 'manual' ? $request->input('doc_address_manual') : ($doc_type !== 'customer' ? $doc_type : null);
+
+            $pending->doc_address_type = ($doc_type === 'customer') ? 'customer' : 'manual';
+            $pending->doc_address_manual = $doc_manual;
+            $pending->charged = null;
+            $pending->doc_charged = $request->input('doc_charged');
+            $pending->shipping_charged = $request->input('shipping_charged');
+            $pending->doc_recipient_id = $request->input('doc_recipient_id');
+            $pending->shipping_recipient_id = $request->input('shipping_recipient_id');
+        }
         $pending->date = Carbon::now();
         $pending->save();
+
+        if ($quotation->type == 'Sparepart') {
+            foreach ($detQuote as $item) {
+                if ($item->id_equivalent != '0') {
+                    $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')
+                        ->where('sp.id', $item->id_equivalent)
+                        ->select('product.*')
+                        ->first();
+
+                    if ($product) {
+                        $bdgStock = $product->stock ?? 0;
+                        $bksStock = $product->warehouse_stock ?? 0;
+                        $totalStock = $bdgStock + $bksStock;
+
+                        $bdgAlloc = 0;
+                        $bksAlloc = 0;
+
+                        if ($totalStock >= $item->qty) {
+                            $item->status = 2; // Ready Stock
+                            if ($bdgStock >= $item->qty) {
+                                $bdgAlloc = $item->qty;
+                                $bksAlloc = 0;
+                            } else {
+                                $bdgAlloc = $bdgStock;
+                                $bksAlloc = $item->qty - $bdgStock;
+                            }
+                            $item->note = 'Auto Allocated & Reserved (Ready Stock)';
+                        } else {
+                            $item->status = 3; // Kurang
+                            $bdgAlloc = $bdgStock;
+                            $bksAlloc = $bksStock;
+                            $item->note = 'Auto Allocated & Reserved (Kurang). Kept available stock: BDG ' . $bdgAlloc . ', BKS ' . $bksAlloc;
+
+                            // Auto Create Purchase Request for the missing quantity
+                            $missingQty = $item->qty - $totalStock;
+                            $pr = new PurchaseRequest();
+                            $pr->no_pr = $this->generateNoPr();
+                            $pr->id_pending = $pending->id;
+                            $pr->id_user = Auth::id() ?? $quotation->id_sales;
+                            $pr->id_equivalent = $item->id_equivalent;
+                            $pr->qty = $missingQty;
+                            $pr->status = '0';
+                            $pr->date = Carbon::now();
+                            $pr->note = 'Otomatis dibuat oleh sistem karena stok kurang (Butuh: ' . $item->qty . ', Tersedia: ' . $totalStock . ')';
+                            $pr->save();
+                        }
+
+                        $product->stock -= $bdgAlloc;
+                        $product->warehouse_stock -= $bksAlloc;
+                        $product->pending_stock += ($bdgAlloc + $bksAlloc);
+                        $product->save();
+
+                        $item->bdg = $bdgAlloc;
+                        $item->bks = $bksAlloc;
+                        $item->save();
+                    }
+                }
+            }
+        }
 
         if ($quotation->type != 'Sparepart') {
             foreach ($subQuote as $subtitle) {
@@ -1701,6 +1893,22 @@ class QuotationController extends Controller
                 return response()->json(['error' => 'Quotation not found.'], 404);
             }
 
+            $guard = app(DeletionGuardService::class);
+            $check = $guard->checkQuotationDeletion($quote);
+            if (!$check['allowed']) {
+                return response()->json([
+                    'error' => 'PO tidak dapat dihapus karena quotation memiliki relasi aktif: ' . implode(', ', $check['reasons']),
+                ], 422);
+            }
+
+            $guard = app(DeletionGuardService::class);
+            $check = $guard->checkQuotationDeletion($quote);
+            if (!$check['allowed']) {
+                return response()->json([
+                    'error' => 'PO tidak dapat dihapus karena quotation memiliki relasi aktif: ' . implode(', ', $check['reasons']),
+                ], 422);
+            }
+
             $file_path = public_path($quote->po_file);
 
             if (file_exists($file_path)) {
@@ -1864,6 +2072,15 @@ class QuotationController extends Controller
         if (!$payment) {
             return response()->json(['error' => 'Quotation not found.'], 404);
         }
+
+        $guard = app(DeletionGuardService::class);
+        $check = $guard->checkPaymentDeletion($payment);
+        if (!$check['allowed']) {
+            return response()->json([
+                'error' => 'Payment tidak dapat dihapus karena ' . implode(', ', $check['reasons']),
+            ], 422);
+        }
+
         $paymentDel = $payment->delete();
         if ($invoice) {
             $invoice->type = 'CT';
@@ -2346,7 +2563,11 @@ class QuotationController extends Controller
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
         $quotation->week = $request->week;
-        $quotation->no_pr = NULL;
+        if ($request->no_pr != NULL) {
+            $quotation->no_pr = $request->no_pr;
+        } else {
+            $quotation->no_pr = NULL;
+        }
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
@@ -2469,7 +2690,11 @@ class QuotationController extends Controller
         $quotation->is_primary = '1';
         $quotation->num_rev = $lastQuote->num_rev + 1;
         $quotation->destination = $quote->destination;
-        $quotation->no_pr = NULL;
+        if ($request->no_pr != NULL) {
+            $quotation->no_pr = $request->no_pr;
+        } else {
+            $quotation->no_pr = NULL;
+        }
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
@@ -2953,7 +3178,11 @@ class QuotationController extends Controller
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
         $quotation->week = $request->week;
-        $quotation->no_pr = NULL;
+        if ($request->no_pr != NULL) {
+            $quotation->no_pr = $request->no_pr;
+        } else {
+            $quotation->no_pr = NULL;
+        }
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
@@ -3308,7 +3537,11 @@ class QuotationController extends Controller
         $quotation->is_primary = '1';
         $quotation->num_rev = $lastQuote->num_rev + 1;
         $quotation->destination = $quote->destination;
-        $quotation->no_pr = NULL;
+        if ($request->no_pr != NULL) {
+            $quotation->no_pr = $request->no_pr;
+        } else {
+            $quotation->no_pr = NULL;
+        }
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
@@ -3590,5 +3823,21 @@ class QuotationController extends Controller
         ];
 
         return $romanMonth[$month];
+    }
+
+    private function generateNoPr(): string
+    {
+        $year = now()->format('Y');
+        $month = now()->format('m');
+        $prefix = "PR/{$year}/{$month}/";
+
+        $last = PurchaseRequest::where('no_pr', 'like', $prefix . '%')
+            ->orderByDesc('no_pr')
+            ->value('no_pr');
+
+        $lastSeq = $last ? (int) substr($last, -3) : 0;
+        $nextSeq = str_pad($lastSeq + 1, 3, '0', STR_PAD_LEFT);
+
+        return $prefix . $nextSeq;
     }
 }

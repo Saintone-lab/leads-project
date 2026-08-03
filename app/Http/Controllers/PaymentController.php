@@ -19,7 +19,8 @@ class PaymentController extends Controller
 {
     public function index_invoice()
     {
-        return view('pages.accounting.payment.index-invoice');
+        $salesUsers = \App\Models\User::where('role', 'Sales')->orderBy('name', 'asc')->get();
+        return view('pages.accounting.payment.index-invoice', compact('salesUsers'));
     }
     public function index_invoice_ahmad()
     {
@@ -96,10 +97,11 @@ class PaymentController extends Controller
     }
     public function index_payment()
     {
-        $receipt = Payment::all()->sum('amount');
+        $salesUsers = \App\Models\User::where('role', 'Sales')->orderBy('name', 'asc')->get();
+        $receipt = Payment::sum('amount');
         $confirm = Payment::where('level', 1)->sum('amount');
         $unconfirm = Payment::where('level', 0)->sum('amount');
-        return view('pages.accounting.payment.index-payment', compact('receipt', 'confirm', 'unconfirm'));
+        return view('pages.accounting.payment.index-payment', compact('receipt', 'confirm', 'unconfirm', 'salesUsers'));
     }
     public function detail_payment($id)
     {
@@ -144,12 +146,12 @@ class PaymentController extends Controller
         $invoice = $spBase->clone()
             ->where('payment.level', 0)->whereNotNull('payment.due_date')
             ->groupBy('payment.id')
-            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales')->get()
+            ->select('payment.*', 'q.harga_total', 'q.tax', 'c.info', 'u.id as id_sales')->get()
             ->merge(
                 $uqBase->clone()
                     ->where('payment.level', 0)->whereNotNull('payment.due_date')
                     ->groupBy('payment.id')
-                    ->select('payment.*', 'uq.total as harga_total', 'c.info', 'u.id as id_sales')->get()
+                    ->select('payment.*', 'uq.total as harga_total', 'uq.tax', 'c.info', 'u.id as id_sales')->get()
             );
 
         $confirm = Payment::where('type', 'Tempo')->where('level', 1)->get();
@@ -169,48 +171,52 @@ class PaymentController extends Controller
             ->where('payment.level', 0)->whereNotNull('payment.due_date')
             ->whereDate('payment.due_date', '<=', Carbon::today())
             ->groupBy('payment.id')
-            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales')->get()
+            ->select('payment.*', 'q.harga_total', 'q.tax', 'c.info', 'u.id as id_sales')->get()
             ->merge(
                 $uqBase->clone()
                     ->where('payment.level', 0)->whereNotNull('payment.due_date')
                     ->whereDate('payment.due_date', '<=', Carbon::today())
                     ->groupBy('payment.id')
-                    ->select('payment.*', 'uq.total as harga_total', 'c.info', 'u.id as id_sales')->get()
+                    ->select('payment.*', 'uq.total as harga_total', 'uq.tax', 'c.info', 'u.id as id_sales')->get()
             );
 
         $ondue = $spBase->clone()
             ->where('payment.level', 0)->whereNotNull('payment.due_date')
             ->whereDate('payment.due_date', '>', Carbon::today())
             ->groupBy('payment.id')
-            ->select('payment.*', 'q.harga_total', 'c.info', 'u.id as id_sales')->get()
+            ->select('payment.*', 'q.harga_total', 'q.tax', 'c.info', 'u.id as id_sales')->get()
             ->merge(
                 $uqBase->clone()
                     ->where('payment.level', 0)->whereNotNull('payment.due_date')
                     ->whereDate('payment.due_date', '>', Carbon::today())
                     ->groupBy('payment.id')
-                    ->select('payment.*', 'uq.total as harga_total', 'c.info', 'u.id as id_sales')->get()
+                    ->select('payment.*', 'uq.total as harga_total', 'uq.tax', 'c.info', 'u.id as id_sales')->get()
             );
 
         $nodueCount = Payment::where('type', 'Tempo')->whereNull('due_date')->count();
 
-        return view('pages.accounting.payment.index-aging', compact('invoice', 'confirm', 'nodueCount', 'unconfirm', 'overdue', 'ondue'));
+        $salesUsers = \App\Models\User::where('role', 'Sales')->orderBy('name', 'asc')->get();
+
+        return view('pages.accounting.payment.index-aging', compact('invoice', 'confirm', 'nodueCount', 'unconfirm', 'overdue', 'ondue', 'salesUsers'));
     }
     public function detail_aging($id)
     {
         $payment = Payment::find($id);
         $today = Carbon::today();
         $diffDue = $today->diffInDays($payment->due_date, false);
-        $reminder = Reminder::where('id_payment', $id)->get();
+        $reminder = Reminder::where('id_payment', $id)->get()->sortByDesc('created_at')->values();
 
         if ($payment->id_unit_quotation) {
             $quote = $payment->unitQuotation;
             $invoice = Invoice::where('id_unit_quotation', $payment->id_unit_quotation)->whereNotNull('no_invoice')->first();
+            $isUnitQuotation = true;
         } else {
             $quote = Quotation::find($payment->id_quotation);
             $invoice = Invoice::where('id_quotation', $quote->id)->first();
+            $isUnitQuotation = false;
         }
 
-        return view('pages.accounting.payment.detail-aging', compact('reminder', 'diffDue', 'invoice', 'payment', 'quote'));
+        return view('pages.accounting.payment.detail-aging', compact('reminder', 'diffDue', 'invoice', 'payment', 'quote', 'isUnitQuotation'));
     }
     public function confirm_payment($id)
     {

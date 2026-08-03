@@ -86,6 +86,7 @@ class BastController extends Controller
                 'bast' => [
                     'id' => $bast->id,
                     'no_bast' => $bast->no_bast,
+                    'show_link' => route('bast.show', $bast->id),
                     'print_link' => route('bast.print', $bast->id),
                 ],
             ]);
@@ -188,6 +189,15 @@ class BastController extends Controller
         }
 
         return redirect()->route('bast.index')->with('success', 'BAST berhasil dihapus.');
+    }
+
+    public function show($id)
+    {
+        $this->guard();
+
+        $bast = Bast::with(['creator', 'units', 'kanbanTask.pendingPo'])->findOrFail($id);
+
+        return view('pages.accounting.bast.show', compact('bast'));
     }
 
     public function print($id)

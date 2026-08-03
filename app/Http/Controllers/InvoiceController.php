@@ -19,6 +19,7 @@ use App\Models\UnitQuotation;
 use Carbon\Carbon;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
@@ -47,7 +48,7 @@ class InvoiceController extends Controller
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
             ->count()
-            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
+            + Invoice::pendingUnitRequest()->count();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $activeTab = request('tab', 'reftech');
         return view('pages.accounting.invoice.index', compact('requestContract', 'requestInvoice', 'noSaleProspect', 'activeTab'));
@@ -97,7 +98,7 @@ class InvoiceController extends Controller
             ->whereNotNull('quotation.po_file')
             ->whereNull('invoice.no_invoice')
             ->count()
-            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
+            + Invoice::pendingUnitRequest()->count();
         $invoice = Invoice::find($id);
 
         // Unit quotation invoice — arahkan ke halaman yang benar
@@ -354,7 +355,7 @@ class InvoiceController extends Controller
             ->whereNotNull('client.npwp')
             ->whereNull('invoice.no_invoice')
             ->count()
-            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
+            + Invoice::pendingUnitRequest()->count();
         $dateNow = Carbon::now();
         $year = $dateNow->year;
         $month = $dateNow->month;
@@ -826,18 +827,81 @@ class InvoiceController extends Controller
     }
     public function due_date(Request $request, $id)
     {
-        $invoice = Invoice::find($id);
+        $invoice = Invoice::findOrFail($id);
+
+        $rawDueDate = $request->input('due_date');
+        $baseDate = $request->input('date') ? Carbon::parse($request->input('date')) : ($invoice->date ? Carbon::parse($invoice->date) : Carbon::today());
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawDueDate)) {
+            $dueDate = Carbon::parse($rawDueDate);
+        } elseif (is_numeric($rawDueDate)) {
+            $dueDate = (clone $baseDate)->addDays((int) $rawDueDate);
+        } else {
+            $dueDate = Carbon::parse($rawDueDate);
+        }
+
+        $daysCount = (int) (clone $baseDate)->diffInDays($dueDate, false);
+
         if ($invoice->id_unit_quotation) {
-            $lastPayment = Payment::where('id_unit_quotation', $invoice->id_unit_quotation)->orderByDesc('id')->first();
+            $payment = Payment::where('id_unit_quotation', $invoice->id_unit_quotation)
+                ->where('type', 'Tempo')
+                ->orderByDesc('id')
+                ->first();
+
+            if (!$payment) {
+                $payment = Payment::where('id_unit_quotation', $invoice->id_unit_quotation)->orderByDesc('id')->first();
+            }
+
+            if (!$payment) {
+                $quote = UnitQuotation::find($invoice->id_unit_quotation);
+                $payment = new Payment();
+                $payment->id_unit_quotation = $invoice->id_unit_quotation;
+                $payment->type              = 'Tempo';
+                $payment->amount            = $invoice->harga_total ?? ($quote->total ?? 0);
+                $payment->level             = 0;
+                $payment->date              = $invoice->date ? Carbon::parse($invoice->date)->toDateString() : now()->toDateString();
+            }
+
+            $payment->due_date = $dueDate->toDateString();
+            $payment->overdue  = $daysCount;
+            $payment->tempo    = $daysCount > 0 ? $daysCount : ($payment->tempo ?? 30);
+            if ($request->filled('note')) {
+                $payment->note = $request->note;
+            }
+            $payment->save();
+
+            return redirect()->route('invoice.show_unit', $id)
+                ->with('success', 'Tanggal jatuh tempo berhasil disimpan: ' . $dueDate->format('d M Y'));
         } else {
             $quote = Quotation::find($invoice->id_quotation);
-            $lastPayment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
-        }
-        $lastPayment->overdue = $request->due_date;
-        $lastPayment->due_date = Carbon::parse($request->date)->addDays($request->due_date);
-        $paymentSave = $lastPayment->save();
-        if ($paymentSave) {
-            return redirect('/invoice/' . $id)->with('message', 'Data telah terkirim');
+            $payment = Payment::where('id_quotation', $quote->id)
+                ->where('type', 'Tempo')
+                ->orderByDesc('id')
+                ->first();
+
+            if (!$payment) {
+                $payment = Payment::where('id_quotation', $quote->id)->orderByDesc('id')->first();
+            }
+
+            if (!$payment) {
+                $payment = new Payment();
+                $payment->id_quotation = $quote->id;
+                $payment->type         = 'Tempo';
+                $payment->amount       = $quote->harga_total ?? 0;
+                $payment->level        = 0;
+                $payment->date         = $invoice->date ? Carbon::parse($invoice->date)->toDateString() : now()->toDateString();
+            }
+
+            $payment->due_date = $dueDate->toDateString();
+            $payment->overdue  = $daysCount;
+            $payment->tempo    = $daysCount > 0 ? $daysCount : ($payment->tempo ?? 30);
+            if ($request->filled('note')) {
+                $payment->note = $request->note;
+            }
+            $payment->save();
+
+            return redirect()->route('invoice.show', $id)
+                ->with('message', 'Tanggal jatuh tempo berhasil disimpan: ' . $dueDate->format('d M Y'));
         }
     }
     public function confirm_payment(Request $request, $id)
@@ -974,7 +1038,7 @@ class InvoiceController extends Controller
     public function show_unit($id)
     {
         $invoice = Invoice::findOrFail($id);
-        $quote   = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit', 'deliveries'])->findOrFail($invoice->id_unit_quotation);
+        $quote   = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit', 'details.equivalent.product', 'deliveries'])->findOrFail($invoice->id_unit_quotation);
 
         $allInvoices = Invoice::where('id_unit_quotation', $quote->id)
             ->orderByRaw("FIELD(type,'DP','BP','CT')")
@@ -1000,7 +1064,7 @@ class InvoiceController extends Controller
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')->whereNotNull('client.npwp')
             ->whereNotNull('quotation.po_file')->whereNull('invoice.no_invoice')->count()
-            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
+            + Invoice::pendingUnitRequest()->count();
         $noSaleProspect = Prospect::whereNull('id_sales')->whereNull('provide')->count();
 
         return view('pages.accounting.invoice.detail-unit', compact(
@@ -1013,7 +1077,7 @@ class InvoiceController extends Controller
     public function print_unit($id)
     {
         $invoice       = Invoice::findOrFail($id);
-        $quote         = UnitQuotation::with(['client', 'pic', 'details.unit'])->findOrFail($invoice->id_unit_quotation);
+        $quote         = UnitQuotation::with(['client', 'pic', 'details.unit', 'details.equivalent.product'])->findOrFail($invoice->id_unit_quotation);
 
         $percent       = floatval($invoice->percent ?? 100);
         $invoiceAmount = round($quote->total * $percent / 100);
@@ -1031,7 +1095,7 @@ class InvoiceController extends Controller
     public function before_accept_unit($id)
     {
         $invoice = Invoice::findOrFail($id);
-        $quote   = UnitQuotation::with(['client', 'pic', 'details.unit', 'sales'])->findOrFail($invoice->id_unit_quotation);
+        $quote   = UnitQuotation::with(['client', 'pic', 'details.unit', 'details.equivalent.product', 'sales'])->findOrFail($invoice->id_unit_quotation);
 
         // Kumpulkan semua invoice untuk unit quotation ini (DP & BP → 2 record)
         $allInvoices = Invoice::where('id_unit_quotation', $quote->id)
@@ -1097,7 +1161,7 @@ class InvoiceController extends Controller
             ->join('users', 'users.id', '=', 'quotation.id_sales')
             ->where('status', '100')->whereNotNull('client.npwp')
             ->whereNotNull('quotation.po_file')->whereNull('invoice.no_invoice')->count()
-            + Invoice::whereNotNull('id_unit_quotation')->whereNull('no_invoice')->count();
+            + Invoice::pendingUnitRequest()->count();
         $noSaleProspect = Prospect::whereNull('id_sales')->whereNull('provide')->count();
 
         return view('pages.accounting.invoice.before-accept-unit', compact(
@@ -1131,6 +1195,34 @@ class InvoiceController extends Controller
         $justIssued = $pendingInvoices->first();
         return redirect()->route('invoice.show_unit', $justIssued->id)
             ->with('success', 'Invoice berhasil diterbitkan.');
+    }
+
+    /**
+     * Reject pengajuan invoice unit quotation — semua invoice yang masih pending
+     * (belum ada no_invoice) untuk unit quotation yang sama ikut di-reject sekaligus,
+     * sama seperti accept_unit() memproses semuanya bersamaan (DP & BP).
+     * Setelah di-reject, baris ini otomatis hilang dari listing Request Invoice
+     * (lihat Invoice::scopePendingUnitRequest()).
+     */
+    public function reject_unit(Request $request, $id)
+    {
+        $invoice = Invoice::findOrFail($id);
+        $quote   = UnitQuotation::findOrFail($invoice->id_unit_quotation);
+
+        $pendingInvoices = Invoice::where('id_unit_quotation', $quote->id)
+            ->whereNull('no_invoice')
+            ->whereNull('rejected_at')
+            ->get();
+
+        foreach ($pendingInvoices as $inv) {
+            $inv->rejected_at     = now();
+            $inv->rejected_reason = $request->input('reason');
+            $inv->rejected_by     = Auth::id();
+            $inv->save();
+        }
+
+        return redirect()->route('invoice.request')
+            ->with('success', 'Pengajuan invoice unit berhasil di-reject.');
     }
 
     private function terbilang($number)

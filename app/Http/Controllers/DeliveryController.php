@@ -108,10 +108,11 @@ class DeliveryController extends Controller
             return view('pages.suo.sj-detail', compact('delivery', 'dDelivery', 'suo', 'client'));
         }
 
-        // Unit Quotation delivery — tidak punya id_invoice
+        // Unit Quotation delivery
         if ($delivery->id_unit_quotation) {
             $unitQuote = UnitQuotation::with(['client', 'pic', 'sales'])->find($delivery->id_unit_quotation);
-            return view('pages.unit-quotation.sj-detail', compact('delivery', 'dDelivery', 'unitQuote'));
+            $invoice   = $delivery->id_invoice ? Invoice::find($delivery->id_invoice) : null;
+            return view('pages.unit-quotation.sj-detail', compact('delivery', 'dDelivery', 'unitQuote', 'invoice'));
         }
 
         $invoice  = Invoice::find($delivery->id_invoice);
@@ -156,8 +157,9 @@ class DeliveryController extends Controller
         $detDelevery = DetailDelivery::where('id_delivery', $id)->get();
 
         $delDelivery = $delivery->delete();
+        $delDetDelivery = true;
         foreach ($detDelevery as $product) {
-            $delDetDelivery = $product->delete();
+            $delDetDelivery = $product->delete() && $delDetDelivery;
         }
         if ($delDelivery && $delDetDelivery) {
             return 1;
@@ -258,10 +260,11 @@ class DeliveryController extends Controller
             return view($view, compact('delivery', 'dDelivery', 'suo', 'client'));
         }
 
-        // Unit Quotation delivery — tidak ada id_invoice
+        // Unit Quotation delivery
         if ($delivery->id_unit_quotation) {
             $unitQuote = UnitQuotation::with(['client', 'pic', 'sales'])->find($delivery->id_unit_quotation);
-            return view('pages.unit-quotation.sj-print', compact('delivery', 'dDelivery', 'unitQuote'));
+            $invoice   = $delivery->id_invoice ? Invoice::find($delivery->id_invoice) : null;
+            return view('pages.unit-quotation.sj-print', compact('delivery', 'dDelivery', 'unitQuote', 'invoice'));
         }
 
         $invoice  = Invoice::find($delivery->id_invoice);
@@ -322,5 +325,14 @@ class DeliveryController extends Controller
         } else {
             return redirect('/delivery/' . $id)->with('error', 'Terjadi kesalahan saat mengirim data');
         }
+    }
+
+    public function toggleItemView($id)
+    {
+        $item = DetailDelivery::findOrFail($id);
+        $item->view = $item->view == '1' ? '0' : '1';
+        $item->save();
+
+        return response()->json(['success' => true, 'view' => $item->view]);
     }
 }

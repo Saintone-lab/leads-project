@@ -50,33 +50,31 @@ class ServiceReportsController extends Controller
      */
     public function create()
     {
-        $sales = User::where('role', 'Sales')->get();
-        $clients = Client::all();
+        $sales = User::where('role', 'Sales')->select('id', 'name')->get();
+        $clients = Client::select('id', 'company', 'id_sales')->with('sales:id,name')->get();
         $dateNow = Carbon::now();
         $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
-        // default selections
+        
         $selectedSalesId = 23;
         $selectedClientId = 5568;
         $selectedPICId = null;
         $selectedMachineId = null;
 
-        return view('pages.technician.service-reports.form', compact('sales', 'pic', 'formattedNumberS', 'formattedMonthNow', 'clients', 'selectedSalesId', 'selectedClientId', 'selectedPICId', 'selectedMachineId'));
+        return view('pages.technician.service-reports.form', compact('sales', 'clients', 'formattedNumberS', 'formattedMonthNow', 'selectedSalesId', 'selectedClientId', 'selectedPICId', 'selectedMachineId'));
     }
 
     public function createByUnit($id_unit)
     {
-        $sales = User::where('role', 'Sales')->get();
-        $clients = Client::all();
+        $sales = User::where('role', 'Sales')->select('id', 'name')->get();
+        $clients = Client::select('id', 'company', 'id_sales')->with('sales:id,name')->get();
         $dateNow = Carbon::now();
         $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
 
         $machine = \App\Models\Machine::where('id_unit', $id_unit)->first();
         if (!$machine) {
@@ -90,10 +88,9 @@ class ServiceReportsController extends Controller
 
         return view('pages.technician.service-reports.form', compact(
             'sales',
-            'pic',
+            'clients',
             'formattedNumberS',
             'formattedMonthNow',
-            'clients',
             'selectedSalesId',
             'selectedClientId',
             'selectedPICId',
@@ -103,14 +100,13 @@ class ServiceReportsController extends Controller
 
     public function createByUnitMachine($id_unit, $id_machine)
     {
-        $sales = User::where('role', 'Sales')->get();
-        $clients = Client::all();
+        $sales = User::where('role', 'Sales')->select('id', 'name')->get();
+        $clients = Client::select('id', 'company', 'id_sales')->with('sales:id,name')->get();
         $dateNow = Carbon::now();
         $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
 
         $machine = \App\Models\Machine::with('unit')->find($id_machine);
         if (!$machine) {
@@ -122,11 +118,7 @@ class ServiceReportsController extends Controller
             $id_unit = $machine->id_unit;
         }
 
-        // Unit internal Reftech (belum ada customer nyata) — 5387 dipakai di
-        // seluruh app sebagai placeholder "belum ada client" (lihat UnitController,
-        // FixedController). Untuk kasus ini, Sales/Client/PIC dilewati karena
-        // memang belum ada, cukup pilih Machine-nya langsung.
-        $isInternalStock = $machine->id_client == 5387;
+        $isInternalStock = ($machine->id_client == 5387 || $machine->id_client == 1277);
 
         $selectedClientId = $machine->id_client ?? 5568;
         $selectedSalesId = optional(Client::find($selectedClientId))->id_sales ?? 23;
@@ -135,10 +127,9 @@ class ServiceReportsController extends Controller
 
         return view('pages.technician.service-reports.form', compact(
             'sales',
-            'pic',
+            'clients',
             'formattedNumberS',
             'formattedMonthNow',
-            'clients',
             'selectedSalesId',
             'selectedClientId',
             'selectedPICId',
@@ -159,14 +150,13 @@ class ServiceReportsController extends Controller
 
     public function createByMachine($id_machine)
     {
-        $sales = User::where('role', 'Sales')->get();
-        $clients = Client::all();
+        $sales = User::where('role', 'Sales')->select('id', 'name')->get();
+        $clients = Client::select('id', 'company', 'id_sales')->with('sales:id,name')->get();
         $dateNow = Carbon::now();
         $numberS = Reports::whereYear('date', $dateNow)->where('id_technician', Auth::user()->id)->count();
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->select('pic.*')->get();
 
         $machine = \App\Models\Machine::find($id_machine);
         if (!$machine) {
@@ -180,10 +170,9 @@ class ServiceReportsController extends Controller
 
         return view('pages.technician.service-reports.form', compact(
             'sales',
-            'pic',
+            'clients',
             'formattedNumberS',
             'formattedMonthNow',
-            'clients',
             'selectedSalesId',
             'selectedClientId',
             'selectedPICId',
@@ -242,6 +231,7 @@ class ServiceReportsController extends Controller
         $reports->id_machine = $request->machine;
         $reports->no_service = $request->no_service;
         $reports->type = $request->type;
+        $reports->pm_level = $request->pm_level;
         $reports->running = $request->running;
         $reports->load = $request->load;
         $reports->date = $request->date;
@@ -279,7 +269,8 @@ class ServiceReportsController extends Controller
      */
     public function edit($id)
     {
-        $sales = User::where('role', 'Sales')->get();
+        $sales = User::where('role', 'Sales')->select('id', 'name')->get();
+        $clients = Client::select('id', 'company', 'id_sales')->with('sales:id,name')->get();
         $report = Reports::find($id);
         $image = ReportsPict::where('id_reports', $id)->get();
         $dateNow = Carbon::now();
@@ -287,10 +278,8 @@ class ServiceReportsController extends Controller
         $formattedNumberS = str_pad($numberS + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $clients = Client::all();
-        $pic = Pic::all();
-        // dd($image);
-        return view('pages.technician.service-reports.form', compact('sales','pic', 'formattedNumberS', 'formattedMonthNow', 'report', 'image', 'clients'));
+        
+        return view('pages.technician.service-reports.form', compact('sales', 'clients', 'formattedNumberS', 'formattedMonthNow', 'report', 'image'));
     }
 
     /**
@@ -322,6 +311,7 @@ class ServiceReportsController extends Controller
         // $reports->id_technician = $request->technician;
         $reports->id_pic = $request->id_pic;
         $reports->type = $request->type;
+        $reports->pm_level = $request->pm_level;
         $reports->id_machine = $request->machine;
         // $reports->no_service = $request->no_service;
         $reports->running = $request->running;

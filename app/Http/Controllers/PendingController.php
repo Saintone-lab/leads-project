@@ -22,6 +22,7 @@ use App\Models\SerialProduct;
 use App\Models\ServiceOrder;
 use App\Models\SubtitleQuotation;
 use App\Models\ProjectExpense;
+use App\Models\UnitQuotation;
 use Auth;
 use Carbon\Carbon;
 use DB;
@@ -29,6 +30,14 @@ use Illuminate\Http\Request;
 
 class PendingController extends Controller
 {
+    private function hasApprovedInvoice(PendingPO $pending): bool
+    {
+        if ($pending->id_unit_quotation) {
+            return Invoice::where('id_unit_quotation', $pending->id_unit_quotation)->whereNotNull('no_invoice')->exists();
+        }
+        return Invoice::where('id_quotation', $pending->id_quotation)->whereNotNull('no_invoice')->exists();
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -120,6 +129,30 @@ class PendingController extends Controller
     public function show($id)
     {
         $pending = PendingPO::find($id);
+
+        if ($pending->id_unit_quotation) {
+            $quote = UnitQuotation::with(['client', 'pic', 'sales'])->findOrFail($pending->id_unit_quotation);
+            $invoices = Invoice::where('id_unit_quotation', $quote->id)->orderByRaw("FIELD(type,'DP','BP','CT')")->get();
+            $activity = ChangeStatus::where('id_pending', $id)->with('comment')->get();
+            $resis = Expanse::where('id_pending', $id)->where('type', 'Resi')->get();
+            $dPending = DetailPendingPO::where('id_pending', $id)->get();
+            $serial = SerialProduct::all();
+            $purchase = PurchaseRequest::where('id_pending', $id)->get();
+            $return = Retur::where('id_pending', $id)->get();
+            $allproductOut = ProductOut::leftJoin('pending_po', 'product_out.id', '=', 'pending_po.id_product_out')
+                ->whereNull('pending_po.id_product_out')
+                ->groupBy('product_out.id')
+                ->select('product_out.*')
+                ->get();
+            $product = ProductOut::find($pending->id_product_out);
+            $detProduct = DetailProductOut::where('id_product_out', $pending->id_product_out)->get();
+
+            return view('pages.pending.detail-unit', compact(
+                'pending', 'quote', 'invoices', 'activity', 'resis',
+                'dPending', 'serial', 'purchase', 'return', 'allproductOut', 'product', 'detProduct'
+            ));
+        }
+
         $quotation = Quotation::find($pending->id_quotation);
         $detQuotation = DetailQuotation::where('id_quotation', $pending->id_quotation)->get();
         $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $pending->id_quotation)->get();
@@ -127,6 +160,7 @@ class PendingController extends Controller
         $activity = ChangeStatus::where('id_pending', $id)->with('comment')->get();
         $serial = SerialProduct::all();
         $resi = Expanse::where('id_pending', $id)->where('type', 'Resi')->first();
+        $resis = Expanse::where('id_pending', $id)->where('type', 'Resi')->get();
         $product = ProductOut::find($pending->id_product_out);
         $detProduct = DetailProductOut::where('id_product_out', $pending->id_product_out)->get();
         $return = Retur::where('id_pending', $id)->get();
@@ -141,7 +175,7 @@ class PendingController extends Controller
 
         // dd($detail);
         // dd($status->count());
-        return view('pages.pending.detail', compact('purchase', 'serial', 'return', 'detProduct', 'activity', 'allproductOut', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi', 'product'));
+        return view('pages.pending.detail', compact('purchase', 'serial', 'return', 'detProduct', 'activity', 'allproductOut', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi', 'product', 'resis'));
     }
 
     /**
@@ -230,19 +264,33 @@ class PendingController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $pending = PendingPO::find($id);
+
+        if (!$pending) {
+            return redirect('/pending-po')->with('error', 'Pending PO tidak ditemukan');
+        }
+
+        $guard = app(DeletionGuardService::class);
+        $check = $guard->checkPendingDeletion($pending);
+        if (!$check['allowed']) {
+            return redirect('/pending-po')->with('error', 'Pending PO tidak dapat dihapus karena ' . implode(', ', $check['reasons']));
+        }
+
+        $pending->delete();
+
+        return redirect('/pending-po')->with('success', 'Pending PO berhasil dihapus');
     }
     public function connect_out(Request $request, $id)
     {
         $pending = PendingPO::find($id);
-        $quote = Quotation::find($pending->id_quotation);
-        $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
         $dPending = DetailPendingPO::where('id_pending', $id)->get();
         $cekstock = 0;
         foreach ($dPending as $detail) {
             $cekstock += $detail->bdg + $detail->bks;
         }
-        if ($cekstock == 0) {
+        if ($cekstock == 0 && !$pending->id_unit_quotation) {
+            $quote = Quotation::find($pending->id_quotation);
+            $dQuote = DetailQuotation::where('id_quotation', $quote->id)->get();
             foreach ($dQuote as $item) {
                 $equivalent = SerialProduct::find($item->id_equivalent);
                 $product = Product::find($equivalent->id_product);
@@ -329,7 +377,11 @@ class PendingController extends Controller
     }
     public function statusEdit(Request $request, $id)
     {
-        $pending = PendingPO::find($id);
+        $pending = PendingPO::findOrFail($id);
+        $hasApprovedInvoice = $this->hasApprovedInvoice($pending);
+        if (!$hasApprovedInvoice) {
+            return redirect()->back()->with('error', 'Proses logistik dikunci karena invoice belum di-approve oleh Accounting.');
+        }
         $pending->status = $request->status;
         $pending->save();
 
@@ -380,7 +432,32 @@ class PendingController extends Controller
                 return redirect('/pending-po/product-out/' . $id)->with('message', 'Status Product Pending PO telah diedit');
             }
         } else {
+            if (str_contains(request()->header('referer'), 'project-monitoring')) {
+                return redirect()->route('project-monitoring.show', $id)->with('success', 'Status proyek berhasil diperbarui.');
+            }
             return redirect('/pending-po/' . $id)->with('message', 'Status Product Pending PO telah diedit');
+        }
+    }
+    public function changeType($id)
+    {
+        $pending = PendingPO::findOrFail($id);
+
+        if ($pending->type === 'Project') {
+            $pending->type = 'Non Project';
+            $pending->project_category = null;
+            $pending->project_status_step = null;
+            $pending->save();
+
+            return redirect()->route('pending-po.show', $id)
+                ->with('message', 'Tipe pesanan berhasil dipindahkan ke Sales Order.');
+        } else {
+            $pending->type = 'Project';
+            $pending->project_category = 'Service PM';
+            $pending->project_status_step = 1;
+            $pending->save();
+
+            return redirect()->route('project-monitoring.show', $id)
+                ->with('success', 'Tipe pesanan berhasil dipindahkan ke Project Monitoring.');
         }
     }
     public function add_comment(Request $request, $id)
@@ -398,9 +475,43 @@ class PendingController extends Controller
             return redirect('/pending-po/' . $id)->with('message', 'Comment Pending PO telah dibuat');
         }
     }
+    public function updateAddresses(Request $request, $id)
+    {
+        $pending = PendingPO::findOrFail($id);
+        $combine = $request->has('combine_shipping_and_parts') || $request->combine_shipping_and_parts == 1;
+        $pending->combine_shipping_and_parts = $combine;
+
+        $ship_type = $request->input('shipping_address_type', 'customer');
+        $ship_manual = $ship_type === 'manual' ? $request->input('shipping_address_manual') : ($ship_type !== 'customer' ? $ship_type : null);
+
+        $pending->shipping_address_type = ($ship_type === 'customer') ? 'customer' : 'manual';
+        $pending->shipping_address_manual = $ship_manual;
+
+        if ($combine) {
+            $pending->doc_address_type = $pending->shipping_address_type;
+            $pending->doc_address_manual = $pending->shipping_address_manual;
+            $pending->doc_recipient_id = $request->input('shipping_recipient_id');
+            $pending->shipping_recipient_id = $request->input('shipping_recipient_id');
+        } else {
+            $doc_type = $request->input('doc_address_type', 'customer');
+            $doc_manual = $doc_type === 'manual' ? $request->input('doc_address_manual') : ($doc_type !== 'customer' ? $doc_type : null);
+
+            $pending->doc_address_type = ($doc_type === 'customer') ? 'customer' : 'manual';
+            $pending->doc_address_manual = $doc_manual;
+            $pending->doc_recipient_id = $request->input('doc_recipient_id');
+            $pending->shipping_recipient_id = $request->input('shipping_recipient_id');
+        }
+        $pending->save();
+
+        return redirect()->back()->with('message', 'Alamat pengiriman berhasil diperbarui.');
+    }
     public function deliveryEdit(Request $request, $id)
     {
-        $pending = PendingPO::find($id);
+        $pending = PendingPO::findOrFail($id);
+        $hasApprovedInvoice = $this->hasApprovedInvoice($pending);
+        if (!$hasApprovedInvoice) {
+            return redirect()->back()->with('error', 'Proses logistik dikunci karena invoice belum di-approve oleh Accounting.');
+        }
         $pending->delivery = $request->delivery;
         $pending->save();
         return redirect('/pending-po/' . $id)->with('message', 'Status Product Pending PO telah diedit');
@@ -460,7 +571,11 @@ class PendingController extends Controller
         ];
         $this->validate($request, $rule, $message);
         // dd($request->all());
-        $pending = PendingPO::find($id);
+        $pending = PendingPO::findOrFail($id);
+        $hasApprovedInvoice = $this->hasApprovedInvoice($pending);
+        if (!$hasApprovedInvoice) {
+            return redirect()->back()->with('error', 'Proses logistik dikunci karena invoice belum di-approve oleh Accounting.');
+        }
         // Masukan Data ke Tabel Product Out
         $productOut = new ProductOut();
         $productOut->id_user = Auth::user()->id;
@@ -516,13 +631,20 @@ class PendingController extends Controller
         $selectedYear = $request->get('year', date('Y'));
 
         // Query available years for filter dropdown (both Project and Non Project)
-        $availableYears = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
-            ->whereNotNull('q.po_date')
-            ->selectRaw('YEAR(q.po_date) as year')
-            ->distinct()
-            ->orderBy('year', 'desc')
-            ->pluck('year')
-            ->toArray();
+        // Satu query untuk semua PendingPO, dipakai ulang untuk Non Project & Project di bawah
+        // (sebelumnya 3x query PendingPO::get() terpisah untuk hal yang sama)
+        $allPending = PendingPO::with([
+            'quote.pic.client',
+            'quote.sales',
+            'quote.invoice',
+            'unitQuotation.client',
+            'unitQuotation.sales',
+        ])->get();
+
+        $availableYears = $allPending->map(function ($pending) {
+            $date = $pending->quote?->po_date ?? $pending->date;
+            return $date ? Carbon::parse($date)->year : null;
+        })->filter()->unique()->sortDesc()->values()->all();
 
         $currentYear = intval(date('Y'));
         if (!in_array($currentYear, $availableYears)) {
@@ -533,46 +655,55 @@ class PendingController extends Controller
         // ==========================================
         // 1. SALES ORDER (Non Project) DATA
         // ==========================================
-        $sorderQuery = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
-            ->join('pic as p', 'q.id_pic', '=', 'p.id')
-            ->join('client as c', 'p.id_client', '=', 'c.id')
-            ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->where('pending_po.type', 'Non Project');
+        $allOrders = $allPending->where('type', 'Non Project')->values();
 
         if ($selectedYear !== 'all') {
-            $sorderQuery->whereYear('q.po_date', $selectedYear);
+            $allOrders = $allOrders->filter(function ($order) use ($selectedYear) {
+                $date = $order->quote?->po_date ?? $order->date;
+                return $date && Carbon::parse($date)->year == $selectedYear;
+            });
         }
 
         if ($role === 'Sales') {
-            $sorderQuery->where('q.id_sales', Auth::id());
+            $allOrders = $allOrders->filter(function ($order) {
+                $quoteSales = $order->quote?->id_sales;
+                $unitSales = $order->unitQuotation?->id_sales;
+                return ($quoteSales == Auth::id()) || ($unitSales == Auth::id());
+            });
         }
 
-        $allOrders = $sorderQuery->select(
-            'pending_po.id',
-            'pending_po.no_pending',
-            'pending_po.title',
-            'pending_po.status',
-            'q.po_date as order_date',
-            'c.company',
-            'u.name as sales_name',
-            'u.image as sales_image',
-            'q.nett as revenue',
-            DB::raw('(SELECT no_po FROM invoice WHERE id_quotation = q.id LIMIT 1) as no_po')
-        )
-        ->orderBy('q.po_date', 'desc')
-        ->get();
+        $orderIds = $allOrders->pluck('id');
+        $materialCostByOrder = PurchaseRequest::whereIn('id_pending', $orderIds)
+            ->where('status', '3')
+            ->groupBy('id_pending')->selectRaw('id_pending, SUM(amount) as total')
+            ->pluck('total', 'id_pending');
+        $shippingCostByOrder = Expanse::whereIn('id_pending', $orderIds)
+            ->where('type', 'Resi')
+            ->groupBy('id_pending')->selectRaw('id_pending, SUM(cost) as total')
+            ->pluck('total', 'id_pending');
 
-        $allOrders = $allOrders->map(function ($order) {
-            $order->material_cost = PurchaseRequest::where('id_pending', $order->id)
-                ->where('status', '3')
-                ->sum('amount');
-            $order->shipping_cost = Expanse::where('id_pending', $order->id)
-                ->where('type', 'Resi')
-                ->sum('cost');
+        $allOrders = $allOrders->map(function ($order) use ($materialCostByOrder, $shippingCostByOrder) {
+            $order->order_date = $order->quote?->po_date ?? $order->date;
+            $order->company = $order->unitQuotation?->client?->company
+                ?? $order->quote?->pic?->client?->company
+                ?? '-';
+            $order->sales_name = $order->unitQuotation?->sales?->name
+                ?? $order->quote?->sales?->name
+                ?? '-';
+            $order->sales_image = $order->unitQuotation?->sales?->image
+                ?? $order->quote?->sales?->image
+                ?? null;
+            $order->revenue = $order->unitQuotation ? ($order->unitQuotation->total ?? 0) : ($order->quote?->nett ?? 0);
+            $order->no_po = $order->unitQuotation ? ($order->unitQuotation->po_number ?? '-') : ($order->quote?->invoice->first()?->no_po ?? '-');
+            $order->detail_route = route('pending-po.show', $order->id);
+            $order->material_cost = (float) $materialCostByOrder->get($order->id, 0);
+            $order->shipping_cost = (float) $shippingCostByOrder->get($order->id, 0);
             $order->total_cost = $order->material_cost + $order->shipping_cost;
             $order->profit = $order->revenue - $order->total_cost;
             return $order;
-        });
+        })->sortByDesc(function ($order) {
+            return $order->order_date ? Carbon::parse($order->order_date)->timestamp : 0;
+        })->values();
 
         $newOrders = $allOrders->filter(fn($o) => $o->status == 0);
         $checkPartsOrders = $allOrders->filter(fn($o) => in_array($o->status, [1, 2, 3, 4]));
@@ -590,52 +721,65 @@ class PendingController extends Controller
         // ==========================================
         // 2. PROJECT MONITORING DATA
         // ==========================================
-        $projectQuery = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
-            ->join('pic as p', 'q.id_pic', '=', 'p.id')
-            ->join('client as c', 'p.id_client', '=', 'c.id')
-            ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->where('pending_po.type', 'Project');
+        $projects = $allPending->where('type', 'Project')->values();
 
         if ($selectedYear !== 'all') {
-            $projectQuery->whereYear('pending_po.date', $selectedYear);
+            $projects = $projects->filter(function ($project) use ($selectedYear) {
+                $date = $project->date ?? null;
+                return $date && Carbon::parse($date)->year == $selectedYear;
+            });
         }
 
         if ($role === 'Sales') {
-            $projectQuery->where('q.id_sales', Auth::id());
+            $projects = $projects->filter(function ($project) {
+                $quoteSales = $project->quote?->id_sales;
+                $unitSales = $project->unitQuotation?->id_sales;
+                return ($quoteSales == Auth::id()) || ($unitSales == Auth::id());
+            });
         }
 
-        $projects = $projectQuery->select(
-            'pending_po.id',
-            'pending_po.no_pending',
-            'pending_po.title',
-            'pending_po.status',
-            'pending_po.date as order_date',
-            'pending_po.project_status_step',
-            'pending_po.project_category',
-            'c.company',
-            'u.name as sales_name',
-            'u.image as sales_image',
-            'q.nett as revenue',
-            'q.no_quote',
-            DB::raw('(SELECT no_po FROM invoice WHERE id_quotation = q.id LIMIT 1) as no_po')
-        )
-        ->orderBy('pending_po.date', 'desc')
-        ->get();
+        $projectIds = $projects->pluck('id');
+        $materialCostByProject = PurchaseRequest::whereIn('id_pending', $projectIds)
+            ->where('status', '3')
+            ->groupBy('id_pending')->selectRaw('id_pending, SUM(amount) as total')
+            ->pluck('total', 'id_pending');
+        $generalCostByProject = ProjectExpense::whereIn('id_pending', $projectIds)
+            ->groupBy('id_pending')->selectRaw('id_pending, SUM(amount) as total')
+            ->pluck('total', 'id_pending');
+        $shippingCostByProject = Expanse::whereIn('id_pending', $projectIds)
+            ->where('type', 'Resi')
+            ->groupBy('id_pending')->selectRaw('id_pending, SUM(cost) as total')
+            ->pluck('total', 'id_pending');
 
-        $projects = $projects->map(function ($project) {
-            $project->material_cost = PurchaseRequest::where('id_pending', $project->id)
-                ->where('status', '3')
-                ->sum('amount');
-            $project->general_cost = ProjectExpense::where('id_pending', $project->id)
-                ->sum('amount');
-            $project->shipping_cost = Expanse::where('id_pending', $project->id)
-                ->where('type', 'Resi')
-                ->sum('cost');
+        $projects = $projects->map(function ($project) use ($materialCostByProject, $generalCostByProject, $shippingCostByProject) {
+            $project->order_date = $project->date;
+            $project->company = $project->unitQuotation?->client?->company
+                ?? $project->quote?->pic?->client?->company
+                ?? '-';
+            $project->area = $project->unitQuotation?->client?->area
+                ?? $project->quote?->pic?->client?->area
+                ?? '-';
+            $project->sales_name = $project->unitQuotation?->sales?->name
+                ?? $project->quote?->sales?->name
+                ?? '-';
+            $project->sales_image = $project->unitQuotation?->sales?->image
+                ?? $project->quote?->sales?->image
+                ?? null;
+            $project->revenue = $project->unitQuotation ? ($project->unitQuotation->total ?? 0) : ($project->quote?->nett ?? 0);
+            $project->no_po = $project->unitQuotation ? ($project->unitQuotation->po_number ?? '-') : ($project->quote?->invoice->first()?->no_po ?? '-');
+            $project->detail_route = $project->id_unit_quotation
+                ? route('unit-quotation.show', $project->id_unit_quotation)
+                : route('project-monitoring.show', $project->id);
+            $project->material_cost = (float) $materialCostByProject->get($project->id, 0);
+            $project->general_cost = (float) $generalCostByProject->get($project->id, 0);
+            $project->shipping_cost = (float) $shippingCostByProject->get($project->id, 0);
             $project->total_cost = $project->material_cost + $project->general_cost + $project->shipping_cost;
             $project->profit = $project->revenue - $project->total_cost;
             $project->margin = $project->revenue > 0 ? ($project->profit / $project->revenue) * 100 : 0;
             return $project;
-        });
+        })->sortByDesc(function ($project) {
+            return $project->order_date ? Carbon::parse($project->order_date)->timestamp : 0;
+        })->values();
 
         $newProjects = $projects->filter(fn($p) => $p->status == 0);
         $checkPartsProjects = $projects->filter(fn($p) => $p->status != 0 && $p->status != 6 && ($p->project_status_step ?? 1) == 1);
@@ -747,6 +891,11 @@ class PendingController extends Controller
     public function upload_resi(Request $request, $id)
     {
         // dd($request->all());
+        $pending = PendingPO::findOrFail($id);
+        $hasApprovedInvoice = $this->hasApprovedInvoice($pending);
+        if (!$hasApprovedInvoice) {
+            return redirect()->back()->with('error', 'Proses logistik dikunci karena invoice belum di-approve oleh Accounting.');
+        }
         $invoice = Invoice::find($id);
         $resi = new Expanse();
         $resi->image = '';
@@ -781,6 +930,7 @@ class PendingController extends Controller
         $resi->no_track = $request->no_track;
         $resi->charged = $request->charged;
         $resi->cost = $request->cost;
+        $resi->description = $request->description;
         $resi->type = "Resi";
         $resi->date = $request->date;
         $resi->status = $request->charged == 1 ? 'pending' : null;
@@ -852,9 +1002,9 @@ class PendingController extends Controller
         $quote = Quotation::find($pending->id_quotation);
         // dd($pending);
         $return = new Retur();
-        $return->id_pending = $id; 
-        $return->no_return = $request->no_return; 
-        $return->status = 0; 
+        $return->id_pending = $id;
+        $return->no_return = $request->no_return;
+        $return->status = 0;
         $return->date = Carbon::now();
         $returnSave = $return->save();
 
@@ -910,7 +1060,11 @@ class PendingController extends Controller
     }
     public function donePending($id)
     {
-        $pending = PendingPO::find($id);
+        $pending = PendingPO::findOrFail($id);
+        $hasApprovedInvoice = $this->hasApprovedInvoice($pending);
+        if (!$hasApprovedInvoice) {
+            return redirect()->back()->with('error', 'Proses logistik dikunci karena invoice belum di-approve oleh Accounting.');
+        }
         $pending->status = '6';
         $pendingSave = $pending->save();
         if ($pendingSave) {

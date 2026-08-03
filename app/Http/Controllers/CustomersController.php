@@ -93,7 +93,7 @@ class CustomersController extends Controller
                 'required',
 
             'web' =>
-                'required',
+                'nullable',
 
             'source' =>
                 'required',
@@ -108,7 +108,7 @@ class CustomersController extends Controller
                 'required',
 
             'machine' =>
-                'required',
+                'nullable',
         ];
 
         $message = [
@@ -116,12 +116,10 @@ class CustomersController extends Controller
             'email.required'=> 'Field Email Wajib Diisi',
             'phone.required'=> 'Field Phone Wajib Diisi',
             'ru.required'=> 'Wajib Pilih Reseller atau User',
-            'web.required'=> 'Field Web Wajib Diisi',
             'source.required'=> 'Field Source Wajib Diisi',
             'mobile.required'=> 'Field Mobile Wajib Diisi',
             'address.required'=> 'Field Address Wajib Diisi',
             'area.required'=> 'Field Area Wajib Diisi',
-            'machine.required'=> 'Field Machine Wajib Diisi',
         ];
         
         $this->validate($request, $rule, $message);
@@ -132,16 +130,23 @@ class CustomersController extends Controller
         $customers->email = $request->email;
         $customers->phone = $request->phone;
         $customers->ru = $request->ru;
-        $customers->web = $request->web;
+        if ($request->has('web')) {
+            $customers->web = $request->web;
+        }
         $customers->source = $request->source;
-        $customers->machine = $request->machine;
         $customers->mobile = $request->mobile;
         $customers->address = $request->address;
         $customers->area = $request->area;
+        if ($request->has('npwp')) {
+            $customers->npwp = $request->npwp;
+        }
+        if ($request->has('subAddress')) {
+            $customers->subAddress = $request->subAddress;
+        }
         $customersave = $customers->save();
 
         if($customersave){
-            return redirect('/customers/'.$id)->with('message', 'data telah diUpdate');
+            return redirect()->back()->with('message', 'data telah diUpdate');
         }
     }
 

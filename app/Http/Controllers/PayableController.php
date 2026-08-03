@@ -29,7 +29,21 @@ class PayableController extends Controller
     }
     public function index_aging()
     {
-        return view('pages.finance.payable.index-aging');
+        $base = ProductIn::where('accept', '0');
+
+        $unpaid = $base->clone()->get();
+        $bucketCurrent = $base->clone()->whereRaw('DATEDIFF(CURDATE(), date) BETWEEN 0 AND 30')->get();
+        $bucket31to60 = $base->clone()->whereRaw('DATEDIFF(CURDATE(), date) BETWEEN 31 AND 60')->get();
+        $bucket61to90 = $base->clone()->whereRaw('DATEDIFF(CURDATE(), date) BETWEEN 61 AND 90')->get();
+        $bucket90plus = $base->clone()->whereRaw('DATEDIFF(CURDATE(), date) > 90')->get();
+
+        return view('pages.finance.payable.index-aging', compact(
+            'unpaid',
+            'bucketCurrent',
+            'bucket31to60',
+            'bucket61to90',
+            'bucket90plus'
+        ));
     }
     public function show_aging($id)
     {

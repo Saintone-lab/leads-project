@@ -751,7 +751,8 @@ class KanbanController extends Controller
                 'bast' => $task->bast ? [
                     'id' => $task->bast->id,
                     'no_bast' => $task->bast->no_bast,
-                    'print_link' => url('/bast/' . $task->bast->id . '/print'),
+                    'show_link' => route('bast.show', $task->bast->id),
+                    'print_link' => route('bast.print', $task->bast->id),
                 ] : null,
             ];
         }
@@ -1108,26 +1109,49 @@ class KanbanController extends Controller
             ->whereHas('quote.payment', function($q) {
                 $q->where('method', '!=', 'Escrow');
             })
+            ->with('quote.pic.client')
             ->get();
 
-        foreach ($activePos as $po) {
-            $exists = KanbanTask::where('board_id', $board->id)
-                ->where('pending_po_id', $po->id)
-                ->exists();
+        // Auto-update existing tasks titles to match new PO format if needed
+        $existingTasks = KanbanTask::where('board_id', $board->id)
+            ->whereNotNull('pending_po_id')
+            ->with(['pendingPo.quote.pic.client', 'assignees'])
+            ->get();
 
-            if (!$exists) {
+        // Batch semua lookup yang tadinya di-query per-PO di dalam loop (N+1)
+        $quotationIds = $activePos->pluck('id_quotation')
+            ->merge($existingTasks->pluck('pendingPo.id_quotation'))
+            ->filter()
+            ->unique();
+
+        $invoicePoByQuotation = \App\Models\Invoice::whereIn('id_quotation', $quotationIds)
+            ->whereNotNull('no_po')->where('no_po', '!=', '')
+            ->pluck('no_po', 'id_quotation');
+
+        $existingTaskPoIds = KanbanTask::where('board_id', $board->id)
+            ->whereNotNull('pending_po_id')
+            ->pluck('pending_po_id')
+            ->flip();
+
+        $columnsByTitle = KanbanColumn::where('board_id', $board->id)
+            ->whereIn('title', ['PO E-COMMERCE', 'PO REFTECH'])
+            ->get()
+            ->keyBy('title');
+
+        $positionByColumn = [];
+        foreach ($columnsByTitle as $column) {
+            $positionByColumn[$column->id] = KanbanTask::where('column_id', $column->id)->count();
+        }
+
+        foreach ($activePos as $po) {
+            if (!$existingTaskPoIds->has($po->id)) {
                 $idSales = $po->quote ? $po->quote->id_sales : null;
                 $targetColTitle = ($idSales == 16) ? 'PO E-COMMERCE' : 'PO REFTECH';
 
-                $column = KanbanColumn::where('board_id', $board->id)
-                    ->where('title', $targetColTitle)
-                    ->first();
+                $column = $columnsByTitle->get($targetColTitle);
 
                 if ($column) {
-                    $pos = KanbanTask::where('column_id', $column->id)->count();
-
-                    $invoicePo = \App\Models\Invoice::where('id_quotation', $po->id_quotation)->whereNotNull('no_po')->where('no_po', '!=', '')->value('no_po');
-                    $poNumber = $invoicePo ?: ($po->no_pending ?? 'No PO');
+                    $poNumber = $invoicePoByQuotation->get($po->id_quotation) ?: ($po->no_pending ?? 'No PO');
                     $companyName = 'Unknown Client';
                     if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
                         $companyName = $po->quote->pic->client->company;
@@ -1141,7 +1165,7 @@ class KanbanController extends Controller
                         'pending_po_id' => $po->id,
                         'title' => $taskTitle,
                         'description' => null,
-                        'position' => $pos,
+                        'position' => $positionByColumn[$column->id]++,
                     ]);
 
                     if ($idSales) {
@@ -1151,17 +1175,10 @@ class KanbanController extends Controller
             }
         }
 
-        // Auto-update existing tasks titles to match new PO format if needed
-        $existingTasks = KanbanTask::where('board_id', $board->id)
-            ->whereNotNull('pending_po_id')
-            ->with(['pendingPo.quote.pic.client', 'assignees'])
-            ->get();
-
         foreach ($existingTasks as $task) {
             $po = $task->pendingPo;
             if ($po) {
-                $invoicePo = \App\Models\Invoice::where('id_quotation', $po->id_quotation)->whereNotNull('no_po')->where('no_po', '!=', '')->value('no_po');
-                $poNumber = $invoicePo ?: ($po->no_pending ?? 'No PO');
+                $poNumber = $invoicePoByQuotation->get($po->id_quotation) ?: ($po->no_pending ?? 'No PO');
                 $companyName = 'Unknown Client';
                 if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
                     $companyName = $po->quote->pic->client->company;
@@ -1235,10 +1252,14 @@ class KanbanController extends Controller
                 $q->where('method', '!=', 'Escrow');
             })
             ->with(['quote.pic.client', 'quote.sales'])
-            ->get()
-            ->map(function ($po) {
-                $invoicePo = \App\Models\Invoice::where('id_quotation', $po->id_quotation)->whereNotNull('no_po')->where('no_po', '!=', '')->value('no_po');
-                $poNumber = $invoicePo ?: ($po->no_pending ?? 'No PO');
+            ->get();
+
+        $invoicePoByQuotation = \App\Models\Invoice::whereIn('id_quotation', $pos->pluck('id_quotation')->filter()->unique())
+            ->whereNotNull('no_po')->where('no_po', '!=', '')
+            ->pluck('no_po', 'id_quotation');
+
+        $pos = $pos->map(function ($po) use ($invoicePoByQuotation) {
+                $poNumber = $invoicePoByQuotation->get($po->id_quotation) ?: ($po->no_pending ?? 'No PO');
                 $companyName = 'Unknown Client';
                 if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
                     $companyName = $po->quote->pic->client->company;

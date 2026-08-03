@@ -12,6 +12,7 @@ use App\Models\Expanse;
 use App\Models\Invoice;
 use App\Models\SerialProduct;
 use App\Models\DetailPendingPO;
+use App\Models\UnitQuotation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,12 +36,16 @@ class ProjectMonitoringController extends Controller
 
         // Query available years for filter dropdown
         $availableYears = PendingPO::where('type', 'Project')
-            ->whereNotNull('date')
-            ->selectRaw('YEAR(date) as year')
-            ->distinct()
-            ->orderBy('year', 'desc')
-            ->pluck('year')
-            ->toArray();
+            ->get()
+            ->map(function ($project) {
+                $date = $project->date ?? null;
+                return $date ? Carbon::parse($date)->year : null;
+            })
+            ->filter()
+            ->unique()
+            ->sortDesc()
+            ->values()
+            ->all();
 
         $currentYear = intval(date('Y'));
         if (!in_array($currentYear, $availableYears)) {
@@ -48,55 +53,70 @@ class ProjectMonitoringController extends Controller
             rsort($availableYears);
         }
 
-        $query = PendingPO::join('quotation as q', 'pending_po.id_quotation', '=', 'q.id')
-            ->join('pic as p', 'q.id_pic', '=', 'p.id')
-            ->join('client as c', 'p.id_client', '=', 'c.id')
-            ->join('users as u', 'q.id_sales', '=', 'u.id')
-            ->where('pending_po.type', 'Project');
+        $projects = PendingPO::where('type', 'Project')
+            ->with([
+                'quote.pic.client',
+                'quote.sales',
+                'unitQuotation.client',
+                'unitQuotation.sales',
+            ])
+            ->get();
 
         // Apply year filter unless 'all' is selected
         if ($selectedYear !== 'all') {
-            $query->whereYear('pending_po.date', $selectedYear);
+            $projects = $projects->filter(function ($project) use ($selectedYear) {
+                $date = $project->date ?? null;
+                return $date && Carbon::parse($date)->year == $selectedYear;
+            });
         }
 
         // If user is sales, filter by their own sales records
         if ($role === 'Sales') {
-            $query->where('q.id_sales', Auth::id());
+            $projects = $projects->filter(function ($project) {
+                $quoteSales = $project->quote?->id_sales;
+                $unitSales = $project->unitQuotation?->id_sales;
+                return ($quoteSales == Auth::id()) || ($unitSales == Auth::id());
+            });
         }
 
-        $projects = $query->select(
-            'pending_po.id',
-            'pending_po.no_pending',
-            'pending_po.title',
-            'pending_po.status',
-            'pending_po.date as order_date',
-            'pending_po.project_status_step',
-            'pending_po.project_category',
-            'c.company',
-            'u.name as sales_name',
-            'u.image as sales_image',
-            'q.nett as revenue',
-            'q.no_quote',
-            DB::raw('(SELECT no_po FROM invoice WHERE id_quotation = q.id LIMIT 1) as no_po')
-        )
-        ->orderBy('pending_po.date', 'desc')
-        ->get();
+        // Batch cost sums per project (sebelumnya 3 query per project di dalam map = N+1)
+        $projectIds = $projects->pluck('id');
+        $materialCostByProject = PurchaseRequest::whereIn('id_pending', $projectIds)
+            ->where('status', '3')
+            ->groupBy('id_pending')->selectRaw('id_pending, SUM(amount) as total')
+            ->pluck('total', 'id_pending');
+        $generalCostByProject = ProjectExpense::whereIn('id_pending', $projectIds)
+            ->groupBy('id_pending')->selectRaw('id_pending, SUM(amount) as total')
+            ->pluck('total', 'id_pending');
+        $shippingCostByProject = Expanse::whereIn('id_pending', $projectIds)
+            ->where('type', 'Resi')
+            ->groupBy('id_pending')->selectRaw('id_pending, SUM(cost) as total')
+            ->pluck('total', 'id_pending');
 
         // Calculate profitability metrics for each project
-        $projects = $projects->map(function ($project) {
-            // 1. Material Cost (from completed PurchaseRequests)
-            $project->material_cost = PurchaseRequest::where('id_pending', $project->id)
-                ->where('status', '3') // completed/received
-                ->sum('amount');
-
-            // 2. Operational General Expenses
-            $project->general_cost = ProjectExpense::where('id_pending', $project->id)
-                ->sum('amount');
-
-            // 3. Shipping / Courier Cost
-            $project->shipping_cost = Expanse::where('id_pending', $project->id)
-                ->where('type', 'Resi')
-                ->sum('cost');
+        $projects = $projects->map(function ($project) use ($materialCostByProject, $generalCostByProject, $shippingCostByProject) {
+            $project->order_date = $project->date;
+            $project->company = $project->unitQuotation?->client?->company
+                ?? $project->quote?->pic?->client?->company
+                ?? '-';
+            $project->area = $project->unitQuotation?->client?->area
+                ?? $project->quote?->pic?->client?->area
+                ?? '-';
+            $project->sales_name = $project->unitQuotation?->sales?->name
+                ?? $project->quote?->sales?->name
+                ?? '-';
+            $project->sales_image = $project->unitQuotation?->sales?->image
+                ?? $project->quote?->sales?->image
+                ?? null;
+            $project->revenue = $project->unitQuotation ? ($project->unitQuotation->total ?? 0) : ($project->quote?->nett ?? 0);
+            $project->no_quote = $project->unitQuotation?->no_quote ?? $project->quote?->no_quote ?? '-';
+            $project->no_po = $project->unitQuotation ? ($project->unitQuotation->po_number ?? '-') : ($project->quote?->invoice->first()?->no_po ?? '-');
+            $project->detail_route = $project->id_unit_quotation
+                ? route('unit-quotation.show', $project->id_unit_quotation)
+                : route('project-monitoring.show', $project->id);
+            $project->material_cost = (float) $materialCostByProject->get($project->id, 0);
+            $project->general_cost = (float) $generalCostByProject->get($project->id, 0);
+            $project->shipping_cost = (float) $shippingCostByProject->get($project->id, 0);
 
             $project->total_cost = $project->material_cost + $project->general_cost + $project->shipping_cost;
             $project->profit = $project->revenue - $project->total_cost;
@@ -261,13 +281,13 @@ class ProjectMonitoringController extends Controller
             $file = $request->file('receipt');
             $ext = $file->getClientOriginalExtension();
             $filename = 'expense_' . Str::random(10) . '_' . time() . '.' . $ext;
-            
+
             $uploadPath = public_path('asset/expenses');
             if (!file_exists($uploadPath)) {
                 mkdir($uploadPath, 0755, true);
             }
             $file->move($uploadPath, $filename);
-            
+
             $expense->receipt = 'asset/expenses/' . $filename;
         }
 
@@ -327,7 +347,7 @@ class ProjectMonitoringController extends Controller
             }
             // Revert status to In Progress if moved back from completed step
             elseif ($project->status == 6) {
-                $project->status = 2; 
+                $project->status = 2;
             }
         }
 

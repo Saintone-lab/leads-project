@@ -9,6 +9,7 @@ use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
 use App\Models\Unit;
+use App\Services\DeletionGuardService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -329,8 +330,11 @@ class ProductController extends Controller
             return redirect('/product/' . $id)->with('error', 'Produk tidak ditemukan');
         }
 
-        // $replacement = DetailProduct::where('id_product', $id)->get();
-        // $equivalents = SerialProduct::where('id_product', $id)->get();
+        $guard = app(DeletionGuardService::class);
+        $check = $guard->checkProductDeletion($product);
+        if (!$check['allowed']) {
+            return redirect('/product/' . $id)->with('error', 'Produk tidak dapat dihapus karena ' . implode(', ', $check['reasons']));
+        }
 
         $delProduct = $product->delete();
 
@@ -524,6 +528,19 @@ class ProductController extends Controller
     public function destroyEquivalent($id)
     {
         $equivalent = SerialProduct::find($id);
+
+        if (!$equivalent) {
+            return response()->json(['error' => 'Equivalent not found.'], 404);
+        }
+
+        $guard = app(DeletionGuardService::class);
+        $check = $guard->checkEquivalentDeletion($equivalent);
+        if (!$check['allowed']) {
+            return response()->json([
+                'error' => 'Equivalent tidak dapat dihapus karena ' . implode(', ', $check['reasons']),
+            ], 422);
+        }
+
         $delEqui = $equivalent->delete();
 
         if ($delEqui) {

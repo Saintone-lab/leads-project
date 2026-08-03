@@ -11,6 +11,7 @@ use App\Models\Quotation;
 use App\Models\SubtitleQuotation;
 use App\Models\Suo;
 use App\Models\SuoDetail;
+use App\Models\UnitQuotation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -90,7 +91,22 @@ class SuoController extends Controller
         $quotation       = null;
         $quotationDetail = collect();
         $invoice         = null;
-        if ($suo->id_quotation) {
+        if ($suo->id_unit_quotation) {
+            $unitQuotation = UnitQuotation::with(['details.unit', 'details.equivalent.product'])->find($suo->id_unit_quotation);
+            if ($unitQuotation) {
+                $quotationDetail = $unitQuotation->details
+                    ->reject(fn($d) => in_array($d->type, ['header', 'heading']))
+                    ->map(fn($item) => (object) [
+                        'detail_product' => $item->type === 'unit' && $item->unit
+                            ? ($item->label ?: ($item->unit->brand . ' ' . $item->unit->model))
+                            : $item->label,
+                        'qty'      => $item->qty,
+                        'info_qty' => $item->info_qty ?? 'Unit',
+                    ])
+                    ->values();
+                $invoice = Invoice::where('id_unit_quotation', $suo->id_unit_quotation)->first();
+            }
+        } elseif ($suo->id_quotation) {
             $quotation = Quotation::find($suo->id_quotation);
 
             if ($quotation && $quotation->type === 'Service') {
@@ -316,6 +332,53 @@ class SuoController extends Controller
         $suo->id_sales     = $quotation->id_sales;
         $suo->status       = 'submitted';
         $suo->id_quotation = $quotation->id;
+        $suo->save();
+
+        foreach ($items as $item) {
+            $detail = new SuoDetail();
+            $detail->id_suo    = $suo->id;
+            $detail->item_name = $item['item_name'];
+            $detail->qty       = $item['qty'] ?: 1;
+            $detail->unit      = $item['unit'];
+            $detail->save();
+        }
+
+        return response()->json(['success' => true, 'suo_id' => $suo->id]);
+    }
+
+    public function storeFromUnitQuotation($unitQuotationId)
+    {
+        $quotation = UnitQuotation::with(['client', 'pic', 'details.unit', 'details.equivalent.product'])->findOrFail($unitQuotationId);
+
+        if (Suo::where('id_unit_quotation', $quotation->id)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Penawaran unit ini sudah punya SUO.'], 422);
+        }
+
+        $items = $quotation->details
+            ->reject(fn($d) => in_array($d->type, ['header', 'heading']))
+            ->map(fn($item) => [
+                'item_name' => $item->type === 'unit' && $item->unit
+                    ? ($item->label ?: ($item->unit->brand . ' ' . $item->unit->model))
+                    : $item->label,
+                'qty'       => $item->qty,
+                'unit'      => $item->info_qty ?? 'Unit',
+            ]);
+
+        if ($items->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Penawaran unit ini belum punya item.'], 422);
+        }
+
+        $client = $quotation->client;
+
+        $suo = new Suo();
+        $suo->no_suo            = $this->generateNoSuo();
+        $suo->company           = $client->company ?? '-';
+        $suo->pic               = $quotation->attn ?: ($quotation->pic?->name_pic ?? '-');
+        $suo->address           = $quotation->address ?: ($client->address ?? '-');
+        $suo->notes             = 'Diajukan otomatis dari Penawaran Unit ' . $quotation->no_quote;
+        $suo->id_sales          = $quotation->id_sales;
+        $suo->status            = 'submitted';
+        $suo->id_unit_quotation = $quotation->id;
         $suo->save();
 
         foreach ($items as $item) {

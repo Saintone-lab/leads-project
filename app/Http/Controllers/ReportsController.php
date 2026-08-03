@@ -16,23 +16,38 @@ use Illuminate\Support\Facades\DB;
 
 class ReportsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         if (Auth::user()->role == 'Support') {
             return redirect()->route('reports.support', ['year' => now()->year, 'month' => now()->month]);
         }
 
-        $dataDc = $this->getWeekDataDC();
-        $dataCRM = $this->getWeekDataCRM();
-        $dataVisit = $this->getWeekDataVisit();
-        $dataQuote = $this->getWeekDataQuote();
-        $dataPo = $this->getWeekDataPo();
-        $dataLeads = $this->getWeekDataLeads();
+        $monthNow = (int) $request->query('month', Carbon::now()->month);
+        $yearNow = (int) $request->query('year', Carbon::now()->year);
+
+        // Calculate previous & next month/year
+        $currentCarbon = Carbon::createFromDate($yearNow, $monthNow, 1);
+        $prevCarbon = (clone $currentCarbon)->subMonth();
+        $nextCarbon = (clone $currentCarbon)->addMonth();
+
+        $prevMonth = $prevCarbon->month;
+        $prevYear = $prevCarbon->year;
+        $nextMonth = $nextCarbon->month;
+        $nextYear = $nextCarbon->year;
+
+        // Dynamic Years List
+        $startYear = 2022;
+        $endYear = max(Carbon::now()->year + 1, $yearNow);
+        $yearsList = range($endYear, $startYear);
+
+        $dataDc = $this->getWeekDataDC($monthNow, $yearNow);
+        $dataCRM = $this->getWeekDataCRM($monthNow, $yearNow);
+        $dataVisit = $this->getWeekDataVisit($monthNow, $yearNow);
+        $dataQuote = $this->getWeekDataQuote($monthNow, $yearNow);
+        $dataPo = $this->getWeekDataPo($monthNow, $yearNow);
+        $dataLeads = $this->getWeekDataLeads($monthNow, $yearNow);
         $target = Target::where('id_sales', Auth::user()->id)->first();
         $targetCrm = Client::where('role', 'Customers')->where('id_sales', Auth::user()->id)->count();
-        $dateNow = Carbon::now();
-        $monthNow = $dateNow->month;
-        $yearNow = $dateNow->year;
 
         // sales
         $totalDC = Activities::rightJoin('client', 'client.id', '=', 'activities.id_client')->whereMonth('date', $monthNow)->whereYear('date', $yearNow)->where('status', 'Responded')->whereIn('name', ['Daily Call', 'Follow Up'])->where('client.id_sales', Auth::user()->id)->count();
@@ -100,23 +115,21 @@ class ReportsController extends Controller
             ->join('comment as o', 'o.id_status', '=', 'c.id')
             ->join('users as u', 'u.id', '=', 'o.id_user')
             ->where('quotation.id_sales', Auth::id())
-            ->where('o.type', 'quotation')  // Pastikan filter type di sini
+            ->where('o.type', 'quotation')
             ->where('o.id_user', '!=', Auth::id())
             ->orderBy('o.date', 'DESC')
             ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
 
-        // Query untuk mengambil data dengan type "prospect"
         $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
             ->join('users as u', 'u.id', '=', 'comment.id_user')
             ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
             ->join('client as c', 'c.id', '=', 'pi.id_client')
             ->where('p.id_sales', Auth::id())
-            ->where('comment.type', 'prospect')  // Pastikan filter type di sini
+            ->where('comment.type', 'prospect')
             ->where('comment.id_user', '!=', Auth::id())
             ->orderBy('comment.date', 'DESC')
             ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
 
-        // Menggabungkan kedua query menggunakan union
         $comment = $quotationComment->union($prospectComment)
             ->orderBy('date', 'DESC')
             ->take(5)
@@ -126,15 +139,12 @@ class ReportsController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view("pages.sales.report.index", compact("targetCrm", "noSaleProspect", 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', "quotation", "unitQuotationPO", "dataDc", "dataQuote", "dataPo", "dataLeads", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLeads", "amountSales", "amountQuote", "amountProspect"));
+        return view("pages.sales.report.index", compact("targetCrm", "noSaleProspect", 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', "quotation", "unitQuotationPO", "dataDc", "dataQuote", "dataPo", "dataLeads", "target", "dataCRM", "dataVisit", "totalDC", "totalCRM", "totalQuote", "totalVisit", "totalPO", "totalLeads", "amountSales", "amountQuote", "amountProspect", "monthNow", "yearNow", "prevMonth", "prevYear", "nextMonth", "nextYear", "yearsList"));
     }
 
-    protected function getWeekDataDC()
+    protected function getWeekDataDC($monthNow, $yearNow)
     {
-        $dateNow = Carbon::now();
-        $yearNow = $dateNow->year;
-        $monthNow = $dateNow->month;
-        $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
+        $firstDayOfMonth = sprintf('%04d-%02d-01', $yearNow, $monthNow);
         $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
 
         $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
@@ -165,17 +175,13 @@ class ReportsController extends Controller
                 ];
             }
         }
-        // dd($fullMonthData);
 
         return $fullMonthData;
     }
 
-    protected function getWeekDataCRM()
+    protected function getWeekDataCRM($monthNow, $yearNow)
     {
-        $dateNow = Carbon::now();
-        $yearNow = $dateNow->year;
-        $monthNow = $dateNow->month;
-        $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
+        $firstDayOfMonth = sprintf('%04d-%02d-01', $yearNow, $monthNow);
         $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
 
         $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
@@ -206,16 +212,12 @@ class ReportsController extends Controller
                 ];
             }
         }
-        // dd($fullMonthData);
 
         return $fullMonthData;
     }
-    protected function getWeekDataVisit()
+    protected function getWeekDataVisit($monthNow, $yearNow)
     {
-        $dateNow = Carbon::now();
-        $yearNow = $dateNow->year;
-        $monthNow = $dateNow->month;
-        $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
+        $firstDayOfMonth = sprintf('%04d-%02d-01', $yearNow, $monthNow);
         $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
 
         $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
@@ -246,16 +248,12 @@ class ReportsController extends Controller
                 ];
             }
         }
-        // dd($fullMonthData);
 
         return $fullMonthData;
     }
-    protected function getWeekDataQuote()
+    protected function getWeekDataQuote($monthNow, $yearNow)
     {
-        $dateNow = Carbon::now();
-        $yearNow = $dateNow->year;
-        $monthNow = $dateNow->month;
-        $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
+        $firstDayOfMonth = sprintf('%04d-%02d-01', $yearNow, $monthNow);
         $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
 
         $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
@@ -284,12 +282,9 @@ class ReportsController extends Controller
         }
         return $fullMonthData;
     }
-    protected function getWeekDataPo()
+    protected function getWeekDataPo($monthNow, $yearNow)
     {
-        $dateNow = Carbon::now();
-        $yearNow = $dateNow->year;
-        $monthNow = $dateNow->month;
-        $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
+        $firstDayOfMonth = sprintf('%04d-%02d-01', $yearNow, $monthNow);
         $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
 
         $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));
@@ -329,12 +324,9 @@ class ReportsController extends Controller
         }
         return $fullMonthData;
     }
-    protected function getWeekDataLeads()
+    protected function getWeekDataLeads($monthNow, $yearNow)
     {
-        $dateNow = Carbon::now();
-        $yearNow = $dateNow->year;
-        $monthNow = $dateNow->month;
-        $firstDayOfMonth = "{$yearNow}-{$monthNow}-01";
+        $firstDayOfMonth = sprintf('%04d-%02d-01', $yearNow, $monthNow);
         $lastDayOfMonth = date('Y-m-t', strtotime($firstDayOfMonth));
 
         $firstDayOfWeek = date('N', strtotime($firstDayOfMonth));

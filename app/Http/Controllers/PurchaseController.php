@@ -353,11 +353,16 @@ class PurchaseController extends Controller
             'invoice' => 'required',
             'date' => 'required',
             'note' => 'required',
+            'replacement' => 'required|array',
+            'replacement.*' => 'required|integer|exists:detail_product,id',
         ];
         $message = [
             'invoice.required' => 'Field No Invoice Wajib Diisi',
             'date.required' => 'Field Date Wajib Diisi',
             'note.required' => 'Field Note Wajib Diisi',
+            'replacement.required' => 'Commodity || Replacement Wajib Dipilih',
+            'replacement.*.required' => 'Commodity || Replacement Wajib Dipilih',
+            'replacement.*.exists' => 'Commodity || Replacement tidak valid',
         ];
         $this->validate($request, $rule, $message);
         // dd($request->all());
@@ -375,6 +380,7 @@ class PurchaseController extends Controller
         $supplier = Supplier::find($request->supplier);
         // Masukan Data ke Tabel Quotataion
         $productIn = new ProductIn();
+        $productIn->no_product_in = $this->generateNoProductIn();
         $productIn->no_do = NULL;
         $productIn->invoice = $request->invoice;
         $productIn->id_supplier = $request->supplier;
@@ -401,6 +407,9 @@ class PurchaseController extends Controller
                 $dProductIn->amount = $request->amount[$item];
                 $dProductIn->warehouse = $request->warehouse[$item];
                 $productD = DetailProduct::find($request->replacement[$item]);
+                if (!$productD) {
+                    continue;
+                }
                 $productD->modal = ((($productD->stock + $productD->warehouse_stock) * $productD->modal) + ($request->qty[$item] * $request->price[$item])) / (($productD->stock + $productD->warehouse_stock) + $request->qty[$item]);
                 if ($request->warehouse[$item] == 'BDG') {
                     $productD->stock = $productD->stock + $request->qty[$item];
@@ -409,12 +418,14 @@ class PurchaseController extends Controller
                 }
                 $productD->save();
                 $product = Product::find($productD->id_product);
-                if ($request->warehouse[$item] == 'BDG') {
-                    $product->stock = $product->stock + $request->qty[$item];
-                } else {
-                    $product->warehouse_stock = $product->warehouse_stock + $request->qty[$item];
+                if ($product) {
+                    if ($request->warehouse[$item] == 'BDG') {
+                        $product->stock = $product->stock + $request->qty[$item];
+                    } else {
+                        $product->warehouse_stock = $product->warehouse_stock + $request->qty[$item];
+                    }
+                    $product->save();
                 }
-                $product->save();
                 $dProductSave = $dProductIn->save();
             }
         }
@@ -428,16 +439,22 @@ class PurchaseController extends Controller
         $rule = [
             'no_do' => 'required',
             'date' => 'required',
+            'replacement' => 'required|array',
+            'replacement.*' => 'required|integer|exists:detail_product,id',
         ];
         $message = [
             'no_do.required' => 'Field No DO Wajib Diisi',
             'date.required' => 'Field Date Wajib Diisi',
+            'replacement.required' => 'Commodity || Replacement Wajib Dipilih',
+            'replacement.*.required' => 'Commodity || Replacement Wajib Dipilih',
+            'replacement.*.exists' => 'Commodity || Replacement tidak valid',
         ];
         $this->validate($request, $rule, $message);
         // dd($request->all());
         $supplier = Supplier::find($request->supplier);
         // Masukan Data ke Tabel Quotataion
         $productIn = new ProductIn();
+        $productIn->no_product_in = $this->generateNoProductIn();
         $productIn->no_do = $request->no_do;
         $productIn->invoice = null;
         // $productIn->id_supplier = null;
@@ -465,6 +482,9 @@ class PurchaseController extends Controller
                 $dProductIn->amount = null;
                 $dProductIn->warehouse = $request->warehouse[$item];
                 $productD = DetailProduct::find($request->replacement[$item]);
+                if (!$productD) {
+                    continue;
+                }
                 if ($request->warehouse[$item] == 'BDG') {
                     $productD->stock = $productD->stock + $request->qty[$item];
                 } else {
@@ -472,17 +492,183 @@ class PurchaseController extends Controller
                 }
                 $productD->save();
                 $product = Product::find($productD->id_product);
-                if ($request->warehouse[$item] == 'BDG') {
-                    $product->stock = $product->stock + $request->qty[$item];
-                } else {
-                    $product->warehouse_stock = $product->warehouse_stock + $request->qty[$item];
+                if ($product) {
+                    if ($request->warehouse[$item] == 'BDG') {
+                        $product->stock = $product->stock + $request->qty[$item];
+                    } else {
+                        $product->warehouse_stock = $product->warehouse_stock + $request->qty[$item];
+                    }
+                    $product->save();
                 }
-                $product->save();
                 $dProductSave = $dProductIn->save();
             }
         }
         if ($dProductSave) {
             return redirect('/product-in')->with('message', 'data telah di tambahkan');
         }
+    }
+
+    public function goodsReceiptForm($id)
+    {
+        $pending = PendingPO::findOrFail($id);
+        $purchases = PurchaseRequest::where('id_pending', $id)->get();
+        
+        $fullRep = [];
+        foreach ($purchases as $key => $purchase) {
+            $equivalent = SerialProduct::where('id', $purchase->id_equivalent)->first();
+            if ($equivalent) {
+                $fullRep[$key] = DetailProduct::where('id_product', $equivalent->id_product)->get();
+            } else {
+                $fullRep[$key] = collect([]);
+            }
+        }
+        
+        $suppliers = Supplier::all();
+        
+        return view('pages.warehouse.purchase.goods_receipt', compact('pending', 'purchases', 'fullRep', 'suppliers'));
+    }
+
+    public function storeGoodsReceipt(Request $request, $id)
+    {
+        $rule = [
+            'no_do' => 'required|string|max:255',
+            'gr_date' => 'required|date',
+            'supplier' => 'required|integer|exists:supplier,id',
+            'pr_id' => 'required|array',
+            'pr_id.*' => 'required|integer|exists:purchase_request,id',
+            'gr_status' => 'required|array',
+            'gr_status.*' => 'required|in:Sesuai,Tidak Sesuai',
+            'replacement' => 'required|array',
+            'replacement.*' => 'required|integer|exists:detail_product,id',
+            'qty_received' => 'required|array',
+            'qty_received.*' => 'required|integer|min:0',
+            'warehouse' => 'required|array',
+            'warehouse.*' => 'required|in:BDG,BKS',
+            'gr_note' => 'nullable|array',
+        ];
+        
+        $message = [
+            'no_do.required' => 'Nomor Delivery Order (DO) Wajib Diisi',
+            'gr_date.required' => 'Tanggal Penerimaan Wajib Diisi',
+            'supplier.required' => 'Supplier Wajib Dipilih',
+            'replacement.*.required' => 'Commodity || Replacement Wajib Dipilih',
+        ];
+
+        $this->validate($request, $rule, $message);
+
+        $pending = PendingPO::findOrFail($id);
+        $supplier = Supplier::findOrFail($request->supplier);
+
+        // 1. Create the ProductIn (Barang Masuk) record
+        $productIn = new ProductIn();
+        $productIn->no_product_in = $this->generateNoProductIn();
+        $productIn->no_do = $request->no_do;
+        $productIn->invoice = null;
+        $productIn->id_supplier = $request->supplier;
+        $productIn->info = $supplier->info;
+        $productIn->date = $request->gr_date;
+        $productIn->date_invoice = null;
+        $productIn->subtotal = null;
+        $productIn->total_no_tax = null;
+        $productIn->tax = null;
+        $productIn->note = 'Otomatis dibuat via Goods Receipt (Verifikasi Logistik)';
+        $productIn->shipping = null;
+        $productIn->total = null;
+        $productIn->created_by = Auth::id(); // tracking who received it
+        $productIn->save();
+
+        $dProductSave = false;
+
+        // 2. Loop through each item to save Goods Receipt details
+        foreach ($request->pr_id as $key => $prId) {
+            $pr = PurchaseRequest::find($prId);
+            if ($pr) {
+                $status = $request->gr_status[$key];
+                $qtyRec = $request->qty_received[$key];
+                $note = $request->gr_note[$key] ?? null;
+                $replId = $request->replacement[$key];
+                $wh = $request->warehouse[$key];
+
+                // Update PR item
+                $pr->no_do = $request->no_do;
+                $pr->gr_date = $request->gr_date;
+                $pr->gr_status = $status;
+                $pr->qty_received = $qtyRec;
+                $pr->gr_note = $note;
+                $pr->status = '3'; // Done / Received
+                $pr->save();
+
+                // Save Detail Product In
+                $dProductIn = new DetailProductIn();
+                $dProductIn->id_product_in = $productIn->id;
+                $dProductIn->id_detail_product = $replId;
+                $dProductIn->qty = $qtyRec;
+                $dProductIn->modal = null;
+                $dProductIn->amount = null;
+                $dProductIn->warehouse = $wh;
+                $dProductIn->save();
+
+                // Update physical inventory stock
+                $productD = DetailProduct::find($replId);
+                if ($productD) {
+                    if ($wh == 'BDG') {
+                        $productD->stock += $qtyRec;
+                    } else {
+                        $productD->warehouse_stock += $qtyRec;
+                    }
+                    $productD->save();
+
+                    $product = Product::find($productD->id_product);
+                    if ($product) {
+                        if ($wh == 'BDG') {
+                            $product->stock += $qtyRec;
+                        } else {
+                            $product->warehouse_stock += $qtyRec;
+                        }
+                        $product->save();
+                    }
+                }
+                
+                $dProductSave = true;
+            }
+        }
+
+        if ($dProductSave) {
+            return redirect()->route('purchase-request.show', $pending->id)->with('success', 'Verifikasi Goods Receipt berhasil disimpan.');
+        }
+
+        return redirect()->back()->with('error', 'Gagal memproses Goods Receipt.');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $rule = [
+            'qty' => 'required|integer|min:1',
+            'note' => 'nullable|string|max:1000',
+        ];
+        $this->validate($request, $rule);
+
+        $purchase = PurchaseRequest::findOrFail($id);
+        $purchase->qty = $request->qty;
+        $purchase->note = $request->note;
+        $purchase->save();
+
+        return redirect()->back()->with('success', 'Purchase Request berhasil diperbarui.');
+    }
+
+    private function generateNoProductIn(): string
+    {
+        $year = now()->format('Y');
+        $month = now()->format('m');
+        $prefix = "PIN/{$year}/{$month}/";
+
+        $last = ProductIn::where('no_product_in', 'like', $prefix . '%')
+            ->orderByDesc('no_product_in')
+            ->value('no_product_in');
+
+        $lastSeq = $last ? (int) substr($last, -3) : 0;
+        $nextSeq = str_pad($lastSeq + 1, 3, '0', STR_PAD_LEFT);
+
+        return $prefix . $nextSeq;
     }
 }
