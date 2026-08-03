@@ -19,8 +19,8 @@
                             </ul>
                         </div>
                     @endif
-                    <div class="row g-2 mb-3">
-                        <div class="col mb-2">
+                    <div class="row g-2 mb-3 align-items-center">
+                        <div class="col-md-6 col-12 mb-2">
                             <div class="form-floating form-floating-outline">
                                 <select class="select2 form-select form-select-lg invoice-item-client"
                                     data-allow-clear="true" name="id_equivalent" id="selectclient">
@@ -37,15 +37,24 @@
                                         </option>
                                     @endforeach
                                 </select>
-                                <label for="select2Basic">Sparepart</label>
+                                <label for="selectclient">Sparepart</label>
                             </div>
                         </div>
-                        <div class="col-2 col-md-4">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <input type="number" class="form-control invoice-item-qty mb-3" placeholder="Min 1"
+                        <div class="col-md-3 col-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <input type="number" class="form-control invoice-item-qty" placeholder="Min 1"
                                     name="qty" id="qty" min="1"
                                     value="{{ old('qty', @$sparepart->qty) }}">
                                 <label for="qty">Quantity</label>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">
+                            <div class="form-floating form-floating-outline">
+                                <select class="form-select" name="pm_level" id="pm_level">
+                                    <option value="PM1" {{ old('pm_level') == 'PM1' ? 'selected' : '' }}>PM1 (Minor)</option>
+                                    <option value="PM2" {{ old('pm_level') == 'PM2' ? 'selected' : '' }}>PM2 (Major)</option>
+                                </select>
+                                <label for="pm_level">PM Level</label>
                             </div>
                         </div>
                     </div>

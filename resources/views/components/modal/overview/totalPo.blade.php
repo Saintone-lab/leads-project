@@ -1,4 +1,8 @@
-<div class="modal animate__animated animate__fadeIn" id="overviewPO{{ $getPOModal[$item]['monthKey'] }}" tabindex="-1"
+@php
+    $monthKeyModal = $getPOModal[$item]['monthKey'] ?? $item;
+    $modalDataList = $getPOModal[$item]['data'] ?? [];
+@endphp
+<div class="modal animate__animated animate__fadeIn" id="overviewPO{{ $monthKeyModal }}" tabindex="-1"
     style="display: none;" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
@@ -25,7 +29,7 @@
                                     $totalP = 0;
                                     $key = 0;
                                 @endphp
-                                @forelse ($getPOModal[$item]['data'] as $key => $quoteData)
+                                @forelse ($modalDataList as $key => $quoteData)
                                     @php
                                         $totalQ = $quoteData['nett'];
                                         $totalP += $totalQ;
