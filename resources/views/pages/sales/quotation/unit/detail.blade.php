@@ -368,6 +368,20 @@
                             href="{{ route('print.quotation', $quote->id) }}">
                             Download
                         </a>
+                        @php
+                            $pendingPo = \App\Models\PendingPO::where('id_quotation', $quote->id)->first();
+                        @endphp
+                        @if ($pendingPo)
+                            @if ($pendingPo->type === 'Project')
+                                <a href="{{ route('project-monitoring.show', $pendingPo->id) }}" class="btn btn-info d-grid w-100 waves-effect mb-3">
+                                    <i class="mdi mdi-eye-outline me-1"></i> View Order
+                                </a>
+                            @else
+                                <a href="{{ route('pending-po.show', $pendingPo->id) }}" class="btn btn-info d-grid w-100 waves-effect mb-3">
+                                    <i class="mdi mdi-eye-outline me-1"></i> View Order
+                                </a>
+                            @endif
+                        @endif
                         @if (Auth::user()->role == 'Sales')
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
@@ -694,6 +708,26 @@
     <script src="{{ asset('assets') }}/js/extended-ui-sweetalert2.js"></script>
 @endpush
 @push('script')
+    @if(session('open_convert_po'))
+    <script>
+        $(function(){
+            var noPending = {!! json_encode(session('noPending')) !!};
+            var eksp = {!! json_encode(session('ekspidisi')) !!};
+            try {
+                if (noPending) {
+                    $('#NoPending').val(noPending);
+                }
+                if (typeof eksp !== 'undefined' && eksp !== null) {
+                    $('#convert_selectEkspedisi').val(eksp).trigger('change');
+                }
+                $('#convertPo').modal('show');
+            } catch (e) {
+                console.error('Failed to auto-open convert PO modal', e);
+            }
+        });
+    </script>
+    @endif
+
     <script>
         let formatter = new Intl.NumberFormat('id-ID', {
             style: 'currency',

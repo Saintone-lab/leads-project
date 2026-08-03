@@ -379,6 +379,20 @@
                             href="{{ route('print.quotation', $quote->id) }}">
                             Download
                         </a>
+                        @php
+                            $pendingPo = \App\Models\PendingPO::where('id_quotation', $quote->id)->first();
+                        @endphp
+                        @if ($pendingPo)
+                            @if ($pendingPo->type === 'Project')
+                                <a href="{{ route('project-monitoring.show', $pendingPo->id) }}" class="btn btn-info d-grid w-100 waves-effect mb-3">
+                                    <i class="mdi mdi-eye-outline me-1"></i> View Order
+                                </a>
+                            @else
+                                <a href="{{ route('pending-po.show', $pendingPo->id) }}" class="btn btn-info d-grid w-100 waves-effect mb-3">
+                                    <i class="mdi mdi-eye-outline me-1"></i> View Order
+                                </a>
+                            @endif
+                        @endif
                         @if (Auth::user()->role == 'Sales')
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
@@ -530,7 +544,9 @@
                 @elseif(Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
                     @if ($quote->po_file != null)
                         <div class="card mb-3">
-                            <div class="card-body">
+                            <div class="card-body d-flex gap-2">
+                                <a href="#" onclick="openPdfViewer('{{ url($quote->po_file) }}', 'File PO {{ $quote->no_quote ?? '' }}'); return false;"
+                                    class="btn btn-outline-primary d-grid w-100 waves-effect"> Lihat PO</a>
                                 <a href="{{ route('download-po.quotation', $quote->id) }}"
                                     class="btn btn-primary d-grid w-100 waves-effect"> Download PO</a>
                             </div>
@@ -730,6 +746,7 @@
     @include('components.modal.quotation.add-payment')
     @include('components.modal.quotation.mentions')
     @include('components.modal.quotation.detail-payment')
+    @include('components.modal.viewer.pdf')
     </div>
 @endsection
 @push('after-style')

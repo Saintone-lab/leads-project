@@ -128,7 +128,7 @@
                             <div class="form-floating form-floating-outline mb-4">
                                 <textarea class="form-control h-px-100" name="address" id="addressTextarea1"
                                     placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('address', @$leads->address ?? '') }}</textarea>
-                                <label for="addressTextarea1">Address</label>
+                                <label for="addressTextarea1">Office / Factory Address</label>
                             </div>
                         </div>
                     </div>
@@ -157,23 +157,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row g-2 mb-3">
-                            <div class="col mb-2">
-                                <div class="form-floating form-floating-outline">
-                                    <input type="text" id="machineAnimation" class="form-control"
-                                        placeholder="123xxxxxxxx" name="npwp"
-                                        value="{{ old('npwp', @$leads->npwp ?? '') }}">
-                                    <label for="npwpAnimation">NPWP</label>
-                                </div>
-                            </div>
-                            <div class="col mb-2">
-                                <div class="form-floating form-floating-outline mb-4">
-                                    <textarea class="form-control h-px-100" name="subAddress" id="addressTextarea2"
-                                        placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('subAddress', @$leads->subAddress ?? '') }}</textarea>
-                                    <label for="addressTextarea2">Sub Address</label>
-                                </div>
-                            </div>
-                        </div>
+                        <input type="hidden" name="npwp" value="{{ old('npwp', @$leads->npwp ?? '') }}">
+                        <input type="hidden" name="subAddress" value="{{ old('subAddress', @$leads->subAddress ?? '') }}">
                     @endif
                     {{-- @empty($leads)
                     <div class="divider divider-dark mx-3">

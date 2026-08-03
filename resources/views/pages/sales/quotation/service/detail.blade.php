@@ -463,6 +463,20 @@
                                 </a>
                             </div>
                         </div>
+                        @php
+                            $pendingPo = \App\Models\PendingPO::where('id_quotation', $quote->id)->first();
+                        @endphp
+                        @if ($pendingPo)
+                            @if ($pendingPo->type === 'Project')
+                                <a href="{{ route('project-monitoring.show', $pendingPo->id) }}" class="btn btn-info d-grid w-100 waves-effect mb-3">
+                                    <i class="mdi mdi-eye-outline me-1"></i> View Order
+                                </a>
+                            @else
+                                <a href="{{ route('pending-po.show', $pendingPo->id) }}" class="btn btn-info d-grid w-100 waves-effect mb-3">
+                                    <i class="mdi mdi-eye-outline me-1"></i> View Order
+                                </a>
+                            @endif
+                        @endif
                         @if (Auth::user()->role == 'Sales')
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"

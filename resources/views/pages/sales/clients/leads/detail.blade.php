@@ -55,12 +55,8 @@
                                     </div>
                                 </div>
                                 <div class="row mb-2">
-                                    <div class="col-4 text-muted">Alamat NPWP</div>
-                                    <div class="col-8">{{ $existing->address }}</div>
-                                </div>
-                                <div class="row mb-2">
                                     <div class="col-4 text-muted">Office / Factory</div>
-                                    <div class="col-8">{{ $existing->subAddress }}</div>
+                                    <div class="col-8">{{ $existing->address }}</div>
                                 </div>
                                 <div class="row mb-2">
                                     <div class="col-4 text-muted">Area</div>
@@ -89,10 +85,6 @@
                                 <div class="row mb-2">
                                     <div class="col-4 text-muted">Source</div>
                                     <div class="col-8">{{ $existing->source }}</div>
-                                </div>
-                                <div class="row mb-2">
-                                    <div class="col-4 text-muted">NPWP</div>
-                                    <div class="col-8">{{ $existing->npwp }}</div>
                                 </div>
                                 <div class="row">
                                     <div class="col-4 text-muted">Assigned</div>
@@ -131,6 +123,28 @@
                         </div>
                     </div>
                     <div class="row">
+                        <div class="col-md-12 mt-3">
+                            <div class="card border shadow-none mb-0">
+                                <div class="card-header bg-lighter py-2 d-flex justify-content-between align-items-center">
+                                    <h6 class="fw-bold mb-0 text-primary">
+                                        <i class="mdi mdi-file-certificate-outline me-1"></i>NPWP & Tax Details
+                                    </h6>
+                                    <a type="button" data-bs-toggle="modal" data-bs-target="#editNpwpDetails">
+                                        <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
+                                    </a>
+                                </div>
+                                <div class="card-body py-3">
+                                    <div class="row mb-2">
+                                        <div class="col-md-2 text-muted fw-medium">No. NPWP</div>
+                                        <div class="col-md-10 fw-semibold">{{ $existing->npwp ?? '-' }}</div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-2 text-muted fw-medium">Alamat NPWP</div>
+                                        <div class="col-md-10">{{ $existing->subAddress ?? '-' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="col-md-12 my-3">
                             <div class="border rounded p-3">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -313,9 +327,9 @@
                                 @endif
                             </div>
                         </div>
-                        @if (Auth::user()->detail[0]->area == 'Bekasi' ||
-                                Auth::user()->detail[0]->area == 'Jabodetabek' ||
-                                (Auth::user()->detail[0]->area == 'Jawa Barat' && Auth::user()->role == 'Sales'))
+                        @if (optional(Auth::user()->detail->first())->area == 'Bekasi' ||
+                                optional(Auth::user()->detail->first())->area == 'Jabodetabek' ||
+                                (optional(Auth::user()->detail->first())->area == 'Jawa Barat' && Auth::user()->role == 'Sales'))
                             <div class="col-md-12 my-3">
                                 <div class="border rounded p-3">
                                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -402,72 +416,90 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 my-3">
-                            <div class="border rounded p-3 h-100">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="fw-bold mb-0">Service History</h5>
+                        <div class="col-md-12 my-3">
+                            <div class="border rounded p-3 bg-white">
+                                <div class="mb-3">
+                                    <h5 class="fw-bold mb-1">Riwayat Laporan Servis</h5>
+                                    <p class="text-muted small mb-0">Pilih kategori riwayat laporan di bawah untuk melihat detail servis teknisi.</p>
                                 </div>
-                                <div class="card-datatable table-responsive pt-0">
-                                    <table class="datatable-service-history table table-bordered"
-                                        id="dataTableServiceHistory">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th></th>
-                                                <th>ID</th>
-                                                <th>No Service</th>
-                                                <th>Unit</th>
-                                                <th>Teknisi</th>
-                                                <th>Date</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 my-3">
-                            <div class="border rounded p-3 h-100">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="fw-bold mb-0">Service Visit History</h5>
-                                </div>
-                                <div class="card-datatable table-responsive pt-0">
-                                    <table class="datatable-visit-history table table-bordered"
-                                        id="dataTableServiceVisitHistory">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th></th>
-                                                <th>ID</th>
-                                                <th>No Service</th>
-                                                <th>Unit</th>
-                                                <th>Teknisi</th>
-                                                <th>Date</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6 my-3">
-                            <div class="border rounded p-3 h-100">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
-                                    <h5 class="fw-bold mb-0">Service General Checkup History</h5>
-                                </div>
-                                <div class="card-datatable table-responsive pt-0">
-                                    <table class="datatable-general-history table table-bordered"
-                                        id="dataTableGeneralHistory">
-                                        <thead>
-                                            <tr>
-                                                <th></th>
-                                                <th></th>
-                                                <th>ID</th>
-                                                <th>No Service</th>
-                                                <th>Unit</th>
-                                                <th>Teknisi</th>
-                                                <th>Date</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
+
+                                {{-- Sub-Nav Pills Navigation --}}
+                                <ul class="nav nav-pills nav-fill mb-3 border-bottom pb-2" id="service-subtabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active fw-semibold" id="subtab-service-btn" data-bs-toggle="pill" data-bs-target="#subtab-service" type="button" role="tab" aria-controls="subtab-service" aria-selected="true">
+                                            <i class="mdi mdi-wrench-outline me-1"></i>Service
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link fw-semibold" id="subtab-visit-btn" data-bs-toggle="pill" data-bs-target="#subtab-visit" type="button" role="tab" aria-controls="subtab-visit" aria-selected="false">
+                                            <i class="mdi mdi-map-marker-path me-1"></i>Visit
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link fw-semibold" id="subtab-general-btn" data-bs-toggle="pill" data-bs-target="#subtab-general" type="button" role="tab" aria-controls="subtab-general" aria-selected="false">
+                                            <i class="mdi mdi-clipboard-check-outline me-1"></i>General Check
+                                        </button>
+                                    </li>
+                                </ul>
+
+                                {{-- Sub-Tab Content Panes --}}
+                                <div class="tab-content p-0" id="service-subtabs-content">
+                                    {{-- Sub-tab 1: Service History --}}
+                                    <div class="tab-pane fade show active" id="subtab-service" role="tabpanel" aria-labelledby="subtab-service-btn">
+                                        <div class="card-datatable table-responsive pt-0">
+                                            <table class="datatable-service-history table table-bordered w-100" id="dataTableServiceHistory">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th>ID</th>
+                                                        <th>No Service</th>
+                                                        <th>Unit</th>
+                                                        <th>Teknisi</th>
+                                                        <th>Date</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    {{-- Sub-tab 2: Service Visit History --}}
+                                    <div class="tab-pane fade" id="subtab-visit" role="tabpanel" aria-labelledby="subtab-visit-btn">
+                                        <div class="card-datatable table-responsive pt-0">
+                                            <table class="datatable-visit-history table table-bordered w-100" id="dataTableServiceVisitHistory">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th>ID</th>
+                                                        <th>No Service</th>
+                                                        <th>Unit</th>
+                                                        <th>Teknisi</th>
+                                                        <th>Date</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    {{-- Sub-tab 3: General Checkup History --}}
+                                    <div class="tab-pane fade" id="subtab-general" role="tabpanel" aria-labelledby="subtab-general-btn">
+                                        <div class="card-datatable table-responsive pt-0">
+                                            <table class="datatable-general-history table table-bordered w-100" id="dataTableGeneralHistory">
+                                                <thead>
+                                                    <tr>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th>ID</th>
+                                                        <th>No Service</th>
+                                                        <th>Unit</th>
+                                                        <th>Teknisi</th>
+                                                        <th>Date</th>
+                                                    </tr>
+                                                </thead>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -510,6 +542,59 @@
             </div>
         </div>
     </div>
+
+    <form action="{{ route('leads.update', $existing->id) }}" method="post">
+        @csrf
+        @method('patch')
+        <input type="hidden" name="company" value="{{ $existing->company }}">
+        <input type="hidden" name="email" value="{{ $existing->email }}">
+        <input type="hidden" name="phone" value="{{ $existing->phone }}">
+        <input type="hidden" name="ru" value="{{ $existing->ru }}">
+        <input type="hidden" name="unit" value="{{ $existing->unit }}">
+        <input type="hidden" name="source" value="{{ $existing->source }}">
+        <input type="hidden" name="mobile" value="{{ $existing->mobile }}">
+        <input type="hidden" name="address" value="{{ $existing->address }}">
+        <input type="hidden" name="area" value="{{ $existing->area }}">
+        @if (Auth::user()->id == 1 || Auth::user()->id == 16)
+            <input type="hidden" name="info" value="{{ $existing->info }}">
+        @endif
+
+        <div class="modal fade" id="editNpwpDetails" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Edit NPWP & Tax Details</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-2 mb-3">
+                            <div class="col-12 mb-2">
+                                <div class="form-floating form-floating-outline">
+                                    <input type="text" id="npwpInput" class="form-control npwp-number-only" name="npwp"
+                                        placeholder="16 Digit No. NPWP" value="{{ old('npwp', $existing->npwp) }}" 
+                                        inputmode="numeric" pattern="\d{16}" minlength="16" maxlength="16"
+                                        title="No. NPWP harus persis 16 digit angka" required>
+                                    <label for="npwpInput">No. NPWP (16 Digit)</label>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-2">
+                                <div class="form-floating form-floating-outline">
+                                    <textarea class="form-control h-px-100" name="subAddress" id="subAddressInput"
+                                        placeholder="Alamat NPWP">{{ old('subAddress', $existing->subAddress) }}</textarea>
+                                    <label for="subAddressInput">Alamat NPWP</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary waves-effect"
+                            data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary waves-effect waves-light">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
 @endsection()
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
@@ -844,6 +929,18 @@
                     });
                 }
             });
+        });
+
+        $(document).on('input', '.npwp-number-only', function () {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 16);
+        });
+
+        // Re-adjust DataTables column widths when switching subtabs inside Tab Service
+        $('#service-subtabs button[data-bs-toggle="pill"]').on('shown.bs.tab', function() {
+            $.fn.dataTable.tables({
+                visible: true,
+                api: true
+            }).columns.adjust().responsive.recalc();
         });
     </script>
 @endpush

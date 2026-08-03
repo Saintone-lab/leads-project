@@ -153,39 +153,30 @@
                         </div>
                     </div>
                     <div class="row g-2 mb-3">
-                        <div class="col mb-2">
+                        <div class="col-12 mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="machineAnimation" class="form-control"
-                                    placeholder="123xxxxxxxx" name="npwp"
-                                    value="{{ old('npwp', @$existing->npwp ?? '') }}">
-                                <label for="npwpAnimation">NPWP</label>
-                            </div>
-                        </div>
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline">
-                                <input type="text" id="areaAnimation" class="form-control"
-                                    placeholder="Contoh: Bandung" name="area"
-                                    value="{{ old('area', @$existing->area ?? '') }}">
-                                <label for="areaAnimation">Area</label>
+                                <select id="selectAreaExisting{{ @$existing->id ?? 'Create' }}" class="select2 form-select select-area-existing" name="area">
+                                    <option value=""></option>
+                                    @php $selectedArea = old('area', @$existing->area ?? ''); @endphp
+                                    @if ($selectedArea)
+                                        <option value="{{ $selectedArea }}" selected>{{ $selectedArea }}</option>
+                                    @endif
+                                </select>
+                                <label for="selectAreaExisting{{ @$existing->id ?? 'Create' }}">Area</label>
                             </div>
                         </div>
                     </div>
+                    <input type="hidden" name="npwp" value="{{ old('npwp', @$existing->npwp ?? '') }}">
                     <div class="row g-2 mb-3">
-                        <div class="col mb-2">
+                        <div class="col-12 mb-2">
                             <div class="form-floating form-floating-outline mb-4">
                                 <textarea class="form-control h-px-100" name="address" id="addressTextarea1"
                                     placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('address', @$existing->address ?? '') }}</textarea>
-                                <label for="addressTextarea1">Address</label>
-                            </div>
-                        </div>
-                        <div class="col mb-2">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <textarea class="form-control h-px-100" name="subAddress" id="addressTextarea2"
-                                    placeholder="Contoh: Jl Taman Kopo Indah 5 Kota...">{{ old('subAddress', @$existing->subAddress ?? '') }}</textarea>
-                                <label for="addressTextarea2">Sub Address</label>
+                                <label for="addressTextarea1">Office / Factory Address</label>
                             </div>
                         </div>
                     </div>
+                    <input type="hidden" name="subAddress" value="{{ old('subAddress', @$existing->subAddress ?? '') }}">
                     @empty($existing)
                         <div class="divider divider-dark mx-3">
                             <div class="divider-text"><span class="fw-semibold">Personal In Charge</span></div>
@@ -237,3 +228,40 @@
         </div>
     </div>
 </form>
+
+@push('after-style')
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
+@endpush
+
+@push('after-script')
+    <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
+@endpush
+
+@push('page-script')
+    <script>
+        $(function () {
+            $('.select-area-existing').each(function () {
+                var $this = $(this);
+                $this.select2({
+                    placeholder: 'Area',
+                    width: '100%',
+                    dropdownParent: $this.closest('.modal'),
+                    minimumInputLength: 2,
+                    language: {
+                        inputTooShort: function () { return 'Ketik minimal 2 karakter...'; },
+                        searching: function () { return 'Mencari...'; },
+                        noResults: function () { return 'Kota/Kabupaten tidak ditemukan'; }
+                    },
+                    ajax: {
+                        url: '{{ route('kota.search') }}',
+                        dataType: 'json',
+                        delay: 300,
+                        data: function (params) { return { q: params.term }; },
+                        processResults: function (data) { return { results: data }; },
+                        cache: true
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

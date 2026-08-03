@@ -14,32 +14,47 @@
         </div>
     @endif
 
-    <h4 class="fw-bold py-3 mb-4">
-        <span class="text-muted fw-light">Clients /</span> Customers
-    </h4>
+    <!-- Header Banner Card -->
+    <div class="card clean-card mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge bg-label-success fs-6 px-3 py-2">
+                            <i class="mdi mdi-account-check-outline me-1"></i> Directory Customer
+                        </span>
+                    </div>
+                    <h4 class="fw-bold mb-0 text-dark">Customer by Status</h4>
+                    <small class="text-muted">
+                        Kelola data pelanggan aktif berdasarkan status keaktifannya.
+                    </small>
+                </div>
 
-    <div class="d-flex align-items-center justify-content-end mb-3 gap-2">
-        <label class="form-label mb-0 text-muted" style="white-space:nowrap;">Filter Tipe:</label>
-        <select class="form-select form-select-sm" id="ru-type-filter" style="max-width:180px;">
-            <option value="">Semua Tipe</option>
-            <option value="User">User</option>
-            <option value="Reseller">Reseller</option>
-        </select>
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <label class="form-label mb-0 text-muted" style="white-space:nowrap;">Filter Tipe:</label>
+                    <select class="form-select form-select-sm" id="ru-type-filter" style="max-width:180px;">
+                        <option value="">Semua Tipe</option>
+                        <option value="User">User</option>
+                        <option value="Reseller">Reseller</option>
+                    </select>
 
-        @if (in_array(Auth::user()->role, ['Admin', 'Sales Manager', 'Accounting', 'ServiceM', 'Finance Manager']))
-        <label class="form-label mb-0 text-muted ms-2" style="white-space:nowrap;">Filter Sales:</label>
-        <select class="form-select form-select-sm" id="admin-sales-filter" style="max-width:220px;">
-            <option value="">Semua Sales</option>
-            @foreach ($sales as $s)
-                <option value="{{ $s->id }}">{{ $s->name }}</option>
-            @endforeach
-        </select>
-        @endif
+                    @if (in_array(Auth::user()->role, ['Admin', 'Sales Manager', 'Accounting', 'ServiceM', 'Finance Manager']))
+                    <label class="form-label mb-0 text-muted ms-2" style="white-space:nowrap;">Filter Sales:</label>
+                    <select class="form-select form-select-sm" id="admin-sales-filter" style="max-width:220px;">
+                        <option value="">Semua Sales</option>
+                        @foreach ($sales as $s)
+                            <option value="{{ $s->id }}">{{ $s->name }}</option>
+                        @endforeach
+                    </select>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="card">
-        <div class="card-header py-2">
-            <ul class="nav nav-tabs card-header-tabs border-0 m-0" id="crm-tab-nav" role="tablist">
+    <div class="card card-minimalist mb-4">
+        <div class="card-header card-minimalist-header py-2">
+            <ul class="nav nav-tabs card-header-tabs border-0 m-0 flex-nowrap overflow-auto" id="crm-tab-nav" role="tablist">
                 <li class="nav-item">
                     <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-active" type="button">
                         <i class="mdi mdi-check-circle-outline me-1"></i>Active
@@ -64,10 +79,10 @@
         <div class="card-body p-0">
             <div class="tab-content border-0 p-0 m-0">
                 {{-- Tab 1: Active --}}
-                <div class="tab-pane fade show active" id="tab-active">
-                    <div class="table-responsive">
+                <div class="tab-pane fade show active p-3" id="tab-active">
+                    <div class="card-datatable table-responsive pt-0">
                         <table class="datatable-customers-active table table-bordered" data-badge="badge-active">
-                            <thead>
+                            <thead class="table-light">
                                 <tr>
                                     <th class="text-center">Company</th>
                                     <th class="text-center">Status</th>
@@ -82,10 +97,10 @@
                 </div>
 
                 {{-- Tab 2: Non Active --}}
-                <div class="tab-pane fade" id="tab-non-active">
-                    <div class="table-responsive">
+                <div class="tab-pane fade p-3" id="tab-non-active">
+                    <div class="card-datatable table-responsive pt-0">
                         <table class="datatable-customers-non-active table table-bordered" data-badge="badge-non-active">
-                            <thead>
+                            <thead class="table-light">
                                 <tr>
                                     <th class="text-center">Company</th>
                                     <th class="text-center">Status</th>
@@ -100,10 +115,10 @@
                 </div>
 
                 {{-- Tab 3: Bangkrupt --}}
-                <div class="tab-pane fade" id="tab-bangkrupt">
-                    <div class="table-responsive">
+                <div class="tab-pane fade p-3" id="tab-bangkrupt">
+                    <div class="card-datatable table-responsive pt-0">
                         <table class="datatable-customers-bangkrupt table table-bordered" data-badge="badge-bangkrupt">
-                            <thead>
+                            <thead class="table-light">
                                 <tr>
                                     <th class="text-center">Company</th>
                                     <th class="text-center">Status</th>
@@ -133,6 +148,28 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+    <style>
+        .card-minimalist {
+            border: 1px solid #e0e2e8 !important;
+            box-shadow: none !important;
+            border-radius: 12px;
+        }
+        .card-minimalist-header {
+            border-bottom: 1px solid #e0e2e8 !important;
+            background-color: #fafbfe;
+            border-top-left-radius: 12px !important;
+            border-top-right-radius: 12px !important;
+        }
+        .nav-tabs .nav-link {
+            border-radius: 6px 6px 0 0;
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link.active {
+            border-color: #e0e2e8 #e0e2e8 #fff !important;
+            background-color: #ffffff;
+            font-weight: 600;
+        }
+    </style>
 @endpush
 
 @push('after-script')

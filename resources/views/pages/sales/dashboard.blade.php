@@ -390,17 +390,12 @@
         <div class="row gy-4 mb-4">
             <!-- Congratulations card -->
             <div class="col-xl-4 col-lg-4 col-md-4 col-sm-12">
-                <div class="card h-100">
+                <div class="card clean-card h-100">
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        <h4 class="card-title m-0 me-2">Rank Sales Team 🏆</h4>
+                        <h5 class="card-title m-0 me-2">Rank Sales Team 🏆</h5>
                     </div>
                     <div class="card-body">
-                        <ul class="p-0 m-0">
-                            <li class="d-flex mb-3 justify-content-between pb-2">
-                                <h6 class="mb-0 small"></h6>
-                                <h6 class="mb-0 small"></h6>
-                            </li>
-                            <hr>
+                        <ul class="p-0 m-0"><hr>
                             @php
                                 $no = 1;
                             @endphp
@@ -433,24 +428,29 @@
                                             break;
                                     }
                                 @endphp
-                                <li class="d-flex mb-4">
-                                    <span style="font-size:16px;"
-                                        class="badge bg-label-{{ $color }} d-inline-flex align-items-center justify-content-center "><b>
-                                        # {{ $no }}</b>
+                                <li class="d-flex align-items-start mb-3" style="list-style:none;">
+                                    <span class="badge bg-label-{{ $color }} d-inline-flex align-items-center justify-content-center flex-shrink-0"
+                                          style="min-width:36px;font-size:13px;">
+                                        #{{ $no }}
                                     </span>
-                                    <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                                        <div class="mx-2 me-2">
-                                            <h6 class="mb-0">{{ $sale['name'] }}
-                                                @if ($no == 1)
-                                                    <span class="text-warning">
-                                                        <i class="mdi mdi-crown mdi-24px"></i>
-                                                    </span>
-                                                @endif
-                                            </h6>
-                                            <small class="text-muted">{{ $sale['area'] }}</small>
+                                    <div class="ms-2 w-100">
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <div>
+                                                <span class="fw-semibold" style="font-size:0.875rem;">
+                                                    {{ $sale['name'] }}
+                                                    @if ($no == 1)
+                                                        <i class="mdi mdi-crown text-warning ms-1"></i>
+                                                    @endif
+                                                </span>
+                                                <small class="text-muted d-block" style="font-size:0.7rem;">{{ $sale['area'] }}</small>
+                                            </div>
+                                            <span class="badge bg-label-{{ $color }} rounded-pill" style="font-size:12px;">
+                                                {{ $sale['percentage'] }}%
+                                            </span>
                                         </div>
-                                        <div style="font-size:16px" class="badge bg-label-{{ $color }} rounded-pill">
-                                            {{ $sale['percentage'] }}%
+                                        <div class="progress" style="height:4px;border-radius:4px;">
+                                            <div class="progress-bar bg-{{ $color }}"
+                                                 style="width:{{ min($sale['percentage'], 100) }}%;border-radius:4px;"></div>
                                         </div>
                                     </div>
                                 </li>
@@ -646,7 +646,7 @@
 
         <div class="row gy-4 mb-4">
             {{-- Hot Prospect Table --}}
-            <div class="col-12">
+            <div class="col-12" id="hot-prospect-section">
                 <div class="card">
                     <div class="card-header d-flex align-items-center justify-content-between">
                         <h5 class="mb-0"><i class="mdi mdi-fire text-danger me-1"></i> Hot Prospect</h5>
@@ -993,1162 +993,48 @@
     <!-- End Support Dashboard -->
 @elseif (Auth::user()->role == 'Admin')
     @php
-        $adminView = $adminView ?? 'sales';
+        $adminView = request()->query('view', $adminView ?? 'sales');
     @endphp
-    @if ($adminView === 'salesmanager')
-        @include('pages.salesmanager.dashboard._content')
-    @elseif ($adminView === 'accounting')
-        @include('pages.accounting.dashboard._content')
-    @elseif ($adminView === 'finance')
-        @include('pages.finance.dashboard._content')
-    @elseif ($adminView === 'logistic')
-        @include('pages.logistic.dashboard._content')
-    @elseif ($adminView === 'workshop')
-        @include('pages.workshop.dashboard._content')
-    @else
-    <div class="row gy-4 mb-4">
-        <div class="col-12 col-lg-4">
 
-            @php
-                $pctAdmin     = $targetAllSales > 0 ? round(($poTotalPriceAdmin / $targetAllSales) * 100, 1) : 0;
-                $pctAdmColor  = $pctAdmin >= 100 ? 'success' : ($pctAdmin >= 80 ? 'warning' : 'danger');
-                $pctAdmBar    = min($pctAdmin, 100);
-                $today        = \Carbon\Carbon::now();
-                $semesterNow  = \App\Models\SalesReports::where('semester', $today->month > 6 ? 2 : 1)
-                                    ->where('year', $today->year)->first();
-            @endphp
-            <div class="card mb-3">
-                <div class="card-body" style="padding-right: 10rem;">
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="badge bg-label-primary">
-                            <i class="mdi mdi-chart-line"></i> Monthly
-                        </span>
-                        <small class="text-muted">{{ $today->locale('id')->translatedFormat('F Y') }}</small>
-                    </div>
-                    <h5 class="card-title mb-1">Sales Performance</h5>
-                    <h3 class="text-primary fw-bold mb-0">Rp. {{ $formattedTotalPriceAdmin }}</h3>
-                    <small class="text-muted">Target: Rp. {{ number_format($targetAllSales, 0, ',', '.') }}</small>
-
-                    <div class="my-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted fw-semibold">Pencapaian Target</small>
-                            <small class="fw-bold text-{{ $pctAdmColor }}">{{ $pctAdmin }}%</small>
-                        </div>
-                        <div class="progress" style="height:6px;border-radius:4px;">
-                            <div class="progress-bar bg-{{ $pctAdmColor }}"
-                                 style="width:{{ $pctAdmBar }}%;border-radius:4px;"></div>
-                        </div>
-                    </div>
-
-                    @if ($semesterNow)
-                        <a href="{{ route('report.semester', $semesterNow) }}"
-                           class="btn btn-sm btn-primary waves-effect waves-light mt-1">
-                            <i class="mdi mdi-chart-areaspline me-1"></i> View Sales
-                        </a>
-                    @endif
-                </div>
-                <img src="{{ asset('assets') }}/img/illustrations/trophy.png"
-                    class="position-absolute bottom-0 end-0 me-3" height="140" alt="view sales">
+    <div class="card clean-card mb-4 p-3">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-label-primary fs-7 px-3 py-2 rounded-pill">
+                    <i class="mdi mdi-shield-account me-1"></i> Admin View
+                </span>
+                <small class="text-muted fw-semibold d-none d-sm-inline">Pilih Sudut Pandang Dashboard Departemen:</small>
             </div>
-            <div class="card">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <h5 class="card-title m-0 me-2">Rank Sales Team 🏆</h5>
-                </div>
-                <div class="card-body">
-                    <ul class="p-0 m-0"><hr>
-                        @php
-                            $no = 1;
-                        @endphp
-                        @foreach ($sorted as $sale)
-                            @php
-                                switch ($no) {
-                                    case 1:
-                                        $color = 'warning'; // Kuning / Orange
-                                        break;
-                                    case 2:
-                                        $color = 'success'; // Hijau
-                                        break;
-                                    case 3:
-                                        $color = 'info'; // Biru
-                                        break;
-                                    case 4:
-                                        $color = 'secondary'; // Abu-abu
-                                        break;
-                                    case 5:
-                                        $color = 'primary'; // custom (kalau ada)
-                                        break;
-                                    case 6:
-                                        $color = 'danger'; // Merah
-                                        break;
-                                    case 7:
-                                        $color = 'dark'; // Hitam
-                                        break;
-                                    default:
-                                        $color = 'primary';
-                                        break;
-                                }
-                            @endphp
-                            <li class="d-flex align-items-start mb-3" style="list-style:none;">
-                                <span class="badge bg-label-{{ $color }} d-inline-flex align-items-center justify-content-center flex-shrink-0"
-                                      style="min-width:36px;font-size:13px;">
-                                    #{{ $no }}
-                                </span>
-                                <div class="ms-2 w-100">
-                                    <div class="d-flex align-items-center justify-content-between mb-1">
-                                        <div>
-                                            <span class="fw-semibold" style="font-size:0.875rem;">
-                                                {{ $sale['name'] }}
-                                                @if ($no == 1)
-                                                    <i class="mdi mdi-crown text-warning ms-1"></i>
-                                                @endif
-                                            </span>
-                                            <small class="text-muted d-block" style="font-size:0.7rem;">{{ $sale['area'] }}</small>
-                                        </div>
-                                        <span class="badge bg-label-{{ $color }} rounded-pill" style="font-size:12px;">
-                                            {{ $sale['percentage'] }}%
-                                        </span>
-                                    </div>
-                                    <div class="progress" style="height:4px;border-radius:4px;">
-                                        <div class="progress-bar bg-{{ $color }}"
-                                             style="width:{{ min($sale['percentage'], 100) }}%;border-radius:4px;"></div>
-                                    </div>
-                                </div>
-                            </li>
-                            @php
-                                $no++;
-                            @endphp
-                        @endforeach
-                    </ul>
-                </div>
+            <div class="d-flex flex-wrap gap-1" id="admin-view-switcher">
+                <button type="button" data-view="sales"
+                   class="btn btn-sm btn-admin-view-switch {{ ($adminView ?? 'sales') === 'sales' ? 'btn-primary shadow-xs' : 'btn-outline-secondary' }} rounded-pill px-3 waves-effect">
+                    <i class="mdi mdi-chart-line me-1"></i> Sales
+                </button>
+                <button type="button" data-view="salesmanager"
+                   class="btn btn-sm btn-admin-view-switch {{ ($adminView ?? 'sales') === 'salesmanager' ? 'btn-primary shadow-xs' : 'btn-outline-secondary' }} rounded-pill px-3 waves-effect">
+                    <i class="mdi mdi-account-tie me-1"></i> Sales Manager
+                </button>
+                <button type="button" data-view="accounting"
+                   class="btn btn-sm btn-admin-view-switch {{ ($adminView ?? 'sales') === 'accounting' ? 'btn-primary shadow-xs' : 'btn-outline-secondary' }} rounded-pill px-3 waves-effect">
+                    <i class="mdi mdi-calculator me-1"></i> Accounting
+                </button>
+                <button type="button" data-view="finance"
+                   class="btn btn-sm btn-admin-view-switch {{ ($adminView ?? 'sales') === 'finance' ? 'btn-primary shadow-xs' : 'btn-outline-secondary' }} rounded-pill px-3 waves-effect">
+                    <i class="mdi mdi-cash-multiple me-1"></i> Finance
+                </button>
+                <button type="button" data-view="logistic"
+                   class="btn btn-sm btn-admin-view-switch {{ ($adminView ?? 'sales') === 'logistic' ? 'btn-primary shadow-xs' : 'btn-outline-secondary' }} rounded-pill px-3 waves-effect">
+                    <i class="mdi mdi-truck-delivery-outline me-1"></i> Logistic
+                </button>
+                <button type="button" data-view="workshop"
+                   class="btn btn-sm btn-admin-view-switch {{ ($adminView ?? 'sales') === 'workshop' ? 'btn-primary shadow-xs' : 'btn-outline-secondary' }} rounded-pill px-3 waves-effect">
+                    <i class="mdi mdi-wrench-outline me-1"></i> Workshop
+                </button>
             </div>
         </div>
-        <div class="col-12 col-lg-8">
-            <div class="card h-100">
-                <div class="card-header d-flex justify-content-between">
-                    <div class="card-title m-0">
-                        <h5 class="mb-0">Sales Overview</h5>
-                    </div>
-                </div>
-                <div class="card-body pb-3">
-                    <ul class="nav nav-tabs nav-tabs-widget pb-3 gap-2 d-flex flex-nowrap" role="tablist">
-                        @foreach ($sales as $user)
-                            <li class="nav-item change-sales" role="presentation" style="width: 15%;height: 15%;"
-                                data-id="{{ $user->id }}">
-                                <img class="nav-link btn {{ $user->id == ($firstSales->id ?? 1) ? 'active' : '' }} d-flex flex-column align-items-center justify-content-center"
-                                    role="tab" data-bs-toggle="tab" data-bs-target="#navs-sales-{{ $user->id }}"
-                                    aria-controls="navs-sales-{{ $user->id }}" aria-selected="true"
-                                    src="{{ url('') . '/' . $user->image }}" alt="" srcset=""
-                                    style="width : 75px !important; height:75px !important; object-fit: cover; padding: 10px;">
-                            </li>
-                        @endforeach
-                        <span class="tab-slider" style="left: 0px; width: 112px; bottom: 0px;"></span>
-                    </ul>
-                    <div class="tab-content p-0 ms-0 ms-sm-2">
-                        @php
-                            $item = 0;
-                        @endphp
-                        @foreach ($sales as $user)
-                            <div class="tab-pane fade{{ $user->id == ($firstSales->id ?? 1) ? ' show active' : '' }}"
-                                id="navs-sales-{{ $user->id }}" role="tabpanel">
-                                <div class="mb-3">
-                                    <div data-id="{{ $item }}">
-                                        <div class="card-header">
-                                            <div class="row">
-                                                <div class="col-12 mb-3">
-                                                    <div class="d-flex justify-content-between">
-                                                        <h4 class="">{{ $user->name }}'s Overview</h4>
-                                                    </div>
-                                                </div>
-                                                @if ($user->role == 'Sales')
-                                                    @if ($user->id == 16 || $user->id == 23)
-                                                        <div class="col-6">
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div class="avatar-initial bg-label-info rounded">
-                                                                            <i class="mdi mdi-reproduction mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center p-0">
-                                                                    <h4 class="filtered-percent-product fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
+    </div>
 
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">Upload Product</h5>
-                                                                        <small>
-                                                                            <span class="filtered-product">
-                                                                                0
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-target-product text-muted fs-tiny fw-normal">/
-                                                                                100</span>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-whatsapp rounded">
-                                                                            <i class="mdi mdi-whatsapp mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center p-0">
-                                                                    <h4 class="filtered-percent-sw fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">Upload SW</h5>
-                                                                        <small>
-                                                                            <span class="filtered-sw">
-                                                                                0
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-target-sw text-muted fs-tiny fw-normal">/
-                                                                                {{ $user->id == 16 ? '120' : '60' }}</span>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-secondary rounded">
-                                                                            <i class="mdi mdi-video-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center p-0">
-                                                                    <h4 class="filtered-percent-video fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">Upload Video</h5>
-                                                                        <small>
-                                                                            <span class="filtered-video">
-                                                                                0
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-target-video text-muted fs-tiny fw-normal">/
-                                                                                100%</span>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-primary rounded">
-                                                                            <i
-                                                                                class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center p-0">
-                                                                    <h4 class="filtered-percent-crm fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">CRM</h5>
-                                                                        <small>
-                                                                            <span class="filtered-crm">
-                                                                                {{ $user->id == ($firstSales->id ?? 1) ? $filteredCRM : 0 }}
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] ?? 0 }}</span>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-warning rounded">
-                                                                            <i
-                                                                                class="mdi mdi-package-variant-closed-check mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center p-0">
-                                                                    <h4 class="filtered-percent-status fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">Status Product</h5>
-                                                                        <small>
-                                                                            <span class="filtered-status">
-                                                                                0
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-target-status text-muted fs-tiny fw-normal">/
-                                                                                5,0</span>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-facebook rounded">
-                                                                            <i
-                                                                                class="mdi mdi-truck-delivery-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center p-0">
-                                                                    <h4 class="filtered-percent-delivery fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">Delivery Status</h5>
-                                                                        <small>
-                                                                            <span class="filtered-delivery">
-                                                                                0
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-target-delivery text-muted fs-tiny fw-normal">/
-                                                                                5,0</span>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div class="avatar-initial bg-label-dark rounded">
-                                                                            <i class="mdi mdi-cart-check mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center p-0">
-                                                                    <h4 class="filtered-percent-customer fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">Customer Care</h5>
-                                                                        <small>
-                                                                            <span class="filtered-customer">
-                                                                                0
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-target-customer text-muted fs-tiny fw-normal">/
-                                                                                5,0</span>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-pinterest rounded">
-                                                                            <i
-                                                                                class="mdi mdi-account-heart-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center p-0">
-                                                                    <h4 class="filtered-percent-response fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">Chat Response</h5>
-                                                                        <small>
-                                                                            <span class="filtered-response">
-                                                                                0
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-target-response text-muted fs-tiny fw-normal">/
-                                                                                100%</span>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-reddit rounded">
-                                                                            <i class="mdi mdi-monitor-star mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center p-0">
-                                                                    <h4 class="filtered-percent-rating fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">Store Performance</h5>
-                                                                        <small>
-                                                                            <span class="filtered-rating">
-                                                                                0
-                                                                            </span>
-                                                                            <span
-                                                                                class="filtered-target-rating text-muted fs-tiny fw-normal">/
-                                                                                5.0</span>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-success rounded">
-                                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center p-0">
-                                                                    <h4 class="admin-target-total-po fs-5 m-0">
-                                                                        0 %</h4>
-                                                                </div>
-                                                                <div class="col-8">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">Purchase Order</h5>
-                                                                        <small>
-                                                                            <span class="admin-total-po">
-                                                                                Rp 0
-                                                                            </span>
-                                                                        </small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            {{-- <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-success rounded">
-                                                                                <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-10">
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">
-                                                                                <span class="admin-total-po">
-                                                                                    Rp
-                                                                                    {{ number_format($totalPO, 0, ',', '.') }}
-                                                                                </span>
-                                                                                @php
-                                                                                    $targetPO =
-                                                                                        ($totalPO /
-                                                                                            $targetSales[$item][0]
-                                                                                                ->total) *
-                                                                                        100;
-                                                                                    if ($targetPO <= 80) {
-                                                                                        $color = 'danger';
-                                                                                    } elseif ($targetPO <= 100) {
-                                                                                        $color = 'warning';
-                                                                                    } else {
-                                                                                        $color = 'success';
-                                                                                    }
-                                                                                @endphp
-                                                                                <span
-                                                                                    class="admin-target-total-po bg-label-{{ $color }} fs-tiny fw-normal">{{ round($targetPO) }}
-                                                                                    %</span>
-                                                                            </h5>
-                                                                            <small class="text-muted">Purchase
-                                                                                Order</small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div> --}}
-                                                        </div>
-                                                    @else
-                                                        <div class="col-6">
-                                                            @if ($user->id == 1 || $user->id == 2 || $user->id == 32)
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-secondary rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-account-multiple-plus-outline mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center">
-                                                                        @php
-                                                                            $salesTargetLeads = ($targetSales[$item][0] ?? null)?->leads ?? 0;
-                                                                            $currentLeads = $user->id == ($firstSales->id ?? 1) ? $filteredLeads : 0;
-                                                                            $targetLeads = $salesTargetLeads > 0 ? ($currentLeads / $salesTargetLeads) * 100 : 0;
-                                                                        @endphp
-                                                                        <h4 class="filtered-percent-leads fs-5 m-0">
-                                                                            {{ round($targetLeads) }} %</h4>
-                                                                    </div>
-                                                                    <div class="col-8">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">
-                                                                                <span class="filtered-leads">
-                                                                                    {{ $user->id == ($firstSales->id ?? 1) ? $filteredLeads : 0 }}
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-leads text-muted fs-tiny fw-normal">/
-                                                                                    {{ ($targetSales[$item][0] ?? null)?->leads ?? 0 }}</span>
-                                                                            </h5>
-                                                                            <small class="text-muted">New Leads</small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row mb-2">
-                                                                    <div class="col-2">
-                                                                        <div class="avatar">
-                                                                            <div
-                                                                                class="avatar-initial bg-label-info rounded">
-                                                                                <i
-                                                                                    class="mdi mdi-phone-outline mdi-24px"></i>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-2 d-flex align-items-center">
-                                                                        @php
-                                                                            $salesTargetDC = ($targetSales[$item][0] ?? null)?->dc ?? 0;
-                                                                            $currentDC = $user->id == ($firstSales->id ?? 1) ? $filteredDC : 0;
-                                                                            $targetDC = $salesTargetDC > 0 ? ($currentDC / $salesTargetDC) * 100 : 0;
-                                                                        @endphp
-                                                                        {{-- <h4 class="filtered-percent-dc fs-5 m-0">
-                                                                                {{ round($targetDC) }} %</h4> --}}
-                                                                    </div>
-                                                                    <div class="col-8">
-
-                                                                        <div class="card-info">
-                                                                            <h5 class="mb-0">
-                                                                                <span class="filtered-dc">
-                                                                                    {{ $user->id == ($firstSales->id ?? 1) ? $filteredDC : 0 }}
-                                                                                </span>
-                                                                                {{-- <span
-                                                                                        class="filtered-target-dc text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->dc }}</span> --}}
-                                                                            </h5>
-                                                                            <small class="text-muted">
-                                                                                Daily Call
-                                                                            </small>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            @endif
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-primary rounded">
-                                                                            <i
-                                                                                class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center">
-                                                                    @php
-                                                                        $crmDenominator = $targetCrm[$user->id] ?? 0;
-                                                                        $currentCRM = $user->id == ($firstSales->id ?? 1) ? $filteredCRM : 0;
-                                                                        $targetCRM = $crmDenominator > 0
-                                                                            ? ($currentCRM / $crmDenominator) * 100
-                                                                            : 0;
-                                                                    @endphp
-                                                                    @if ($user->id != 3)
-                                                                        <h4 class="filtered-percent-crm fs-5 m-0">
-                                                                            {{ round($targetCRM) }} %</h4>
-                                                                    @endif
-                                                                </div>
-                                                                <div class="col-8">
-                                                                    <div class="card-info">
-                                                                        @if ($user->id == 3)
-                                                                            -
-                                                                        @else
-                                                                            <h5 class="mb-0">
-                                                                                <span class="filtered-crm">
-                                                                                    {{ $user->id == ($firstSales->id ?? 1) ? $filteredCRM : 0 }}
-                                                                                </span>
-                                                                                <span
-                                                                                    class="filtered-target-crm text-muted fs-tiny fw-normal">/{{ $targetCrm[$user->id] ?? 0 }}</span>
-                                                                            </h5>
-                                                                        @endif
-                                                                        <small class="text-muted">CRM</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            @php
-                                                                $lastDetail = $user->detail->last();
-                                                            @endphp
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-warning rounded">
-                                                                            <i
-                                                                                class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center">
-                                                                    {{-- @php
-                                                                            $targetQuote =
-                                                                                ($filteredQuote /
-                                                                                    $targetSales[$item][0]->quote) *
-                                                                                100;
-                                                                        @endphp
-                                                                        <h4 class="filtered-percent-quote fs-5 m-0">
-                                                                            {{ round($targetQuote) }} %</h4> --}}
-                                                                </div>
-                                                                <div class="col-8">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="filtered-quote">
-                                                                                {{ $user->id == ($firstSales->id ?? 1) ? $filteredQuote : 0 }}
-                                                                            </span>
-                                                                            {{-- <span
-                                                                                    class="filtered-target-quote text-muted fs-tiny fw-normal">/{{ $targetSales[$item][0]->quote }}</span> --}}
-                                                                        </h5>
-                                                                        <small class="text-muted">Quotation</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-success rounded">
-                                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-2 d-flex align-items-center">
-                                                                    {{-- @php
-                                                                            $targetProspect =
-                                                                                $allProspect > 0
-                                                                                    ? ($filteredProspect /
-                                                                                            $allProspect) *
-                                                                                        100
-                                                                                    : 0;
-                                                                        @endphp
-                                                                        <h4
-                                                                            class="filtered-percent-prospect-sales fs-5 m-0">
-                                                                            {{ round($targetProspect) }} %</h4> --}}
-                                                                </div>
-                                                                <div class="col-8">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="filtered-prospect-sales">
-                                                                                {{ $user->id == ($firstSales->id ?? 1) ? $filteredProspect : 0 }}
-                                                                            </span>
-                                                                            {{-- <span
-                                                                                    class="filtered-all-prospect text-muted fs-tiny fw-normal">/{{ $allProspect }}</span> --}}
-                                                                        </h5>
-                                                                        <small class="text-muted">Prospect</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-secondary rounded">
-                                                                            <i class="mdi mdi-cart mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-10">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="admin-total-quotation">
-                                                                                Rp
-                                                                                {{ $user->id == ($firstSales->id ?? 1) ? number_format($totalQuotation, 0, ',', '.') : 0 }}
-                                                                            </span>
-                                                                        </h5>
-                                                                        <small class="text-muted">Quotation</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div class="avatar-initial bg-label-info rounded">
-                                                                            <i
-                                                                                class="mdi mdi-cart-arrow-down mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-10">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="admin-total-prospect">
-                                                                                Rp
-                                                                                {{ $user->id == ($firstSales->id ?? 1) ? number_format($totalProspect, 0, ',', '.') : 0 }}
-                                                                            </span>
-                                                                        </h5>
-                                                                        <small class="text-muted">Prospect</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-warning rounded">
-                                                                            <i class="mdi mdi-cart-heart mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-10">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="admin-total-hot-prospect">
-                                                                                Rp
-                                                                                {{ $user->id == ($firstSales->id ?? 1) ? number_format($totalHotProspect, 0, ',', '.') : 0 }}
-                                                                            </span>
-                                                                        </h5>
-                                                                        <small class="text-muted">Hot Prospect</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-danger rounded">
-                                                                            <i class="mdi mdi-cart-minus mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-10">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="admin-total-loss">
-                                                                                Rp
-                                                                                {{ $user->id == ($firstSales->id ?? 1) ? number_format($totalLoss, 0, ',', '.') : 0 }}
-                                                                            </span>
-                                                                        </h5>
-                                                                        <small class="text-muted">Quotation
-                                                                            Loss</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row mb-2">
-                                                                <div class="col-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-success rounded">
-                                                                            <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col-10">
-
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0">
-                                                                            <span class="admin-total-po">
-                                                                                Rp
-                                                                                {{ $user->id == ($firstSales->id ?? 1) ? number_format($totalPO, 0, ',', '.') : 0 }}
-                                                                            </span>
-                                                                            @php
-                                                                                $salesTargetTotal = ($targetSales[$item][0] ?? null)?->total ?? 0;
-                                                                                $currentPO = $user->id == ($firstSales->id ?? 1) ? $totalPO : 0;
-                                                                                $targetPO = $salesTargetTotal > 0 ? ($currentPO / $salesTargetTotal) * 100 : 0;
-                                                                                if ($targetPO <= 80) {
-                                                                                    $color = 'danger';
-                                                                                } elseif ($targetPO <= 100) {
-                                                                                    $color = 'warning';
-                                                                                } else {
-                                                                                    $color = 'success';
-                                                                                }
-                                                                            @endphp
-                                                                            <span
-                                                                                class="admin-target-total-po bg-label-{{ $color }} fs-tiny fw-normal">{{ round($targetPO) }}
-                                                                                %</span>
-                                                                        </h5>
-                                                                        <small class="text-muted">Purchase
-                                                                            Order</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @endif
-                                                    <div class="col-12">
-                                                        <div class="row mt-3">
-                                                            @php
-                                                                $month = date('m');
-                                                                $year = date('Y');
-                                                                $dateNow = $month . '-' . $year;
-                                                            @endphp
-                                                            <div class="col-2">
-                                                                <a class="btn btn-warning d-grid w-100 waves-effect text-white h-100"
-                                                                    type="button" data-bs-toggle="modal"
-                                                                    data-bs-target="#overview-sales-{{ $user->id }}">
-                                                                    Info
-                                                                </a>
-                                                            </div>
-                                                            <div class="col-4">
-                                                                <a class="btn btn-facebook d-grid w-100 waves-effect h-100"
-                                                                    href="{{ route('detail-overview.semester', ['sales' => $user->id, 'date' => $dateNow]) }}">
-                                                                    Detail
-                                                                </a>
-                                                            </div>
-                                                            <div class="col-6">
-                                                                <a class="btn btn-secondary d-grid w-100 waves-effect h-100"
-                                                                    href="{{ route('overview.semester', $user->id) }}">
-                                                                    Semester
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @else
-                                                    <div class="col-6">
-                                                        <div class="row mb-2">
-                                                            <div class="col-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-info rounded">
-                                                                        <i class="mdi mdi-phone-outline mdi-24px"></i>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-2 d-flex align-items-center">
-                                                                <h4 class="filtered-percent-prospect fs-5 m-0">
-                                                                    0 %</h4>
-                                                            </div>
-                                                            <div class="col-8">
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="filtered-prospect">
-                                                                            {{ $user->id == ($firstSales->id ?? 1) ? $filteredProspect : 0 }}
-                                                                        </span>
-                                                                        <span class="text-muted fs-tiny fw-normal">/
-                                                                            100</span>
-                                                                    </h5>
-                                                                    <small class="text-muted">Prospect</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mb-2">
-                                                            <div class="col-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-primary rounded">
-                                                                        <i
-                                                                            class="mdi mdi-account-multiple-outline mdi-24px"></i>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-2 d-flex align-items-center">
-                                                                <h4 class="filtered-percent-provided fs-5 m-0">
-                                                                    0 %</h4>
-                                                            </div>
-                                                            <div class="col-8">
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="filtered-provided">
-                                                                            0
-                                                                        </span>
-                                                                        <span
-                                                                            class="filtered-all-prospect-provided text-muted fs-tiny fw-normal">/{{ $user->id == ($firstSales->id ?? 1) ? $allProspect : 0 }}</span>
-                                                                    </h5>
-                                                                    <small class="text-muted">Provided</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mb-2">
-                                                            <div class="col-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-warning rounded">
-                                                                        <i
-                                                                            class="mdi mdi-email-multiple-outline mdi-24px"></i>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-2 d-flex align-items-center">
-                                                                <h4 class="filtered-percent-quote-prospect fs-5 m-0">
-                                                                    0 %</h4>
-                                                            </div>
-                                                            <div class="col-8">
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="filtered-quote-prospect">
-                                                                            0
-                                                                        </span>
-                                                                        <span
-                                                                            class="filtered-all-quote-prospect text-muted fs-tiny fw-normal">/{{ $user->id == ($firstSales->id ?? 1) ? $allProspect : 0 }}</span>
-                                                                    </h5>
-                                                                    <small class="text-muted">Quotation</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mb-2">
-                                                            <div class="col-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-danger rounded">
-                                                                        <i
-                                                                            class="mdi mdi-account-alert-outline mdi-24px"></i>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-2 d-flex align-items-center">
-                                                                <h4 class="filtered-percent-not-provided fs-5 m-0">
-                                                                    0 %</h4>
-                                                            </div>
-                                                            <div class="col-8">
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="filtered-not-provided">
-                                                                            0
-                                                                        </span>
-                                                                        <span
-                                                                            class="filtered-all-prospect-not-provided text-muted fs-tiny fw-normal">/{{ $user->id == ($firstSales->id ?? 1) ? $allProspect : 0 }}</span>
-                                                                    </h5>
-                                                                    <small class="text-muted">Not Provided</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mb-2">
-                                                            <div class="col-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-success rounded">
-                                                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-2 d-flex align-items-center">
-                                                                <h4 class="filtered-percent-po-prospect fs-5 m-0">
-                                                                    0 %</h4>
-                                                            </div>
-                                                            <div class="col-8">
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="filtered-po-prospect">
-                                                                            0
-                                                                        </span>
-                                                                        <span
-                                                                            class="filtered-all-po-prospect text-muted fs-tiny fw-normal">/0</span>
-                                                                    </h5>
-                                                                    <small class="text-muted">Purchase Order</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-6">
-                                                        <div class="row mb-2">
-                                                            <div class="col-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-primary rounded">
-                                                                        <i class="mdi mdi-cart mdi-24px"></i>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-2 d-flex align-items-center">
-                                                                <h4 class="total-prospect-quotation-percent fs-5 m-0">
-                                                                    0 %</h4>
-                                                            </div>
-                                                            <div class="col-8">
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="total-prospect-quotation">
-                                                                            0
-                                                                        </span>
-                                                                    </h5>
-                                                                    <small class="text-muted">Quotation</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mb-2">
-                                                            <div class="col-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-warning rounded">
-                                                                        <i class="mdi mdi-cart-heart mdi-24px"></i>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-2 d-flex align-items-center">
-                                                                <h4 class="total-prospect-po-percent fs-5 m-0">
-                                                                    0 %</h4>
-                                                            </div>
-                                                            <div class="col-8">
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="total-prospect-hot">
-                                                                            0
-                                                                        </span>
-                                                                    </h5>
-                                                                    <small class="text-muted">Hot Prospect</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mb-2">
-                                                            <div class="col-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-success rounded">
-                                                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-2 d-flex align-items-center">
-                                                                <h4 class="total-prospect-po-percent fs-5 m-0">
-                                                                    0 %</h4>
-                                                            </div>
-                                                            <div class="col-8">
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="total-prospect-po">
-                                                                            0
-                                                                        </span>
-                                                                    </h5>
-                                                                    <small class="text-muted">Purchase Order</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mb-2">
-                                                            <div class="col-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-success rounded">
-                                                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-2 d-flex align-items-center">
-                                                                <h4 class="-percent m-0">
-                                                                    0 %</h4>
-                                                            </div>
-                                                            <div class="col-8">
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="">
-                                                                            -
-                                                                        </span>
-                                                                    </h5>
-                                                                    <small class="text-muted">-</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row mb-2">
-                                                            <div class="col-2">
-                                                                <div class="avatar">
-                                                                    <div class="avatar-initial bg-label-success rounded">
-                                                                        <i class="mdi mdi-cart-plus mdi-24px"></i>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-2 d-flex align-items-center">
-                                                                <h4 class="-percent m-0">
-                                                                    0 %</h4>
-                                                            </div>
-                                                            <div class="col-8">
-                                                                <div class="card-info">
-                                                                    <h5 class="mb-0">
-                                                                        <span class="">
-                                                                            -
-                                                                        </span>
-                                                                    </h5>
-                                                                    <small class="text-muted">-</small>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        {{-- <div class="d-flex align-items-center gap-2">
-                                                                <div class="d-flex mb-2 gap-2">
-                                                                    <div class="avatar">
-                                                                        <div
-                                                                            class="avatar-initial bg-label-warning rounded">
-                                                                            <i
-                                                                                class="mdi mdi-email-alert-outline mdi-24px"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="card-info">
-                                                                        <h5 class="mb-0 total-prospect">Rp
-                                                                            {{ number_format($totalProspect, 2, ',', '.') }}
-                                                                        </h5>
-                                                                        <small class="text-muted">Hot Prospect</small>
-                                                                    </div>
-                                                                </div>
-                                                            </div> --}}
-                                                    </div>
-                                                    <div class="row mt-3">
-                                                        @php
-                                                            $month = date('m');
-                                                            $year = date('Y');
-                                                            $dateNow = $month . '-' . $year;
-                                                        @endphp
-                                                        <div class="col-2">
-                                                            <a class="btn btn-warning d-grid w-100 waves-effect h-100"
-                                                                type="button" data-bs-toggle="modal"
-                                                                data-bs-target="#overview-sales-{{ $item }}">
-                                                                Info
-                                                            </a>
-                                                        </div>
-                                                        <div class="col-4">
-                                                            <a class="btn btn-facebook d-grid w-100 waves-effect h-100"
-                                                                href="{{ route('detail-overview.semester', ['sales' => $user->id, 'date' => $dateNow]) }}">
-                                                                Detail
-                                                            </a>
-                                                        </div>
-                                                        <div class="col-6">
-                                                            <a class="btn btn-secondary d-grid w-100 waves-effect h-100"
-                                                                href="{{ route('overview.semester', $user->id) }}">
-                                                                Semester
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @php
-                                    $item++;
-                                @endphp
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-12">
-            <div class="card mb-3">
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-prospect-quote table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Quote No.</th>
-                                <th>Company</th>
-                                <th>Total Price</th>
-                                <th>Description</th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th class="text-center" style="width:48px;"></th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-        </div>
+    <div id="admin-view-container" style="transition: opacity 0.2s ease;">
+        @include('pages.sales.dashboard_view_content')
     </div>
     {{-- <div class="card mb-4">
             <div class="card-datatable table-responsive pt-0">
@@ -2173,7 +1059,6 @@
     @foreach ($dataOverview as $overview)
         @include('components.modal.overview')
     @endforeach
-    @endif
 @elseif(Auth::user()->role == 'Logistic')
     @include('pages.logistic.dashboard._content')
 @elseif(Auth::user()->role == 'Coordinator')
@@ -2485,7 +1370,18 @@
 @elseif(Auth::user()->role == 'Accounting')
     @include("pages.accounting.dashboard._content")
 @elseif (Auth::user()->role == 'Finance Manager')
-    @include('pages.finance.dashboard._content')
+    @php
+        $financeView = $financeView ?? 'finance';
+    @endphp
+    @if ($financeView === 'accounting')
+        @include('pages.accounting.dashboard._content')
+    @elseif ($financeView === 'logistic')
+        @include('pages.logistic.dashboard._content')
+    @elseif ($financeView === 'workshop')
+        @include('pages.workshop.dashboard._content')
+    @else
+        @include('pages.finance.dashboard._content')
+    @endif
 @elseif (Auth::user()->role == 'Sales Manager')
     @include('pages.salesmanager.dashboard._content')
     @endif
@@ -2495,6 +1391,17 @@
 @endsection
 @push('after-style')
     <style>
+        .clean-card {
+            border: 1px solid #e7e9ed !important;
+            border-radius: 16px !important;
+            background: #ffffff !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.015) !important;
+            transition: all 0.2s ease-in-out;
+        }
+        .clean-card:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.035) !important;
+            border-color: rgba(105, 108, 255, 0.25) !important;
+        }
         .tooltip-quote-no .tooltip-inner {
             max-width: 320px;
             font-size: 13px;
@@ -2502,6 +1409,114 @@
             letter-spacing: 0.3px;
         }
         table.datatable-hot-prospect td, table.datatable-hot-prospect th { font-size: 14px; }
+
+        /* Welcome Alert (first login of the day) */
+        .swal-welcome-popup {
+            border-radius: 20px !important;
+            padding: 0 0 1.75rem 0 !important;
+            overflow: hidden;
+        }
+        .swal-welcome-popup .swal2-html-container {
+            overflow: hidden !important;
+        }
+        .welcome-alert-header {
+            background: linear-gradient(135deg, #696cff 0%, #8f5bff 100%);
+            padding: 2.5rem 1.75rem 3.5rem 1.75rem;
+            margin: -1.25rem -1.25rem 0 -1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .welcome-alert-header::before,
+        .welcome-alert-header::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .welcome-alert-header::before { width: 140px; height: 140px; top: -60px; right: -40px; }
+        .welcome-alert-header::after { width: 90px; height: 90px; bottom: -50px; left: -20px; }
+        .welcome-alert-wave {
+            display: inline-block;
+            font-size: 2.5rem;
+            animation: welcome-wave 1.6s infinite;
+            transform-origin: 70% 70%;
+        }
+        .welcome-alert-title {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .welcome-alert-subtitle {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        .welcome-alert-body {
+            margin-top: -1.85rem;
+            padding: 0 1.5rem;
+            position: relative;
+            z-index: 2;
+        }
+        .welcome-alert-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+            padding: 1.1rem 1.25rem;
+            margin-bottom: 0.9rem;
+            display: flex;
+            align-items: center;
+            text-align: left;
+            gap: 1rem;
+            text-decoration: none;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .welcome-alert-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 22px rgba(0, 0, 0, 0.12);
+        }
+        .welcome-alert-icon {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        .welcome-alert-icon.is-calendar { background: rgba(105, 108, 255, 0.12); color: #696cff; }
+        .welcome-alert-icon.is-crm { background: rgba(3, 195, 236, 0.12); color: #03c3ec; }
+        .welcome-alert-icon.is-quote { background: rgba(113, 221, 55, 0.12); color: #71dd37; }
+        .welcome-alert-icon.is-fire { background: rgba(255, 62, 29, 0.12); color: #ff3e1d; animation: welcome-pulse 1.4s infinite; }
+        .welcome-alert-card-title { font-weight: 600; font-size: 1rem; color: #2b2c40; margin: 0; }
+        .welcome-alert-card-text { font-size: 0.85rem; color: #6c6f80; margin: 0; }
+        .welcome-alert-footer {
+            margin-top: 0.75rem;
+            font-weight: 700;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, #696cff, #ff3e1d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+        }
+        @keyframes welcome-wave {
+            0%, 60%, 100% { transform: rotate(0deg); }
+            10% { transform: rotate(14deg); }
+            20% { transform: rotate(-8deg); }
+            30% { transform: rotate(14deg); }
+            40% { transform: rotate(-4deg); }
+            50% { transform: rotate(10deg); }
+        }
+        @keyframes welcome-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.12); }
+        }
     </style>
     {{-- All --}}
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
@@ -2565,7 +1580,7 @@
         <script src="{{ asset('assets') }}/includes/table-req-visit-sales.js"></script>
     @endif
 
-    @if (Auth::user()->role == 'Accounting')
+    @if (Auth::user()->role == 'Accounting' || (Auth::user()->role == 'Finance Manager' && ($financeView ?? '') === 'accounting') || (Auth::user()->role == 'Admin' && ($adminView ?? '') === 'accounting'))
         <script src="{{ asset('assets') }}/js/app-calendar-accounting.js"></script>
     @endif
     @if (Auth::user()->role == 'Coordinator')
@@ -3457,4 +2472,176 @@
     {{-- @endif --}}
     {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script> --}}
 
+    @if($showWelcomeAlert ?? false)
+        <script>
+            $(document).ready(function() {
+                Swal.fire({
+                    html: `
+                        <div class="welcome-alert-header">
+                            <span class="welcome-alert-wave">👋</span>
+                            <div class="welcome-alert-title">Hai {{ Auth::user()->name }}!</div>
+                            <div class="welcome-alert-subtitle">Semangat menjalani hari ini ya</div>
+                        </div>
+                        <div class="welcome-alert-body">
+                            @if (Auth::user()->id == 4)
+                                <a href="#" id="swal-goto-crm" class="welcome-alert-card">
+                                    <div class="welcome-alert-icon is-crm"><i class="mdi mdi-account-star-outline"></i></div>
+                                    <div>
+                                        <p class="welcome-alert-card-title">{{ $crmPotensialCount ?? 0 }} CRM Potensial Perlu Di-follow Up</p>
+                                        <p class="welcome-alert-card-text">Follow up customer CRM potensialmu hari ini</p>
+                                    </div>
+                                </a>
+                            @else
+                                <a href="#" id="swal-goto-calendar" class="welcome-alert-card">
+                                    <div class="welcome-alert-icon is-calendar"><i class="mdi mdi-account-search-outline"></i></div>
+                                    <div>
+                                        <p class="welcome-alert-card-title">{{ $activeLeadsCount ?? 0 }} Leads Perlu Di-follow Up</p>
+                                        <p class="welcome-alert-card-text">Jangan lupa cek jadwal follow up leads hari ini</p>
+                                    </div>
+                                </a>
+                            @endif
+
+                            <a href="#" id="swal-goto-quotations" class="welcome-alert-card">
+                                <div class="welcome-alert-icon is-quote"><i class="mdi mdi-file-document-outline"></i></div>
+                                <div>
+                                    <p class="welcome-alert-card-title">{{ $totalActiveQuotationCount ?? 0 }} Penawaran Aktif (Belum PO)</p>
+                                    <p class="welcome-alert-card-text">Pantau terus perkembangan penawaran yang sedang berjalan</p>
+                                </div>
+                            </a>
+
+                            <a href="#" id="swal-goto-hot-prospect" class="welcome-alert-card">
+                                <div class="welcome-alert-icon is-fire"><i class="mdi mdi-fire"></i></div>
+                                <div>
+                                    <p class="welcome-alert-card-title">{{ $totalHotProspectCount ?? 0 }} Hot Prospect Menanti</p>
+                                    <p class="welcome-alert-card-text">Sebentar lagi mau PO, jangan sampai lewat</p>
+                                </div>
+                            </a>
+                            <div class="welcome-alert-footer">Fighting!!! 🔥</div>
+                        </div>
+                    `,
+                    width: '44rem',
+                    showClass: {
+                        popup: 'animate__animated animate__zoomIn animate__faster',
+                    },
+                    hideClass: {
+                        popup: 'animate__animated animate__fadeOutUp animate__faster',
+                    },
+                    confirmButtonText: 'Siap, Gaskeun! 🚀',
+                    customClass: {
+                        popup: 'swal-welcome-popup',
+                        confirmButton: 'btn btn-primary waves-effect waves-light',
+                    },
+                    buttonsStyling: false,
+                    didOpen: function() {
+                        var gotoCrm = document.getElementById('swal-goto-crm');
+                        if (gotoCrm) {
+                            gotoCrm.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                Swal.close();
+                                var target = document.getElementById('crm-section') || document.getElementById('calendar');
+                                if (target) target.scrollIntoView({ behavior: 'smooth' });
+                            });
+                        }
+                        var gotoCalendar = document.getElementById('swal-goto-calendar');
+                        if (gotoCalendar) {
+                            gotoCalendar.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                Swal.close();
+                                var target = document.getElementById('calendar');
+                                if (target) target.scrollIntoView({ behavior: 'smooth' });
+                            });
+                        }
+                        var gotoQuotations = document.getElementById('swal-goto-quotations');
+                        if (gotoQuotations) {
+                            gotoQuotations.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                Swal.close();
+                                var target = document.getElementById('hot-prospect-section') || document.getElementById('calendar');
+                                if (target) target.scrollIntoView({ behavior: 'smooth' });
+                            });
+                        }
+                        var gotoHotProspect = document.getElementById('swal-goto-hot-prospect');
+                        if (gotoHotProspect) {
+                            gotoHotProspect.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                Swal.close();
+                                var target = document.getElementById('hot-prospect-section') || document.getElementById('calendar');
+                                if (target) target.scrollIntoView({ behavior: 'smooth' });
+                            });
+                        }
+                    },
+                });
+            });
+        </script>
+    @endif
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const container = document.getElementById('admin-view-container');
+                const buttons = document.querySelectorAll('.btn-admin-view-switch');
+                if (!container || !buttons.length) return;
+
+                const viewCache = {};
+                const currentView = '{{ $adminView ?? "sales" }}';
+                viewCache[currentView] = container.innerHTML;
+
+                buttons.forEach(btn => {
+                    btn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const selectedView = this.getAttribute('data-view');
+
+                        buttons.forEach(b => {
+                            b.classList.remove('btn-primary', 'shadow-xs');
+                            b.classList.add('btn-outline-secondary');
+                        });
+                        this.classList.remove('btn-outline-secondary');
+                        this.classList.add('btn-primary', 'shadow-xs');
+
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('view', selectedView);
+                        window.history.pushState({ view: selectedView }, '', url.toString());
+
+                        if (viewCache[selectedView]) {
+                            container.innerHTML = viewCache[selectedView];
+                            reinitDataTable();
+                            return;
+                        }
+
+                        container.style.opacity = '0.5';
+                        container.innerHTML = `
+                            <div class="card clean-card p-5 text-center my-4">
+                                <div class="spinner-border text-primary mx-auto mb-3" role="status" style="width: 2.5rem; height: 2.5rem;">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-1">Memuat Dashboard ${selectedView.toUpperCase()}...</h6>
+                                <small class="text-muted">Sedang mengunduh data divisi secara cepat tanpa reload halaman.</small>
+                            </div>
+                        `;
+
+                        fetch(`{{ route('dashboard.ajax-view') }}?view=${selectedView}`)
+                            .then(res => res.json())
+                            .then(data => {
+                                container.style.opacity = '1';
+                                if (data.status === 'success' && data.html) {
+                                    viewCache[selectedView] = data.html;
+                                    container.innerHTML = data.html;
+                                    reinitDataTable();
+                                } else {
+                                    container.innerHTML = `<div class="alert alert-danger m-3">Gagal memuat data dashboard ${selectedView}.</div>`;
+                                }
+                            })
+                            .catch(err => {
+                                container.style.opacity = '1';
+                                console.error('AJAX View Error:', err);
+                                container.innerHTML = `<div class="alert alert-danger m-3">Terjadi kesalahan koneksi saat memuat dashboard.</div>`;
+                            });
+                    });
+                });
+
+                function reinitDataTable() {
+                    if (window.jQuery && $.fn.DataTable) {
+                        $('.datatable-prospect-quote:not(.dataTable)').DataTable();
+                    }
+                }
+            });
+        </script>
 @endpush
