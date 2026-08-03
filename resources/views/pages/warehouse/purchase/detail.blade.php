@@ -1,103 +1,126 @@
 @extends('layouts.sales.app')
 @section('title', 'Purchase Request')
 @section('content')
-    <div class="row invoice-preview">
+    <style>
+        .purchase-request-page {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .purchase-request-page .table,
+        .purchase-request-page .table th,
+        .purchase-request-page .table td,
+        .purchase-request-page .card-title,
+        .purchase-request-page .meta-label,
+        .purchase-request-page .meta-value {
+            font-family: inherit;
+        }
+    </style>
+
+    <div class="row invoice-preview premium-container purchase-request-page">
         {{-- Invoice --}}
         <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
 
-            <div class="row mb-3">
-                <div class="col-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-4">Sales</div>
-                                <div class="col-8">: {{ $quotation->sales->name }}</div>
-                                <div class="col-4">Flag</div>
-                                <div class="col-8">: {{ $quotation->pic->client->info }}</div>
-                                <div class="col-4">Client</div>
-                                <div class="col-8">: {{ $quotation->pic->client->company }}</div>
-                                <div class="col-4">PIC</div>
-                                <div class="col-8">: {{ $quotation->pic->name_pic }}</div>
-                                <div class="col-4">Address</div>
-                                <div class="col-8">: {{ $quotation->pic->client->address }}</div>
-                                @php
-                                    switch ($pending->delivery) {
-                                        case 1:
-                                            $delivery = 'Kurir';
-                                            break;
-                                        case 2:
-                                            $delivery = 'Teknisi';
-                                            break;
-                                        case 3:
-                                            $delivery = 'Direct';
-                                            break;
-                                        case 4:
-                                            $delivery = 'Other';
-                                            break;
-                                        default:
-                                            $delivery = 'Error';
-                                            break;
-                                    }
-                                    switch ($pending->charged) {
-                                        case 1:
-                                            $charged = 'Company';
-                                            break;
-                                        case 2:
-                                            $charged = 'Customer';
-                                            break;
-                                        default:
-                                            $charged = '';
-                                            break;
-                                    }
-                                @endphp
-                                {{-- <div class="col-4">Kurir</div>
-                                <div class="col-8">
-                                    : {{ $delivery }} {{ $pending->charged ? "($charged)" : '' }}
-                                </div> --}}
-                            </div>
-                        </div>
+            <div class="card modern-card mb-4 overflow-hidden border-0">
+                <div class="gradient-header-blue p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge bg-primary mb-1">Purchase Pipeline</span>
+                        <h3 class="mb-0 text-white fw-bold">Purchase Request Details</h3>
+                        <p class="mb-0 text-white-50 small">Manage, approve, and track logistics requests</p>
+                    </div>
+                    <div class="text-end">
+                        <span class="text-white-50 d-block small">SO Number</span>
+                        <span class="fs-4 fw-bold text-white"><i class="mdi mdi-receipt-text-outline me-1"></i>{{ $pending->no_pending }}</span>
                     </div>
                 </div>
-                <div class="col-6">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-4">No Quotation</div>
-                                @php
-                                    if ($quotation->type == 'Sparepart') {
-                                        $link = 'quotation.show';
-                                    } elseif ($quotation->type == 'Overhaul') {
-                                        $link = 'show-overhaul.quotation';
-                                    } else {
-                                        $link = 'show-service.quotation';
-                                    }
+                <div class="card-body p-4 bg-light">
+                    <div class="row g-3">
+                        <!-- Client & Sales Info block -->
+                        <div class="col-md-6">
+                            <div class="p-3 glass-meta h-100">
+                                <h6 class="fw-bold mb-3 text-secondary d-flex align-items-center"><i class="mdi mdi-account-box-outline me-2 text-primary fs-5"></i> Informasi Pihak Terkait</h6>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <span class="meta-label">Sales</span>
+                                        <div class="meta-value">{{ $quotation->sales->name }}</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="meta-label">Flag / Info</span>
+                                        <div class="meta-value">{{ $quotation->pic->client->info ?: '-' }}</div>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <span class="meta-label">Perusahaan / Client</span>
+                                        <div class="meta-value fw-bold text-primary">{{ $quotation->pic->client->company }}</div>
+                                    </div>
+                                    <div class="col-6 mt-2">
+                                        <span class="meta-label">PIC Client</span>
+                                        <div class="meta-value">{{ $quotation->pic->name_pic }}</div>
+                                    </div>
+                                    <div class="col-6 mt-2">
+                                        <span class="meta-label">Alamat Kirim</span>
+                                        <div class="meta-value text-wrap" style="max-height: 60px; overflow-y: auto;">{{ $quotation->pic->client->address }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                                @endphp
-                                <div class="col-8">: <a class="text-dark cursor-pointer"
-                                        href="{{ route($link, $quotation->id) }}">{{ $quotation->no_quote }}</a>
-                                </div>
-                                <div class="col-4">No Invoice</div>
-                                <div class="col-8">:
-                                    @if (@$invoice->no_invoice)
-                                        <a class="text-dark cursor-pointer"
-                                            href="{{ route('invoice.show', $invoice->id) }}">
-                                            {{ $invoice->no_invoice }}
-                                        </a>
-                                    @else
-                                        Belum ada invoice
-                                    @endif
-                                </div>
-                                <div class="col-4">No SO</div>
-                                <div class="col-8">: <a class="text-dark cursor-pointer"
-                                        href="{{ route('pending-po.show', $pending->id) }}">
-                                        {{ $pending->no_pending }}
-                                    </a></div>
-                                <div class="col-4">Payment Info</div>
-                                <div class="col-8">:
-                                    {{ $invoice ? ($invoice->status_p == 1 ? 'Payment Confirmed' : 'Unpaid') : 'Belum ada invoice' }}
-                                </div>
-                                <div class="col-4">PO Date</div>
-                                <div class="col-8">: {{ \Carbon\Carbon::parse($quotation->po_date)->format('d-m-Y') }}
+                        <!-- Doc Info block -->
+                        <div class="col-md-6">
+                            <div class="p-3 glass-meta h-100">
+                                <h6 class="fw-bold mb-3 text-secondary d-flex align-items-center"><i class="mdi mdi-file-document-outline me-2 text-primary fs-5"></i> Informasi Dokumen</h6>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <span class="meta-label">No Quotation</span>
+                                        <div class="meta-value">
+                                            @php
+                                                if ($quotation->type == 'Sparepart') {
+                                                    $link = 'quotation.show';
+                                                } elseif ($quotation->type == 'Overhaul') {
+                                                    $link = 'show-overhaul.quotation';
+                                                } else {
+                                                    $link = 'show-service.quotation';
+                                                }
+                                            @endphp
+                                            <a class="text-primary fw-semibold" href="{{ route($link, $quotation->id) }}">
+                                                {{ $quotation->no_quote }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <span class="meta-label">No Invoice</span>
+                                        <div class="meta-value">
+                                            @if (@$invoice->no_invoice)
+                                                <a class="text-primary fw-semibold" href="{{ route('invoice.show', $invoice->id) }}">
+                                                    {{ $invoice->no_invoice }}
+                                                </a>
+                                            @else
+                                                <span class="text-muted fst-italic">Belum ada invoice</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mt-2">
+                                        <span class="meta-label">No Sales Order</span>
+                                        <div class="meta-value">
+                                            <a class="text-primary fw-semibold" href="{{ route('pending-po.show', $pending->id) }}">
+                                                {{ $pending->no_pending }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 mt-2">
+                                        <span class="meta-label">Payment Status</span>
+                                        <div class="meta-value">
+                                            @if ($invoice)
+                                                <span class="badge {{ $invoice->status_p == 1 ? 'bg-label-success' : 'bg-label-danger' }} fw-semibold">
+                                                    {{ $invoice->status_p == 1 ? 'Payment Confirmed' : 'Unpaid' }}
+                                                </span>
+                                            @else
+                                                <span class="badge bg-label-secondary">No Invoice</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-2">
+                                        <span class="meta-label">PO Date</span>
+                                        <div class="meta-value"><i class="mdi mdi-calendar me-1 text-muted"></i>{{ \Carbon\Carbon::parse($quotation->po_date)->format('d-m-Y') }}</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -105,173 +128,181 @@
                 </div>
             </div>
 
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-3">
-                        <h4 class="fw-medium card-title mb-3">
-                            Purchase Request
-                        </h4>
-                        <div class="tombol d-flex gap-2">
-                            @if ($purchase->where('status', 0)->count() > 0)
-                                <a href="#" class="btn btn-info d-grid w-100 waves-effect acc-all-purchase"
-                                    data-id="{{ $pending->id }}">ACC All</a>
-                            @elseif($purchase->where('status', 1)->count() > 0)
-                                <a href="#" class="btn btn-twitter d-grid w-100 waves-effect delivery-all-purchase"
-                                    data-id="{{ $pending->id }}">On
-                                    Delivery All</a>
-                            @endif
-                        </div>
+            <div class="card modern-card mb-4 border-0">
+                <div class="card-header bg-transparent border-bottom py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title m-0 fw-bold text-dark d-flex align-items-center">
+                        <i class="mdi mdi-clipboard-text-play-outline me-2 text-primary fs-4"></i> Daftar Item Purchase Request
+                    </h5>
+                    <div class="actions">
+                        @if ($purchase->where('status', 0)->count() > 0)
+                            <a href="#" class="btn btn-primary btn-sm btn-premium acc-all-purchase"
+                                data-id="{{ $pending->id }}"><i class="mdi mdi-check-all me-1"></i> ACC All</a>
+                        @elseif($purchase->where('status', 1)->count() > 0)
+                            <a href="#" class="btn btn-twitter btn-sm btn-premium delivery-all-purchase"
+                                data-id="{{ $pending->id }}"><i class="mdi mdi-truck-delivery me-1"></i> On Delivery All</a>
+                        @endif
                     </div>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>No PR</th>
-                                <th>Item</th>
-                                <th>Qty</th>
-                                <th>Note</th>
-                                <th>Info Pengiriman</th>
-                                @if (Auth::user()->role != 'Logistic')
-                                    <th>Action</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody class="table-border-bottom-0">
-                            @php
-                                $no = 1;
-                            @endphp
-                            @forelse ($purchase as $pr)
-                                @php
-                                    // switch ($item->status) {
-                                    //     case 1:
-                                    //         $status = 'On Check';
-                                    //         break;
-                                    //     case 2:
-                                    //         $status = 'Ready Stock';
-                                    //         break;
-                                    //     case 3:
-                                    //         $status = 'Kurang';
-                                    //         break;
-                                    //     case 4:
-                                    //         $status = 'Pre-Order';
-                                    //         break;
-                                    //     case 5:
-                                    //         $status = 'Delivery Process';
-                                    //         break;
-                                    //     case 6:
-                                    //         $status = 'Done';
-                                    //         break;
-                                    //     default:
-                                    //         $status = 'Belum Di Cek';
-                                    //         break;
-                                    // }
-                                @endphp
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive text-nowrap p-3 bg-light">
+                        <table class="table custom-table mb-0">
+                            <thead>
                                 <tr>
-                                    <td>{{ $no }}</td>
-                                    <td>{{ $pr->no_pr ?? '-' }}</td>
-                                    <td>
-                                        @if ($pr->id_equivalent == '0')
-                                            -
-                                        @else
-                                            @php
-                                                $detPrice = $detQuotation->firstWhere('id_equivalent', $pr->id_equivalent);
-                                            @endphp
-                                            {{ $pr->equivalent->brand }} {{ $pr->equivalent->pn }}
-                                            @if ($pr->equivalent->product)
-                                                <span
-                                                    class="badge {{ $pr->equivalent->product->go == 'Genuine' ? 'bg-label-success' : 'bg-label-warning' }}">
-                                                    {{ $pr->equivalent->product->go }}
-                                                </span>
-                                            @endif
-                                            <div class="mt-1">
-                                                <span class="badge bg-success">
-                                                    <i class="mdi mdi-tag-outline me-1"></i>{{ $detPrice ? 'RP ' . number_format($detPrice->price, 0, '', '.') : '-' }}
-                                                </span>
-                                            </div>
-                                        @endif
-                                    </td>
-                                    {{-- <td>
-                                    <pre class="mb-0"
-                                        style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $item->detail_product }}</pre>
-                                </td> --}}
-                                    <td>{{ $pr->qty }} {{ $pr->equivalent->product->unit ?? '' }}</td>
-                                    <td style="max-width: 220px;">
-                                        @if ($pr->note && $pr->note != '-')
-                                            <span class="text-muted fst-italic small">
-                                                <i class="mdi mdi-note-text-outline me-1"></i>{{ $pr->note }}
-                                            </span>
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($pr->status >= 2 && $pr->purchase_type)
-                                            <div class="d-flex align-items-start gap-2">
-                                                <div class="d-flex flex-column gap-1" style="font-size: 0.8rem;">
-                                                    <span
-                                                        class="badge {{ $pr->purchase_type == 'Lokal' ? 'bg-label-info' : 'bg-label-primary' }}">
-                                                        {{ $pr->purchase_type }}
+                                    <th style="width: 50px;">No</th>
+                                    <th>No PR</th>
+                                    <th>Item</th>
+                                    <th>Qty</th>
+                                    <th>Note</th>
+                                    <th>Info Pengiriman</th>
+                                    <th class="text-center" style="width: 120px;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @php $no = 1; @endphp
+                                @forelse ($purchase as $pr)
+                                    <tr>
+                                        <td>{{ $no }}</td>
+                                        <td class="fw-bold text-dark">{{ $pr->no_pr ?? '-' }}</td>
+                                        <td>
+                                            @if ($pr->id_equivalent == '0')
+                                                -
+                                            @else
+                                                @php
+                                                    $detPrice = $detQuotation->firstWhere('id_equivalent', $pr->id_equivalent);
+                                                @endphp
+                                                <span class="fw-semibold text-dark">{{ $pr->equivalent->brand }} {{ $pr->equivalent->pn }}</span>
+                                                @if ($pr->equivalent->product)
+                                                    <span class="badge {{ $pr->equivalent->product->go == 'Genuine' ? 'bg-label-success' : 'bg-label-warning' }} ms-1" style="font-size: 10px;">
+                                                        {{ $pr->equivalent->product->go }}
                                                     </span>
-                                                    <span><i class="mdi mdi-truck-outline me-1"></i>{{ $pr->cargo }}</span>
-                                                    <span><i class="mdi mdi-barcode me-1"></i>{{ $pr->no_resi ?: 'Belum ada resi' }}</span>
-                                                    <span><i class="mdi mdi-calendar-outline me-1"></i>{{ \Carbon\Carbon::parse($pr->purchase_date)->format('d-m-Y') }}</span>
+                                                @endif
+                                                <div class="mt-1">
+                                                    <span class="badge bg-label-success" style="font-size: 11px;">
+                                                        <i class="mdi mdi-cash-multiple me-1"></i>{{ $detPrice ? 'Rp ' . number_format($detPrice->price, 0, '', '.') : '-' }}
+                                                    </span>
                                                 </div>
-                                                <a href="#" data-bs-toggle="tooltip" title="Edit Info Pengiriman"
-                                                    class="btn btn-sm btn-icon btn-label-secondary waves-effect edit-delivery-info"
-                                                    data-id="{{ $pr->id }}"
-                                                    data-purchase-type="{{ $pr->purchase_type }}"
-                                                    data-cargo="{{ $pr->cargo }}"
-                                                    data-no-resi="{{ $pr->no_resi }}"
-                                                    data-purchase-date="{{ $pr->purchase_date }}">
-                                                    <i class="menu-icon tf-icons mdi mdi-16px mdi-pencil-outline m-0"></i>
-                                                </a>
-                                            </div>
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                    @if (Auth::user()->role != 'Logistic')
-                                        <td class="text-center">
-                                            @if ($pr->status == 0)
-                                                <a href="#" data-bs-toggle="tooltip" title="ACC"
-                                                    class="btn btn-sm btn-icon btn-label-info waves-effect acc-purchase"
-                                                    data-id="{{ $pr->id }}"
-                                                    data-pending="{{ $pending->id }}">
-                                                    <i class="menu-icon tf-icons mdi mdi-18px mdi-check-circle-outline m-0"></i>
-                                                </a>
-                                            @elseif($pr->status == 1)
-                                                <a href="#" data-bs-toggle="tooltip" title="On Delivery"
-                                                    class="btn btn-sm btn-icon btn-label-primary waves-effect delivery-purchase"
-                                                    data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}">
-                                                    <i class="menu-icon tf-icons mdi mdi-18px mdi-truck-delivery-outline m-0"></i>
-                                                </a>
                                             @endif
                                         </td>
-                                    @endif
-                                </tr>
-                                @php
-                                    $no++;
-                                @endphp
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center">Tidak Ada Purchase Request</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                                        <td><span class="fw-bold text-dark">{{ $pr->qty }}</span> <span class="text-muted small">{{ $pr->equivalent->product->unit ?? '' }}</span></td>
+                                        <td style="max-width: 220px; white-space: normal;">
+                                            @if ($pr->note && $pr->note != '-')
+                                                <div class="p-2 rounded bg-light border-start border-primary border-3" style="font-size: 12px; color: #475569;">
+                                                    <i class="mdi mdi-comment-text-outline me-1 text-muted"></i>{{ $pr->note }}
+                                                </div>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if ($pr->status >= 2 && $pr->purchase_type)
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="p-2 rounded bg-label-facebook d-flex flex-column gap-1" style="font-size: 0.8rem; min-width: 160px; line-height: 1.3;">
+                                                        <span class="badge {{ $pr->purchase_type == 'Lokal' ? 'bg-label-info' : 'bg-label-primary' }} align-self-start mb-1" style="font-size: 9px;">
+                                                            {{ $pr->purchase_type }}
+                                                        </span>
+                                                        <span class="text-dark"><i class="mdi mdi-truck-delivery-outline text-muted me-1"></i>{{ $pr->cargo }}</span>
+                                                        <span class="text-dark"><i class="mdi mdi-barcode text-muted me-1"></i>{{ $pr->no_resi ?: 'Belum ada resi' }}</span>
+                                                        <span class="text-muted" style="font-size: 10px;"><i class="mdi mdi-calendar-outline me-1"></i>{{ \Carbon\Carbon::parse($pr->purchase_date)->format('d-m-Y') }}</span>
+                                                    </div>
+                                                    <a href="#" data-bs-toggle="tooltip" title="Edit Info Pengiriman"
+                                                        class="btn btn-sm btn-icon btn-label-secondary waves-effect rounded-circle edit-delivery-info"
+                                                        data-id="{{ $pr->id }}"
+                                                        data-purchase-type="{{ $pr->purchase_type }}"
+                                                        data-cargo="{{ $pr->cargo }}"
+                                                        data-no-resi="{{ $pr->no_resi }}"
+                                                        data-purchase-date="{{ $pr->purchase_date }}">
+                                                        <i class="mdi mdi-pencil-outline"></i>
+                                                    </a>
+                                                </div>
+                                            @else
+                                                <span class="badge bg-label-secondary"><i class="mdi mdi-clock-outline me-1"></i>Belum Dikirim</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex justify-content-center gap-1 flex-wrap">
+                                                <a href="#" data-bs-toggle="tooltip" title="Edit Item"
+                                                    class="btn btn-sm btn-icon btn-label-secondary waves-effect rounded-circle edit-purchase-item"
+                                                    data-id="{{ $pr->id }}"
+                                                    data-qty="{{ $pr->qty }}"
+                                                    data-note="{{ $pr->note ?? '' }}">
+                                                    <i class="mdi mdi-pencil-outline"></i>
+                                                </a>
+                                                <a href="#" data-bs-toggle="tooltip" title="Hapus Item"
+                                                    class="btn btn-sm btn-icon btn-label-danger waves-effect rounded-circle delete-purchase-item"
+                                                    data-id="{{ $pr->id }}">
+                                                    <i class="mdi mdi-delete-outline"></i>
+                                                </a>
+                                                @if (Auth::user()->role != 'Logistic')
+                                                    @if ($pr->status == 0)
+                                                        <a href="#" data-bs-toggle="tooltip" title="ACC Purchase Request"
+                                                            class="btn btn-sm btn-icon btn-label-info waves-effect rounded-circle acc-purchase"
+                                                            data-id="{{ $pr->id }}"
+                                                            data-pending="{{ $pending->id }}">
+                                                            <i class="mdi mdi-check-circle-outline fs-5"></i>
+                                                        </a>
+                                                    @elseif($pr->status == 1)
+                                                        <a href="#" data-bs-toggle="tooltip" title="On Delivery"
+                                                            class="btn btn-sm btn-icon btn-label-primary waves-effect rounded-circle delivery-purchase"
+                                                            data-id="{{ $pr->id }}" data-pending="{{ $pending->id }}">
+                                                            <i class="mdi mdi-truck-delivery-outline fs-5"></i>
+                                                        </a>
+                                                    @else
+                                                        <span class="text-success fw-bold"><i class="mdi mdi-check-all me-1"></i>Done</span>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @php $no++; @endphp
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center text-muted py-4">Tidak Ada Purchase Request</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
-            {{-- Diskusi --}}
-            <div class="card mb-4" id="diskusi">
-                <div class="card-header border-bottom">
-                    <h5 class="card-title mb-0">
-                        <i class="mdi mdi-forum-outline me-2"></i>Diskusi
+
+            <div class="modal fade" id="editPurchaseItemModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <form id="editPurchaseItemForm" method="POST">
+                        @csrf
+                        <input type="hidden" name="_method" value="PATCH">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold">Edit Item Purchase Request</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label for="editPurchaseQty" class="form-label">Qty</label>
+                                    <input type="number" class="form-control" id="editPurchaseQty" name="qty" min="1" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="editPurchaseNote" class="form-label">Note</label>
+                                    <textarea class="form-control" id="editPurchaseNote" name="note" rows="3"></textarea>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-primary">Simpan</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card modern-card mb-4 border-0 overflow-hidden" id="diskusi">
+                <div class="card-header bg-transparent border-bottom py-3">
+                    <h5 class="card-title mb-0 fw-bold text-dark d-flex align-items-center">
+                        <i class="mdi mdi-forum-outline me-2 text-primary fs-4"></i> Diskusi & Kolaborasi PR
                     </h5>
                 </div>
-                <div class="card-body">
-
+                <div class="card-body p-4 bg-light">
                     {{-- Daftar pesan --}}
-                    <div class="discussion-list mb-4" style="max-height: 450px; overflow-y: auto;">
+                    <div class="discussion-list mb-4 p-3 rounded bg-white border" style="max-height: 450px; overflow-y: auto; box-shadow: inset 0 2px 8px rgba(0,0,0,0.02);">
                         @forelse($discussions as $disc)
                             @php
                                 $isMe = $disc->id_user == Auth::id();
@@ -279,22 +310,21 @@
                             <div class="d-flex gap-3 mb-4 {{ $isMe ? 'flex-row-reverse' : '' }}">
                                 <div class="flex-shrink-0">
                                     <img src="{{ url('') . '/' . $disc->user->image }}"
-                                        class="rounded-circle"
-                                        style="width:38px;height:38px;object-fit:cover;"
+                                        class="rounded-circle border border-2 border-white shadow-sm"
+                                        style="width:40px;height:40px;object-fit:cover;"
                                         alt="{{ $disc->user->name }}">
                                 </div>
-                                <div style="max-width:75%">
+                                <div style="max-width: 75%">
                                     <div class="d-flex align-items-center gap-2 mb-1 {{ $isMe ? 'flex-row-reverse' : '' }}">
-                                        <span class="fw-semibold small">{{ $disc->user->name }}</span>
-                                        <span class="text-muted" style="font-size:11px;">
+                                        <span class="fw-semibold text-dark" style="font-size: 13px;">{{ $disc->user->name }}</span>
+                                        <span class="text-muted" style="font-size:10px;">
                                             {{ \Carbon\Carbon::parse($disc->created_at)->diffForHumans() }}
                                         </span>
                                     </div>
-                                    <div class="p-2 px-3 rounded-3 discussion-bubble {{ $isMe ? 'bg-primary text-white ms-auto' : 'bg-label-secondary' }}"
-                                        style="word-break:break-word;">
+                                    <div class="p-3 rounded-3 discussion-bubble {{ $isMe ? 'chat-bubble-me' : 'chat-bubble-other' }}"
+                                        style="word-break: break-word; font-size: 13.5px; line-height: 1.4;">
                                         @php
                                             $msg = e($disc->message);
-                                            // Highlight @mention
                                             foreach ($disc->mentions as $m) {
                                                 $msg = str_replace(
                                                     '@' . $m->user->name,
@@ -308,9 +338,12 @@
                                 </div>
                             </div>
                         @empty
-                            <div class="text-center text-muted py-4">
-                                <i class="mdi mdi-chat-outline mdi-48px d-block mb-2"></i>
-                                Belum ada diskusi. Mulai percakapan sekarang.
+                            <div class="text-center text-muted py-5">
+                                <div class="avatar avatar-lg mx-auto mb-3 bg-label-primary d-flex align-items-center justify-content-center" style="width: 56px; height: 56px; border-radius: 50%;">
+                                    <i class="mdi mdi-forum-outline fs-3"></i>
+                                </div>
+                                <p class="mb-0 fw-medium">Belum ada diskusi.</p>
+                                <small class="text-muted">Mulai percakapan sekarang dengan mengetik pesan di bawah.</small>
                             </div>
                         @endforelse
                     </div>
@@ -322,25 +355,25 @@
                             <textarea
                                 name="message"
                                 id="discussionMessage"
-                                class="form-control"
+                                class="form-control border-2 shadow-none"
                                 rows="3"
-                                placeholder="Tulis pesan... ketik @ untuk mention seseorang"
-                                style="padding-right: 100px; resize:none;"
+                                placeholder="Tulis pesan... ketik @ untuk mention rekan tim"
+                                style="padding-right: 120px; resize:none; border-radius: 12px; font-size: 13.5px;"
                                 required></textarea>
 
                             {{-- Hidden inputs untuk mention --}}
                             <div id="mentionInputs"></div>
 
-                            <button type="submit" class="btn btn-primary btn-sm position-absolute"
-                                style="bottom:10px;right:10px;">
-                                <i class="mdi mdi-send me-1"></i>Kirim
+                            <button type="submit" class="btn btn-primary btn-premium position-absolute d-flex align-items-center"
+                                style="bottom:12px;right:12px; padding: 6px 14px; font-size: 13px;">
+                                <i class="mdi mdi-send me-1"></i> Kirim
                             </button>
                         </div>
 
                         {{-- Mention dropdown --}}
                         <ul id="mentionDropdown"
-                            class="list-group shadow"
-                            style="display:none;position:absolute;z-index:999;min-width:220px;max-height:200px;overflow-y:auto;">
+                            class="list-group shadow border-0"
+                            style="display:none;position:absolute;z-index:999;min-width:240px;max-height:200px;overflow-y:auto; border-radius: 12px;">
                         </ul>
 
                         {{-- Tag mention yang dipilih --}}
@@ -348,34 +381,46 @@
                     </form>
                 </div>
             </div>
-            {{-- End: Diskusi --}}
 
         </div>
-        {{-- End: Invoice --}}
-        {{-- Button Invocie --}}
-        <div class="col-xl-3 col-md-4 col-12 invoice-actions">
 
-            <div class="card mb-3">
-                @php
-                    $stat = $purchase->every(fn($p) => $p->status == 2) ? 1 : 0;
-                @endphp
-                <div class="card-body">
-                    <a class="btn btn-primary d-grid w-100 mb-3 waves-effect {{ $stat == 1 ? '' : 'disabled' }}"
-                        href="{{ $stat == 1 ? route('purchase-request.done-all', $pending->id) : '#' }}"
-                        tabindex="{{ $stat == 1 ? '0' : '-1' }}" aria-disabled="{{ $stat == 1 ? 'false' : 'true' }}">
-                        Cetak Product In
-                    </a>
-                    @if (Auth::user()->role != 'Logistic')
-                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-invoice mb-3"
-                            data-id="{{ $quotation->id }}">Delete</a>
+        <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+            <div class="card modern-card border-0 mb-3 overflow-hidden">
+                <div class="p-3 bg-primary text-white text-center">
+                    <h6 class="m-0 fw-bold text-white"><i class="mdi mdi-cog-outline me-2"></i> Tindakan PR</h6>
+                </div>
+                <div class="card-body p-3">
+                    @php
+                        $stat = $purchase->every(fn($p) => $p->status == 2) ? 1 : 0;
+                    @endphp
+
+                    @if(Auth::user()->role == 'Logistic')
+                        <a class="btn btn-primary btn-premium d-flex align-items-center justify-content-center w-100 mb-3 waves-effect {{ $stat == 1 ? '' : 'disabled' }}"
+                            href="{{ $stat == 1 ? route('purchase-request.goods-receipt', $pending->id) : '#' }}"
+                            tabindex="{{ $stat == 1 ? '0' : '-1' }}" aria-disabled="{{ $stat == 1 ? 'false' : 'true' }}">
+                            <i class="mdi mdi-checkbox-marked-circle-outline me-2 fs-5"></i> Verifikasi Penerimaan (GR)
+                        </a>
+                    @else
+                        <a class="btn btn-primary btn-premium d-flex align-items-center justify-content-center w-100 mb-3 waves-effect {{ $stat == 1 ? '' : 'disabled' }}"
+                            href="{{ $stat == 1 ? route('purchase-request.done-all', $pending->id) : '#' }}"
+                            tabindex="{{ $stat == 1 ? '0' : '-1' }}" aria-disabled="{{ $stat == 1 ? 'false' : 'true' }}">
+                            <i class="mdi mdi-printer me-2 fs-5"></i> Cetak Product In
+                        </a>
                     @endif
-                    <button class="btn btn-outline-secondary d-grid w-100 mb-3 waves-effect" id="backButton">
-                        Back
+
+                    @if (Auth::user()->role != 'Logistic')
+                        <button class="btn btn-outline-danger btn-premium d-flex align-items-center justify-content-center w-100 waves-effect delete-invoice mb-3"
+                            data-id="{{ $quotation->id }}">
+                            <i class="mdi mdi-delete-outline me-2 fs-5"></i> Hapus Penawaran
+                        </button>
+                    @endif
+
+                    <button class="btn btn-outline-secondary btn-premium d-flex align-items-center justify-content-center w-100 waves-effect" id="backButton">
+                        <i class="mdi mdi-arrow-left me-2 fs-5"></i> Kembali
                     </button>
                 </div>
             </div>
         </div>
-        {{-- @endif --}}
     </div>
     {{-- End : Button Invoice --}}
     </div>
@@ -405,7 +450,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Tanggal Pembelian</label>
-                            <input type="date" class="form-control" name="purchase_date" required>
+                            <input type="date" class="form-control" name="purchase_date" value="{{ date('Y-m-d') }}" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Cargo / Ekspedisi</label>
@@ -432,6 +477,103 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/dropzone/dropzone.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+        .premium-container {
+            font-family: 'Outfit', 'Inter', sans-serif !important;
+        }
+
+        .modern-card {
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+            border-radius: 16px;
+            background: #ffffff;
+        }
+
+        .gradient-header-blue {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #ffffff;
+        }
+
+        .glass-meta {
+            background: rgba(248, 250, 252, 0.8);
+            border-radius: 12px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .meta-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .meta-value {
+            font-size: 14px;
+            color: #0f172a;
+            font-weight: 500;
+        }
+
+        .discussion-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .discussion-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .discussion-list::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+
+        .chat-bubble-me {
+            background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%) !important;
+            border-radius: 18px 18px 4px 18px !important;
+            box-shadow: 0 4px 15px -3px rgba(79, 70, 229, 0.2);
+            color: #ffffff !important;
+        }
+
+        .chat-bubble-other {
+            background: #f1f5f9 !important;
+            border-radius: 18px 18px 18px 4px !important;
+            color: #334155 !important;
+            border: 1px solid #e2e8f0;
+        }
+
+        .custom-table {
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .custom-table tr {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            border-radius: 8px;
+        }
+
+        .custom-table td, .custom-table th {
+            border: none !important;
+            padding: 14px 16px !important;
+        }
+
+        .custom-table thead th {
+            font-weight: 600;
+            color: #475569;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            padding-bottom: 4px !important;
+        }
+
+        .custom-table tbody tr {
+            background: #ffffff;
+        }
+
+        .btn-premium {
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-weight: 500;
+        }
+
         .discussion-bubble { line-height: 1.5; }
         #mentionDropdown .list-group-item { cursor: pointer; padding: 6px 12px; }
         #mentionDropdown .list-group-item:hover { background: #f0f0f0; }
@@ -576,6 +718,99 @@
         $('#backButton').click(function() {
             window.history.back();
         });
+
+        var editPurchaseItemModal = new bootstrap.Modal(document.getElementById('editPurchaseItemModal'));
+
+        $(document).on('click', '.edit-purchase-item', function() {
+            var id = $(this).data('id');
+            $('#editPurchaseItemForm').attr('action', '{{ url('purchase-request') }}/update/' + id);
+            $('#editPurchaseQty').val($(this).data('qty'));
+            $('#editPurchaseNote').val($(this).data('note') || '');
+            editPurchaseItemModal.show();
+        });
+
+        $('#editPurchaseItemForm').on('submit', function(e) {
+            e.preventDefault();
+            var $form = $(this);
+
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: $form.serialize(),
+                success: function() {
+                    editPurchaseItemModal.hide();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil',
+                        text: 'Item purchase request berhasil diperbarui.',
+                        customClass: {
+                            confirmButton: 'btn btn-success waves-effect'
+                        }
+                    }).then(function() {
+                        window.location.reload();
+                    });
+                },
+                error: function(xhr) {
+                    var message = 'Gagal memperbarui item.';
+                    if (xhr.status === 422 && xhr.responseJSON && xhr.responseJSON.errors) {
+                        message = Object.values(xhr.responseJSON.errors).flat().join('\n');
+                    }
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: message
+                    });
+                }
+            });
+        });
+
+        $(document).on('click', '.delete-purchase-item', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: 'Hapus item?',
+                text: 'Item ini akan dihapus dari purchase request.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, hapus!',
+                customClass: {
+                    confirmButton: 'btn btn-danger me-3 waves-effect waves-light',
+                    cancelButton: 'btn btn-label-secondary waves-effect'
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '{{ url('purchase-request') }}/delete/' + id,
+                        type: 'POST',
+                        data: {
+                            '_method': 'DELETE',
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response == 1) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Terhapus',
+                                    text: 'Item berhasil dihapus.',
+                                    customClass: {
+                                        confirmButton: 'btn btn-success waves-effect'
+                                    }
+                                }).then(function() {
+                                    window.location.reload();
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: 'Data gagal dihapus.'
+                                });
+                            }
+                        }
+                    });
+                }
+            });
+        });
+
         $(document).on('click', '.acc-purchase', function() {
             var id = $(this).data('id');
             var pending = $(this).data('pending');

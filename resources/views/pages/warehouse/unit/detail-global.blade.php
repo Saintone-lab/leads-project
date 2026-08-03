@@ -9,26 +9,7 @@
             <div class="card">
                 @if (in_array(auth::user()->role, ['Admin', 'Sales', 'Logistic']))
                     <div class="card-header pb-0">
-                        <div class="d-flex justify-content-between align-items-center">
-                            {{-- Harga Pricelist --}}
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="text-muted small">Pricelist:</span>
-                                <form action="{{ route('unit-global.update-price', $product->id) }}" method="POST"
-                                    class="d-flex align-items-center gap-1" id="form-price">
-                                    @csrf
-                                    @method('PATCH')
-                                    <div class="input-group input-group-sm" style="width:200px;">
-                                        <span class="input-group-text">Rp</span>
-                                        <input type="text" class="form-control text-end rupiah-price"
-                                            name="price_display"
-                                            value="{{ $product->serial ? number_format($product->serial->first()?->price ?? 0, 0, ',', '.') : '0' }}"
-                                            autocomplete="off">
-                                        <input type="hidden" name="price" id="price-raw"
-                                            value="{{ $product->serial->first()?->price ?? 0 }}">
-                                    </div>
-                                    <button type="submit" class="btn btn-sm btn-primary">Simpan</button>
-                                </form>
-                            </div>
+                        <div class="d-flex justify-content-end align-items-center">
                             <div>
                                 <a type="button" data-bs-toggle="modal" data-bs-target="#updateProduct-{{ $product->id }}">
                                     <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
@@ -101,7 +82,7 @@
         </div>
         @if (in_array(auth::user()->role, ['Admin', 'Sales', 'Logistic']))
             <div class="row">
-                <div class="col-md-6 col-12 ">
+                <div class="col-12 mb-4">
                     <div class="d-flex justify-content-between mb-2">
                         <h5 class="fw-bold pb-1 mb-2">
                             Sparepart Consumable Part
@@ -120,6 +101,7 @@
                                         <th>PN</th>
                                         <th>Desc</th>
                                         <th>Quantity</th>
+                                        <th>PM Level</th>
                                         <th>Stock</th>
                                         <th>Action</th>
                                     </tr>
@@ -140,18 +122,58 @@
                                                 {{ $part->qty }} {{ $part->equivalent->product->unit ?? 'Pcs' }}
                                             </td>
                                             <td>
+                                                <span class="badge bg-label-info">{{ $part->pm_level ?? 'PM1' }}</span>
+                                            </td>
+                                            <td>
                                                 {{ $allStock }}
                                             </td>
                                             <td>
+                                                <a type="button" data-bs-toggle="modal" data-bs-target="#editSparepart-{{ $part->id }}"
+                                                    class="btn btn-sm btn-label-warning me-1">
+                                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-pencil-outline"></i>
+                                                </a>
                                                 <a href="#" data-id="{{ $part->id }}"
                                                     class="btn btn-sm btn-label-danger delete-sparepart">
                                                     <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline"></i>
                                                 </a>
                                             </td>
                                         </tr>
+                                        
+                                        <!-- Edit Sparepart Modal -->
+                                        <div class="modal fade" id="editSparepart-{{ $part->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <form action="{{ route('unit-sparepart.update', $part->id) }}" method="POST">
+                                                        @csrf
+                                                        @method('PATCH')
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Edit Sparepart - {{ $part->pn }}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="form-floating form-floating-outline mb-3">
+                                                                <input type="number" class="form-control" name="qty" id="qty-{{ $part->id }}" min="1" value="{{ $part->qty }}" required>
+                                                                <label for="qty-{{ $part->id }}">Quantity</label>
+                                                            </div>
+                                                            <div class="form-floating form-floating-outline mb-3">
+                                                                <select class="form-select" name="pm_level" id="pm-{{ $part->id }}">
+                                                                    <option value="PM1" {{ $part->pm_level == 'PM2' ? '' : 'selected' }}>PM1 (Minor)</option>
+                                                                    <option value="PM2" {{ $part->pm_level == 'PM2' ? 'selected' : '' }}>PM2 (Major)</option>
+                                                                </select>
+                                                                <label for="pm-{{ $part->id }}">PM Level</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
+                                                            <button type="submit" class="btn btn-primary">Save changes</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center">
+                                            <td colspan="6" class="text-center">
                                                 Kamu belum punya Consumable Part.
                                             </td>
                                         </tr>
@@ -160,6 +182,8 @@
                             </table>
                         </div>
                     </div>
+                </div>
+                <div class="col-12 mb-4">
                     <h5 class="fw-bold pb-1 mb-2">
                         Sparepart Non Consumable Part
                     </h5>
@@ -212,7 +236,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-12 flex-1 mb-3">
+                <div class="col-12 mb-4">
                     <div class="d-flex justify-content-between mb-2">
                         <h5 class="fw-bold pb-1 mb-2">
                             Equivalent
@@ -244,7 +268,7 @@
             </div>
         @else
             <div class="row">
-                <div class="col-md-6 col-12 ">
+                <div class="col-12 mb-4">
                     <div class="d-flex justify-content-between mb-2">
                         <h5 class="fw-bold pb-1 mb-2">
                             Sparepart Consumable Part
@@ -292,7 +316,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-12">
+                <div class="col-12 mb-4">
                     <div class="d-flex justify-content-between mb-2">
                         <h5 class="fw-bold pb-1 mb-2">
                             Sparepart Non Consumable Part

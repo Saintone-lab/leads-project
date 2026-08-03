@@ -231,7 +231,6 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th></th>
                                     <th>ID</th>
                                     <th>Image</th>
                                     <th>Brand</th>
@@ -297,7 +296,6 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th></th>
                                     <th>ID</th>
                                     <th>invoice</th>
                                     <th>Product</th>
@@ -316,7 +314,6 @@
                             <thead>
                                 <tr>
                                     <th></th>
-                                    <th></th>
                                     <th>ID</th>
                                     <th>invoice</th>
                                     <th>Product</th>
@@ -334,7 +331,6 @@
                         <table class="datatable-product-quotation table table-striped">
                             <thead>
                                 <tr>
-                                    <th></th>
                                     <th></th>
                                     <th>ID</th>
                                     <th>no quote</th>
