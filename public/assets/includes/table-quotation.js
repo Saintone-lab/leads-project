@@ -133,7 +133,7 @@ $(function () {
                             : "";
                         var badge = '<span class="badge rounded-pill ' + s.class + ' cursor-pointer"' + tooltip + '>' + label + "</span>";
                         if (full["row_type"] === "unit") {
-                            badge += ' <span class="badge bg-label-primary ms-1">Unit</span>';
+                            badge += ' <span class="badge bg-label-info ms-1">Smart</span>';
                         }
                         return badge;
                     },

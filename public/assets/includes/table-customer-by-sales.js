@@ -1,45 +1,30 @@
 $(function () {
-    var dt_table_customer_by_sales = $(".datatable-customers-by-sales");
-    var Url = "/customers?sales_id=";
-    let selectedSales = 1;
+    var baseAjaxUrl = "/db/crm/status";
+    var selectedSales = 1;
 
-    if (dt_table_customer_by_sales.length) {
-        $('[data-toggle="tooltip"]').tooltip();
-        // Setup - add a text input to each footer cell
-        $(".datatable-customer-search thead tr")
+    function initDataTable(selector, statusId) {
+        var $el = $(selector);
+        if (!$el.length) return null;
+
+        // Clone header row lalu replace isinya dengan input search (seperti di halaman invoice)
+        $el.find("thead tr")
             .clone(true)
-            .appendTo(".datatable-customer-search thead");
-        $(".datatable-customer-search thead tr:eq(1) th").each(function (i) {
+            .appendTo($el.find("thead"));
+
+        $el.find("thead tr:eq(1) th").each(function (i) {
             var title = $(this).text();
             $(this).html(
-                '<input type="text" class="form-control" placeholder="Search ' +
-                    title +
-                    '" />',
+                '<input type="text" class="form-control form-control-sm" placeholder="Cari ' + title + '..." />'
             );
-
-            $("input", this).on("keyup change", function () {
-                if (dt_filter.column(i).search() !== this.value) {
-                    dt_filter.column(i).search(this.value).draw();
-                }
-            });
         });
 
-        window.dtCustomerBySales = dt_table_customer_by_sales.DataTable({
+        var dt = $el.DataTable({
             ajax: {
                 type: "GET",
-                url: Url + selectedSales,
+                url: baseAjaxUrl + "?status=" + statusId + "&sales_id=" + selectedSales,
                 headers: {
                     "Content-Type": "application/json",
                 },
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
             },
             columns: [
                 { data: "company" },
@@ -62,20 +47,27 @@ $(function () {
             ],
             columnDefs: [
                 {
+                    targets: [2, 5, 6, 7],
+                    className: "text-center",
+                },
+                {
+                    targets: [0, 3],
+                    className: "text-nowrap",
+                },
+                {
+                    responsivePriority: 1,
                     targets: 0,
-                    render: function (data, type, full, row) {
-                        if (type === "display") {
-                            var $dataId = full["id"];
-                            var detailRoute = route("existing.show", $dataId);
-                            return (
-                                '<a class="text-dark" href="' +
-                                detailRoute +
-                                '">' +
-                                data +
-                                "</a>"
-                            );
+                    render: function (data, type, full) {
+                        if (type !== "display") return data;
+                        var $dataId = full["id"];
+                        var detailRoute = route("existing.show", $dataId);
+                        var companyName = data || "-";
+
+                        if (companyName.length > 25) {
+                            companyName = companyName.substring(0, 25) + "...";
                         }
-                        return data;
+
+                        return '<a class="fw-bold text-primary" href="' + detailRoute + '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + (data || "") + '">' + companyName + '</a>';
                     },
                 },
                 {
@@ -84,16 +76,12 @@ $(function () {
                         if (type === "display") {
                             var $status_ru = full["ru"];
                             var $status = {
-                                User: {
-                                    class: "bg-success",
-                                },
-                                Reseller: {
-                                    class: " bg-warning",
-                                },
+                                User: { class: "bg-success" },
+                                Reseller: { class: "bg-warning" },
                             };
                             return (
                                 '<span class="badge ' +
-                                $status[$status_ru].class +
+                                ($status[$status_ru] ? $status[$status_ru].class : "bg-label-secondary") +
                                 '">' +
                                 data +
                                 "</span> "
@@ -105,7 +93,6 @@ $(function () {
                 {
                     targets: 2,
                     render: function (data, type, full, meta) {
-                        // Tambahkan dropdown ke dalam kolom
                         var dropdown =
                             '<select class="form-select status-dropdown" data-id="' +
                             full.id +
@@ -141,18 +128,16 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var flag = full["info"];
+                            if (!flag) return "-";
+                            var note = full["note"] || "No notes available";
                             var $info = {
-                                Reftech: {
-                                    class: "bg-label-primary",
-                                },
-                                Kojisha: {
-                                    class: " bg-label-warning",
-                                },
+                                Reftech: { class: "bg-label-primary" },
+                                Kojisha: { class: " bg-label-warning" },
                             };
                             return (
                                 '<span class="badge ' +
-                                $info[flag].class +
-                                '">' +
+                                ($info[flag] ? $info[flag].class : "bg-label-secondary") +
+                                '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + note + '">' +
                                 data +
                                 "</span> "
                             );
@@ -161,35 +146,58 @@ $(function () {
                     },
                 },
             ],
-            order: [[1, "desc"]],
-            // orderCellsTop: true,
+            order: [[0, "asc"]],
             dom:
                 '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f><"dt-action-buttons text-end pt-3 pt-md-0"B>>' +
                 '<"table-responsive"t>' +
                 '<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
-            buttons: [
-                // {
-                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Payable</span>',
-                //     className: "btn btn-primary btn-new",
-                //     action: function (e, dt, node, config) {
-                //         window.location = route("payable.create");
-                //     },
-                // },
-                // {
-                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Payable</span>',
-                //     className: "btn btn-primary",
-                //     attr: {
-                //         href: "{{ route('payable.create') }}",
-                //     },
-                // },
-            ],
+            buttons: [],
         });
-        window.reloadCustomersBySales = function (salesId) {
-            let url = "/customers?sales_id=" + salesId;
-            window.dtCustomerBySales.ajax.url(url).load();
-        };
+
+        $el.find("thead tr:eq(1) th input").each(function (i) {
+            $(this).on("keyup change", function () {
+                if (dt.column(i).search() !== this.value) {
+                    dt.column(i).search(this.value).draw();
+                }
+            });
+        });
+
+        return dt;
     }
-    dt_table_customer_by_sales.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
+
+    if ($(".datatable-customers-by-sales-active").length) {
+        var tables = [
+            { dt: initDataTable(".datatable-customers-by-sales-active", 2), statusId: 2 },
+            { dt: initDataTable(".datatable-customers-by-sales-non-active", 3), statusId: 3 },
+            { dt: initDataTable(".datatable-customers-by-sales-bangkrupt", 1), statusId: 1 },
+        ];
+
+        window.dtCustomerBySalesActive = tables[0].dt;
+        window.dtCustomerBySalesNonActive = tables[1].dt;
+        window.dtCustomerBySalesBangkrupt = tables[2].dt;
+
+        window.reloadCustomersBySales = function (salesId) {
+            selectedSales = salesId;
+            tables.forEach(function (t) {
+                if (!t.dt) return;
+                var url = baseAjaxUrl + "?status=" + t.statusId + "&sales_id=" + selectedSales;
+                t.dt.ajax.url(url).load();
+            });
+        };
+
+        $('#cbs-status-tab-nav button[data-bs-toggle="tab"]').on('shown.bs.tab', function () {
+            $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust().responsive.recalc();
+        });
+
+        $(document).on('draw.dt', function (e) {
+            var $tbl = $(e.target);
+            $tbl.find('[data-bs-toggle="tooltip"]').tooltip();
+
+            var badgeId = $tbl.data('badge');
+            if (!badgeId) return;
+            var api = $tbl.DataTable();
+            var count = api.page.info().recordsTotal;
+            $('#' + badgeId).text(count);
+        });
+    }
 });

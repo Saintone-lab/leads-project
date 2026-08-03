@@ -67,6 +67,39 @@ $(function () {
                 {
                     responsivePriority: 1,
                     targets: 3,
+                    render: function (data, type, full, row) {
+                        var unit = full["unit"] || "-";
+                        var isForecasted = full["is_forecasted"];
+                        var forecastType = full["forecast_type"];
+                        
+                        var isCompressor = unit.toUpperCase() === "AIR COMPRESSOR SCREW";
+                        if (!isCompressor) {
+                            return '<div class="d-flex align-items-center"><span class="fw-semibold">' + unit + '</span></div>';
+                        }
+                        
+                        var badge = '';
+                        if (isForecasted == 1 || isForecasted === true || isForecasted == '1') {
+                            var typeLabel = 'Parts';
+                            if (forecastType === 'regular_service') typeLabel = 'Service';
+                            if (forecastType === 'contract') typeLabel = 'Contract';
+                            badge = ' <span class="badge bg-label-success ms-2" style="font-size:0.7rem; padding: 0.25em 0.5em;"><i class="mdi mdi-creation me-1"></i>Forecast: ' + typeLabel + '</span>';
+                        } else {
+                            badge = ' <span class="badge bg-label-secondary ms-2" style="font-size:0.7rem; padding: 0.25em 0.5em;">Non-Forecast</span>';
+                        }
+                        
+                        return '<div class="d-flex align-items-center"><span class="fw-semibold">' + unit + '</span>' + badge + '</div>';
+                    }
+                },
+                {
+                    targets: 5,
+                    render: function (data, type, full, row) {
+                        var idGlobalUnit = full["id_global_unit"];
+                        var sku = full["sku"] || "-";
+                        if (idGlobalUnit) {
+                            return '<a href="/unit-global/' + idGlobalUnit + '" class="fw-semibold text-primary" target="_blank">' + sku + '</a>';
+                        }
+                        return sku;
+                    }
                 },
                 {
                     targets: 9,

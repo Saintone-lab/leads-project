@@ -77,18 +77,16 @@ $(function () {
                 // },
                 {
                     targets: -1,
+                    className: "text-center",
+                    orderable: false,
+                    searchable: false,
                     render: function (data, type, full, row) {
                         var id = full["id"];
                         return (
-                            '<a href="#" data-id="' +
-                            id +
-                            '" class="btn btn-sm btn-label-danger delete-account m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>'+
-                            '<button type="button" class="btn btn-sm btn-warning editAccount" data-id="'+ id +'" data-bs-toggle="modal" data-bs-target="#editAccount"> Edit </button>'
-                            // '<a type="button" href="#" data-bs-toggle="modal" data-bs-target="#updatePic-' +
-                            // id +
-                            // '" data-id="' +
-                            // id +
-                            // '" class="btn btn-sm btn-label-primary"><i class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i></a>'
+                            '<div class="d-flex gap-1 justify-content-center">' +
+                            '<button type="button" class="btn btn-sm btn-icon btn-label-primary editAccount rounded-circle" data-id="' + id + '" data-bs-toggle="modal" data-bs-target="#editAccount" title="Edit"><i class="mdi mdi-pencil-outline"></i></button>' +
+                            '<a href="#" data-id="' + id + '" class="btn btn-sm btn-icon btn-label-danger delete-account rounded-circle" title="Hapus"><i class="mdi mdi-trash-can-outline"></i></a>' +
+                            '</div>'
                         );
                     },
                 },
@@ -96,7 +94,7 @@ $(function () {
             order: [[0, "asc"]],
             // orderCellsTop: true,
             dom:
-                '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f><"dt-action-buttons text-end pt-3 pt-md-0"B>>' +
+                '<"row align-items-center"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 dt-action-buttons d-flex justify-content-center justify-content-md-end"B>>' +
                 '<"table-responsive"t>' +
                 '<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
             buttons: [
@@ -112,6 +110,6 @@ $(function () {
         });
     }
     dt_table_account_data.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
+        $('.editAccount, .delete-account').tooltip();
     });
 });

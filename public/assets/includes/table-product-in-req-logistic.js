@@ -14,11 +14,15 @@ $(function () {
                 { data: "" },
                 { data: "id" },
                 { data: "no_product_in" },
-                { data: "no_do" },
+                {
+                    data: "supplier",
+                    render: function (data, type, row) {
+                        return data ? data : row.supplier_name;
+                    },
+                },
                 { data: "info" },
-                { data: "date" },
                 { data: "total_qty" },
-                { data: "creator_name" },
+                { data: "date" },
             ],
             columnDefs: [
                 {
@@ -36,8 +40,8 @@ $(function () {
                     visible: false,
                 },
                 {
-                    // No DO, Category, Date, Qty, Assign — rata tengah
-                    targets: [3, 4, 5, 6, 7],
+                    // Category, Qty, Date — rata tengah
+                    targets: [4, 5, 6],
                     className: "text-center",
                 },
                 {
@@ -59,7 +63,7 @@ $(function () {
                     },
                 },
                 {
-                    targets: 5,
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         if (!data) return "-";
                         var d = new Date(data);
@@ -85,8 +89,8 @@ $(function () {
             ],
             initComplete: function () {
                 var api = this.api();
-                // Search input untuk: No. Product In(2), No DO(3), Category(4), Date(5), Qty(6), Assign(7)
-                var searchableCols = [2, 3, 4, 5, 6, 7];
+                // Search input untuk: No. Product In(2), Supplier(3), Category(4), Qty(5), Date(6)
+                var searchableCols = [2, 3, 4, 5, 6];
                 api.columns().every(function () {
                     var col = this;
                     var idx = col.index();
@@ -128,7 +132,7 @@ $(function () {
             },
         });
         $("div.head-label-delay").html(
-            '<h5 class="card-title mb-0">Table Product In Delay</h5>'
+            '<h5 class="card-title mb-0">Pending Good Receipt</h5>'
         );
     }
     dt_table_product.on("draw", function () {

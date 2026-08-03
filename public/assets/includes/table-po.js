@@ -47,9 +47,14 @@ $(function () {
                             ? "/unit-quotation/" + full["id"]
                             : route("quotation.show", full["id"]);
                         var badge = full["row_type"] === "unit"
-                            ? ' <span class="badge bg-label-danger ms-1">Unit</span>'
+                            ? ' <span class="badge bg-label-info ms-1">Smart</span>'
                             : "";
-                        return '<a class="fw-bold text-primary" href="' + url + '">' + (data || "-") + "</a>" + badge;
+                        var full_no = data || "-";
+                        var short   = full_no.length > 5 ? full_no.substring(0, 5) + "…" : full_no;
+                        return '<a class="fw-bold text-primary" href="' + url + '"' +
+                            ' data-bs-toggle="tooltip" data-bs-placement="top"' +
+                            ' data-bs-custom-class="tooltip-quote-no" title="' + full_no + '">' +
+                            short + "</a>" + badge;
                     },
                 },
                 {

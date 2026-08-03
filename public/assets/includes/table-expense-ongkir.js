@@ -37,24 +37,27 @@ $(function () {
                 },
                 {
                     targets: -1,
+                    className: "text-center",
+                    orderable: false,
+                    searchable: false,
                     render: function (data, type, full, row) {
                         if (full["status"] === "posted") {
                             return "-";
                         }
                         return (
-                            '<button type="button" class="btn btn-sm btn-primary btn-post-ongkir" ' +
+                            '<button type="button" class="btn btn-sm btn-primary shadow-sm btn-post-ongkir" ' +
                             'data-id="' + full["id"] + '" ' +
                             'data-kurir="' + full["kurir"] + '" ' +
                             'data-cost="' + full["cost"] + '" ' +
                             'data-pending="' + full["no_pending"] + '">' +
-                            "Posting</button>"
+                            '<i class="mdi mdi-send-outline me-1"></i>Posting</button>'
                         );
                     },
                 },
             ],
             order: [[0, "desc"]],
             dom:
-                '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f><"dt-action-buttons text-end pt-3 pt-md-0"B>>' +
+                '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>>' +
                 '<"table-responsive"t>' +
                 '<"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
         });

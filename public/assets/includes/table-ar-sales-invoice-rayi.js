@@ -36,18 +36,20 @@ $(function () {
                 },
                 data: function (d) {
                     d.year = window.invoiceYearFilter || "all";
+                    d.sales_id = window.invoiceSalesFilter || "all";
                     return d;
                 },
             },
             columns: [
-                { data: "no_invoice" },
-                { data: "no_po" },
+                { data: "short_invoice" },
                 { data: "tanggal" },
+                { data: "short_po" },
                 { data: "company" },
                 { data: "harga_total" },
                 { data: "total_payment_level1" },
                 { data: "outstanding" },
                 { data: "last_payment_type" },
+                { data: "tax" },
                 { data: "name" },
                 { data: "bendera" },
             ],
@@ -59,18 +61,22 @@ $(function () {
                 {
                     targets: 0,
                     render: function (data, type, full, row) {
+                        var full_no = full["no_invoice"] || data || "-";
                         if (type === "display") {
                             var id = full["id"];
-                            detailRoute = route("payment_detail.invoice", id);
+                            var detailRoute = route("payment_detail.invoice", id);
+                            var short = full_no.length > 8 ? full_no.substring(0, 8) + "…" : full_no;
                             return (
-                                '<a class="text-black" href="' +
+                                '<a class="fw-bold text-primary" href="' +
                                 detailRoute +
+                                '" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="tooltip-quote-no" title="' +
+                                full_no +
                                 '">' +
-                                data +
+                                short +
                                 "</a>"
                             );
                         }
-                        return data;
+                        return full_no;
                     },
                 },
                 {
@@ -78,8 +84,9 @@ $(function () {
                     render: function (data, type, row) {
                         if (type === "display" || type === "filter") {
                             return (
-                                "Rp " +
-                                new Intl.NumberFormat("id-ID").format(data)
+                                '<div class="d-flex justify-content-between"><span class="me-1">Rp</span><span>' +
+                                new Intl.NumberFormat("id-ID").format(data || 0) +
+                                "</span></div>"
                             );
                         }
                         return data;
@@ -88,17 +95,24 @@ $(function () {
                 {
                     targets: 7,
                     render: function (data, type, full, row) {
-                        var type = full["last_payment_type"];
-                        var overdue = full["last_overdue"] ?? "No";
-                        var paytot = full["total_payment"];
+                        var payType  = full["last_payment_type"];
+                        var payLevel = full["last_payment_level"];
+                        var payCount = full["payment_count"];
+                        var overdue  = full["last_overdue"] ?? "No";
                         var title, label;
-                        if (type == "CBD" || type == "COD" || type == "BP") {
+                        if (!payType || payCount == 0) {
+                            title = "Unpaid";
+                            label = "bg-label-danger";
+                        } else if (payLevel == 0) {
+                            title = "Unconfirmed";
+                            label = "bg-label-secondary";
+                        } else if (payType == "CBD" || payType == "COD" || payType == "BP") {
                             title = "Full Paid";
                             label = "bg-label-success";
-                        } else if (type == "DP") {
+                        } else if (payType == "DP") {
                             title = "Partial";
                             label = "bg-label-warning";
-                        } else if (type == "Tempo") {
+                        } else if (payType == "Tempo") {
                             title = "Credit " + overdue + " Days";
                             label = "bg-label-primary";
                         } else {
@@ -106,17 +120,64 @@ $(function () {
                             label = "bg-label-danger";
                         }
                         return (
-                            '<span class="badge rounded-pill ' +
+                            '<div class="text-center"><span class="badge rounded-pill ' +
                             label +
                             '">' +
                             title +
-                            "</span>"
+                            "</span></div>"
+                        );
+                    },
+                },
+                {
+                    targets: 8,
+                    render: function (data, type, row) {
+                        if (type === "display" || type === "filter") {
+                            var text = data == "11" || data == 11 ? "11%" : "0%";
+                            return '<div class="text-center">' + text + '</div>';
+                        }
+                        return data;
+                    },
+                },
+                {
+                    targets: 9,
+                    render: function (data, type, row) {
+                        return '<div class="text-center">' + (data || "-") + '</div>';
+                    },
+                },
+                {
+                    targets: 10,
+                    render: function (data, type, full, row) {
+                        var title, label;
+                        if (data == "Reftech") {
+                            title = "RJO";
+                            label = "bg-label-primary";
+                        } else {
+                            title = "KII";
+                            label = "bg-label-danger";
+                        }
+                        return (
+                            '<div class="text-center"><span class="badge rounded-pill ' +
+                            label +
+                            '">' +
+                            title +
+                            "</span></div>"
                         );
                     },
                 },
             ],
             order: [],
-            dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end"f>><"table-responsive"t><"row"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            dom: '<"row me-2"<"col-md-2"<"me-3"l>><"col-md-10"<"dt-action-buttons text-xl-end text-lg-start text-md-end text-start d-flex align-items-center justify-content-end flex-md-row flex-column mb-3 mb-md-0"fB>>>t<"row mx-2"<"col-sm-12 col-md-6"i><"col-sm-12 col-md-6"p>>',
+            buttons: [
+                {
+                    extend: 'collection',
+                    className: 'btn btn-label-secondary dropdown-toggle mx-3',
+                    text: '<i class="mdi mdi-export-variant me-1"></i>Export',
+                    buttons: [
+                        { extend: 'csv', className: 'dropdown-item', text: '<i class="mdi mdi-file-document-outline me-1"></i>CSV' },
+                        { extend: 'excel', className: 'dropdown-item', text: '<i class="mdi mdi-file-excel-outline me-1"></i>Excel' }
+                    ]
+                }
+            ],
         });
 
         window.invoiceDataTables = window.invoiceDataTables || {};
