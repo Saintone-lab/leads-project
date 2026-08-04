@@ -1781,7 +1781,7 @@ class QuotationController extends Controller
         }
 
         $npwpClean = preg_replace('/[^a-zA-Z0-9]/', '', $client->npwp ?? '');
-        if (strlen($npwpClean) < 14) {
+        if ($quote->tax != 0 && strlen($npwpClean) < 14) {
             $errorMsg = 'NPWP client belum diisi atau kurang dari 14 karakter. Pengajuan PO tidak dapat diproses.';
             if ($quote->type == 'Sparepart') {
                 return redirect('/quotation/' . $id)->with('error', $errorMsg);

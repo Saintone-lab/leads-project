@@ -1,352 +1,357 @@
 @extends('layouts.sales.app')
 @section('title', 'Data Product')
 @section('content')
-    <h4 class="fw-bold py-3 mb-4">
-        <span class="text-muted fw-light">Products /</span> {{ $product->commodity }}
-    </h4>
-    <div class="row mb-3">
-        <div class="col-12 mb-4">
-            <div class="card">
-                <div class="card-header pb-0">
-                    <div class="text-end text-muted">
-                        <a type="button" data-bs-toggle="modal" data-bs-target="#updateStock-{{ $product->id }}">
-                            <button type="button" class="btn btn-sm btn-label-success">Edit Stock</button>
-                        </a>
-                        <a type="button" data-bs-toggle="modal" data-bs-target="#updateProduct-{{ $product->id }}">
-                            <button type="button" class="btn btn-sm btn-label-primary">Edit</button>
-                        </a>
-                        @if (Auth::user()->role == 'Admin')
-                            <a href="#" data-id="{{ $product->id }}"
-                                class="btn btn-sm btn-label-danger delete-product">Delete
-                            </a>
-                        @endif
-                    </div>
+
+{{-- Breadcrumb --}}
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 py-3 mb-4">
+    <div>
+        <h4 class="fw-bold mb-1 d-flex align-items-center gap-2">
+            <i class="mdi mdi-package-variant-closed text-primary"></i> {{ $product->commodity }}
+        </h4>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0" style="font-size: 13px;">
+                <li class="breadcrumb-item"><a href="/">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url('product') }}">Products</a></li>
+                <li class="breadcrumb-item active">{{ $product->commodity }}</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="#" data-bs-toggle="modal" data-bs-target="#updateStock-{{ $product->id }}"
+            class="btn btn-sm btn-label-success rounded-pill px-3">
+            <i class="mdi mdi-tray-arrow-down me-1"></i> Edit Stock
+        </a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#updateProduct-{{ $product->id }}"
+            class="btn btn-sm btn-label-primary rounded-pill px-3">
+            <i class="mdi mdi-pencil-outline me-1"></i> Edit
+        </a>
+        @if (Auth::user()->role == 'Admin')
+            <a href="#" data-id="{{ $product->id }}" class="btn btn-sm btn-label-danger rounded-pill px-3 delete-product">
+                <i class="mdi mdi-delete-outline me-1"></i> Delete
+            </a>
+        @endif
+    </div>
+</div>
+
+{{-- Stock Metric Cards --}}
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div class="avatar avatar-md flex-shrink-0">
+                    <span class="avatar-initial rounded-circle bg-label-primary"><i class="mdi mdi-warehouse fs-4"></i></span>
                 </div>
-                <div class="card-body">
-                    <p class="card-text">
-                    <div class="row mb-1">
-                        <div class="col-6">
-                            <div class="row">
-                                <div class="col-3">
-                                    Comodity
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->commodity }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Short Description
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->detail_desc }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Genuine / OEM
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->go }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Category
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->category }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Dimension
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->dimension }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Weight
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->weight }} Gram
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Stock Awal
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->first_stock }} {{ $product->unit }} ({{ $product->date }})
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Warehouse Stock
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->warehouse_stock }} {{ $product->unit }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Office Stock
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->stock }} {{ $product->unit }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Pending Stock
-                                </div>
-                                <div class="col-9">
-                                    : {{ $product->pending_stock }} {{ $product->unit }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    All Stock
-                                </div>
-                                <div class="col-9">
-                                    : {{ $allStock }} {{ $product->unit }}
-                                </div>
-                            </div>
-                            <div class="row mb-1">
-                                <div class="col-3">
-                                    Note
-                                </div>
-                                <div class="col-9">
-                                    <pre class="mb-1"
-                                        style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $product->note }}
-                                </pre>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="row">
-                                <div class="row mb-1">
-                                    <div class="col-3">
-                                        Description
-                                    </div>
-                                    <div class="col-9">
-                                        <pre class="mb-1"
-                                            style="font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">: {{ $product->description }}
-                                        </pre>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    </p>
+                <div>
+                    <small class="text-muted fw-semibold d-block" style="font-size: 11px;">Warehouse Stock</small>
+                    <span class="fw-bold text-dark" style="font-size: 15px;">{{ $product->warehouse_stock }} {{ $product->unit }}</span>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-md-5 col-12 ">
-                <div class="d-flex justify-content-between mb-2">
-                    <h5 class="fw-bold pb-1 mb-2">
-                        Replacement
-                    </h5>
-                    <a type="button" data-bs-toggle="modal" data-bs-target="#createReplacement-{{ $product->id }}">
-                        <button type="button" class="btn btn-primary">
-                            + New Replacement
-                        </button>
-                    </a>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div class="avatar avatar-md flex-shrink-0">
+                    <span class="avatar-initial rounded-circle bg-label-info"><i class="mdi mdi-office-building-outline fs-4"></i></span>
                 </div>
-                <div class="card">
-                    <div class="table-responsive text-nowrap h-100">
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Replacement</th>
-                                    <th>Stock</th>
-                                    @if (Auth::user()->role == 'Admin')
-                                        <th>Modal</th>
-                                    @endif
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="table-border-bottom-0">
-                                @forelse ($details as $detail)
-                                    @php
-                                        $allRep = $detail->stock + $detail->warehouse_stock;
-                                    @endphp
-                                    <tr>
-                                        <td>
-                                            {{ $detail->replacement }}
-                                        </td>
-                                        <td>
-                                            {{ $allRep }} {{ $detail->product->unit }}
-                                        </td>
-                                        @if (Auth::user()->role == 'Admin')
-                                            <td>
-                                                Rp.{{ number_format($detail->modal, 0, '', '.') }}
-                                            </td>
-                                        @endif
-                                        <td>
-                                            @if (Auth::user()->role == 'Admin')
-                                                <a href="#" data-id="{{ $detail->id }}"
-                                                    class="btn btn-sm btn-label-danger delete-replacement">
-                                                    <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
-                                                </a>
-                                            @endif
-                                            <a type="button" data-bs-toggle="modal"
-                                                data-bs-target="#editReplacement-{{ $detail->id }}">
-                                                <button type="button" class="btn btn-sm btn-label-primary">
-                                                    <i
-                                                        class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
-                                                </button>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center">
-                                            Kamu belum punya Replacement.
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                <div>
+                    <small class="text-muted fw-semibold d-block" style="font-size: 11px;">Office Stock</small>
+                    <span class="fw-bold text-dark" style="font-size: 15px;">{{ $product->stock }} {{ $product->unit }}</span>
                 </div>
             </div>
-            <div class="col-md col-12 flex-1 mb-3">
-                <div class="d-flex justify-content-between mb-2">
-                    <h5 class="fw-bold pb-1 mb-2">
-                        Equivalent
-                    </h5>
-                    <a type="button" data-bs-toggle="modal" data-bs-target="#createEquivalent-{{ $product->id }}">
-                        <button type="button" class="btn btn-primary">
-                            + New Equivalent
-                        </button>
-                    </a>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div class="avatar avatar-md flex-shrink-0">
+                    <span class="avatar-initial rounded-circle bg-label-warning"><i class="mdi mdi-timer-sand fs-4"></i></span>
                 </div>
-                <div class="card">
-                    <div class="card-body">
-                        <table class="datatable-product-equivalent{{Auth::user()->role == 'Logistic' ? '-logistik' : ''}} table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>Image</th>
-                                    <th>Brand</th>
-                                    <th>PN</th>
-                                    <th>Price</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                        </table>
+                <div>
+                    <small class="text-muted fw-semibold d-block" style="font-size: 11px;">Pending Stock</small>
+                    <span class="fw-bold text-dark" style="font-size: 15px;">{{ $product->pending_stock }} {{ $product->unit }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body d-flex align-items-center gap-3 p-3">
+                <div class="avatar avatar-md flex-shrink-0">
+                    <span class="avatar-initial rounded-circle bg-label-success"><i class="mdi mdi-cube-outline fs-4"></i></span>
+                </div>
+                <div>
+                    <small class="text-muted fw-semibold d-block" style="font-size: 11px;">All Stock</small>
+                    <span class="fw-bold text-success" style="font-size: 15px;">{{ $allStock }} {{ $product->unit }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    {{-- LEFT COLUMN --}}
+    <div class="col-xl-8">
+        {{-- Product Info --}}
+        <div class="card border-0 shadow-sm mb-3 overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-information-outline text-primary"></i> Informasi Produk
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="row g-3" style="font-size: 13px;">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Comodity</small>
+                        <span class="fw-semibold text-dark">{{ $product->commodity }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Short Description</small>
+                        <span class="fw-semibold text-dark">{{ $product->detail_desc ?: '-' }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Genuine / OEM</small>
+                        <span class="fw-semibold text-dark">{{ $product->go ?: '-' }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Category</small>
+                        <span class="badge bg-label-secondary rounded-pill px-3 py-1">{{ $product->category ?: '-' }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Dimension</small>
+                        <span class="fw-semibold text-dark">{{ $product->dimension ?: '-' }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Weight</small>
+                        <span class="fw-semibold text-dark">{{ $product->weight }} Gram</span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Stock Awal</small>
+                        <span class="fw-semibold text-dark">{{ $product->first_stock }} {{ $product->unit }} ({{ $product->date }})</span>
+                    </div>
+                </div>
+                <hr class="my-3">
+                <div class="row g-3" style="font-size: 13px;">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Note</small>
+                        <p class="mb-0 text-dark" style="white-space: pre-wrap; max-width: 100%; overflow-x: auto;">{{ $product->note ?: '-' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block mb-1">Description</small>
+                        <p class="mb-0 text-dark" style="white-space: pre-wrap; max-width: 100%; overflow-x: auto;">{{ $product->description ?: '-' }}</p>
                     </div>
                 </div>
             </div>
         </div>
+
+        {{-- Part Inquiry --}}
         @if ($partInquiries->isNotEmpty())
-        <div class="row mb-3">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h6 class="mb-0">Part Inquiry</h6>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-striped mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Brand</th>
-                                        <th>Part Number</th>
-                                        <th>Harga Jual</th>
-                                        <th>Jumlah Vendor</th>
-                                        <th>Last Inquiry</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($partInquiries as $pi)
-                                        <tr>
-                                            <td>{{ $pi->brand }}</td>
-                                            <td>{{ $pi->pn }}</td>
-                                            <td>Rp {{ number_format($pi->price, 0, ',', '.') }}</td>
-                                            <td>{{ $pi->sparePartVendorPrices->count() }} vendor</td>
-                                            <td>{{ $pi->sparePartVendorPrices->max('date') ? \Carbon\Carbon::parse($pi->sparePartVendorPrices->max('date'))->format('d M Y') : '-' }}</td>
-                                            <td>
-                                                <a href="{{ route('part-inquiry.show', $pi->id) }}" class="btn btn-sm btn-label-primary">
-                                                    <i class="mdi mdi-eye-outline"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        <div class="card border-0 shadow-sm mb-3 overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-magnify text-primary"></i> Part Inquiry
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped mb-0">
+                        <thead>
+                            <tr>
+                                <th>Brand</th>
+                                <th>Part Number</th>
+                                <th>Harga Jual</th>
+                                <th>Jumlah Vendor</th>
+                                <th>Last Inquiry</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($partInquiries as $pi)
+                                <tr>
+                                    <td>{{ $pi->brand }}</td>
+                                    <td>{{ $pi->pn }}</td>
+                                    <td>Rp {{ number_format($pi->price, 0, ',', '.') }}</td>
+                                    <td>{{ $pi->sparePartVendorPrices->count() }} vendor</td>
+                                    <td>{{ $pi->sparePartVendorPrices->max('date') ? \Carbon\Carbon::parse($pi->sparePartVendorPrices->max('date'))->format('d M Y') : '-' }}</td>
+                                    <td>
+                                        <a href="{{ route('part-inquiry.show', $pi->id) }}" class="btn btn-sm btn-label-primary">
+                                            <i class="mdi mdi-eye-outline"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
         @endif
 
-        <div class="row">
-            <div class="col-12 col-lg-6 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <table class="datatable-product-in-detail table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>invoice</th>
-                                    <th>Product</th>
-                                    <th>Qty</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
+        {{-- Product In / Out --}}
+        <div class="card border-0 shadow-sm mb-3 overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-arrow-down-bold-box-outline text-primary"></i> Product In
+                </h6>
             </div>
-            <div class="col-12 col-lg-6 mb-3">
-                <div class="card">
-                    <div class="card-body">
-                        <table class="datatable-product-out-detail table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>invoice</th>
-                                    <th>Product</th>
-                                    <th>Qty</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
+            <div class="card-body">
+                <table class="datatable-product-in-detail table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>ID</th>
+                            <th>invoice</th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <table class="datatable-product-quotation table table-striped">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>ID</th>
-                                    <th>no quote</th>
-                                    <th>equivalent</th>
-                                    <th>Qty</th>
-                                    <th>price</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                </tr>
-                            </thead>
-                        </table>
-                    </div>
-                </div>
+        </div>
+        <div class="card border-0 shadow-sm mb-3 overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-arrow-up-bold-box-outline text-primary"></i> Product Out
+                </h6>
+            </div>
+            <div class="card-body">
+                <table class="datatable-product-out-detail table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>ID</th>
+                            <th>invoice</th>
+                            <th>Product</th>
+                            <th>Qty</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm mb-3 overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-file-document-multiple-outline text-primary"></i> Quotation
+                </h6>
+            </div>
+            <div class="card-body">
+                <table class="datatable-product-quotation table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>ID</th>
+                            <th>no quote</th>
+                            <th>equivalent</th>
+                            <th>Qty</th>
+                            <th>price</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+        {{-- Equivalent --}}
+        <div class="card border-0 shadow-sm overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-shuffle-variant text-primary"></i> Equivalent
+                </h6>
+                <button type="button" class="btn btn-xs btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#createEquivalent-{{ $product->id }}">
+                    <i class="mdi mdi-plus me-1"></i> New
+                </button>
+            </div>
+            <div class="card-body">
+                <table class="datatable-product-equivalent{{Auth::user()->role == 'Logistic' ? '-logistik' : ''}} table table-striped">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Brand</th>
+                            <th>PN</th>
+                            <th>Price</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
+
+    {{-- RIGHT SIDEBAR --}}
+    <div class="col-xl-4">
+        {{-- Replacement --}}
+        <div class="card border-0 shadow-sm mb-3 overflow-hidden">
+            <div class="card-header bg-body-tertiary border-bottom py-3 px-4 d-flex align-items-center justify-content-between">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-swap-horizontal text-primary"></i> Replacement
+                </h6>
+                <button type="button" class="btn btn-xs btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#createReplacement-{{ $product->id }}">
+                    <i class="mdi mdi-plus me-1"></i> New
+                </button>
+            </div>
+            <div class="table-responsive text-nowrap">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>Replacement</th>
+                            <th>Stock</th>
+                            @if (Auth::user()->role == 'Admin')
+                                <th>Modal</th>
+                            @endif
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                        @forelse ($details as $detail)
+                            @php
+                                $allRep = $detail->stock + $detail->warehouse_stock;
+                            @endphp
+                            <tr>
+                                <td>
+                                    {{ $detail->replacement }}
+                                </td>
+                                <td>
+                                    {{ $allRep }} {{ $detail->product->unit }}
+                                </td>
+                                @if (Auth::user()->role == 'Admin')
+                                    <td>
+                                        Rp.{{ number_format($detail->modal, 0, '', '.') }}
+                                    </td>
+                                @endif
+                                <td>
+                                    @if (Auth::user()->role == 'Admin')
+                                        <a href="#" data-id="{{ $detail->id }}"
+                                            class="btn btn-sm btn-label-danger delete-replacement">
+                                            <i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i>
+                                        </a>
+                                    @endif
+                                    <a type="button" data-bs-toggle="modal"
+                                        data-bs-target="#editReplacement-{{ $detail->id }}">
+                                        <button type="button" class="btn btn-sm btn-label-primary">
+                                            <i
+                                                class="menu-icon tf-icons mdi mdi-14px mdi-note-edit-outline m-0"></i>
+                                        </button>
+                                    </a>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center">
+                                    Kamu belum punya Replacement.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
     @include('components.modal.warehouse.product.form')
     @include('components.modal.warehouse.product.stock')
     @include('components.modal.warehouse.replacement.form')
@@ -354,7 +359,6 @@
     @foreach ($serials as $serial)
         @include('components.modal.warehouse.equivalent.form')
     @endforeach
-    @include('components.modal.warehouse.equivalent.form')
     @foreach ($details as $detail)
         @include('components.modal.warehouse.replacement.form-price')
     @endforeach

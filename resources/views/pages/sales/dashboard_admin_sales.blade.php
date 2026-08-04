@@ -1,3 +1,11 @@
+    <style>
+        .nav-tabs.nav-tabs-widget .nav-link {
+            height: auto !important;
+            min-height: 92px;
+            padding-top: .5rem !important;
+            padding-bottom: .5rem !important;
+        }
+    </style>
     <div class="row gy-4 mb-4">
         <div class="col-12 col-lg-4">
 
@@ -140,10 +148,10 @@
                                             class="rounded-circle border"
                                             style="width: 48px; height: 48px; object-fit: cover; border-width: 2px !important;">
                                     </div>
-                                    <span class="fw-semibold text-dark text-truncate d-block" style="max-width: 85px; font-size: 0.78rem;">
+                                    <span class="fw-semibold text-dark text-truncate d-block" style="max-width: 85px; font-size: 0.78rem; line-height: 1.2;">
                                         {{ $displayName }}
                                     </span>
-                                    <small class="text-muted text-truncate d-block" style="max-width: 85px; font-size: 0.7rem;">
+                                    <small class="text-muted text-truncate d-block" style="max-width: 85px; font-size: 0.7rem; line-height: 1.2;">
                                         {{ $displayArea }}
                                     </small>
                                 </a>
