@@ -35,11 +35,12 @@
 
     <div class="card card-minimalist mb-4">
         <div class="card-header card-minimalist-header py-2">
-            <ul class="nav nav-pills card-header-pills border-0 m-0 flex-nowrap overflow-auto" role="tablist">
+            <ul class="nav nav-pills card-header-pills border-0 m-0 flex-nowrap overflow-auto" id="cbs-sales-tab-nav"
+                data-default-sales-id="{{ $sales->first()->id ?? '' }}" role="tablist">
                 @foreach ($sales as $sale)
                     <li class="nav-item" role="presentation">
                         <button type="button"
-                            class="nav-link fw-semibold waves-effect waves-light select-sales {{ $sale->id == 1 ? 'active' : '' }}"
+                            class="nav-link fw-semibold waves-effect waves-light select-sales {{ $loop->first ? 'active' : '' }}"
                             aria-selected="true" data-id="{{ $sale->id }}">
                             {{ $sale->name }}
                             <span class="badge rounded-pill bg-label-success ms-1">{{ $customersCountBySales[$sale->id] ?? 0 }}</span>
