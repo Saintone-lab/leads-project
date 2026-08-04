@@ -306,8 +306,9 @@
             // General / Parts / Service / Overhaul / Unit-Sales
             document.querySelectorAll('.btn-upload-po').forEach(function(btn) {
                 btn.addEventListener('click', function(e) {
+                    var isNonPPN = this.dataset.tax === '0';
                     var npwp = (this.dataset.npwp || '').replace(/[^0-9a-zA-Z]/g, '');
-                    if (npwp.length < 14) {
+                    if (!isNonPPN && npwp.length < 14) {
                         e.preventDefault();
                         e.stopPropagation();
                         
