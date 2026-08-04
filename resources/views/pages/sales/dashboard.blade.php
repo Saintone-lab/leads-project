@@ -2512,8 +2512,13 @@
                             <a href="#" id="swal-goto-hot-prospect" class="welcome-alert-card">
                                 <div class="welcome-alert-icon is-fire"><i class="mdi mdi-fire"></i></div>
                                 <div>
-                                    <p class="welcome-alert-card-title">{{ $totalHotProspectCount ?? 0 }} Hot Prospect Menanti</p>
-                                    <p class="welcome-alert-card-text">Sebentar lagi mau PO, jangan sampai lewat</p>
+                                    @if(($totalHotProspectCount ?? 0) > 0)
+                                        <p class="welcome-alert-card-title">Rp {{ number_format($totalHotProspectNominal ?? 0, 0, ',', '.') }} Hot Prospect</p>
+                                        <p class="welcome-alert-card-text">Sebentar lagi mau PO, jangan sampai lewat</p>
+                                    @else
+                                        <p class="welcome-alert-card-title">Belum Ada Hot Prospect</p>
+                                        <p class="welcome-alert-card-text">Terus semangat cari peluang baru!</p>
+                                    @endif
                                 </div>
                             </a>
                             <div class="welcome-alert-footer">Fighting!!! 🔥</div>

@@ -211,6 +211,10 @@ class InvoiceController extends Controller
             $invoice->invoiceTo = '1';
             $invoiceSave = $invoice->save();
             if ($invoiceSave) {
+                $quote = UnitQuotation::find($invoice->id_unit_quotation);
+                if ($quote) {
+                    $this->syncMonitoringDocumentCardUnit($quote);
+                }
                 return redirect()->route('invoice.show_unit', $id)->with('success', 'Invoice has been updated');
             }
         } else {
@@ -293,6 +297,85 @@ class InvoiceController extends Controller
         if ($quote->pic && $quote->pic->client) {
             $companyName = $quote->pic->client->company;
         }
+
+        $taskTitle = "[$poNumber] - $companyName";
+
+        \App\Models\KanbanTask::create([
+            'board_id' => $board->id,
+            'column_id' => $column->id,
+            'pending_po_id' => $pendingPO->id,
+            'title' => $taskTitle,
+            'description' => null,
+            'position' => $pos,
+        ]);
+    }
+
+    /**
+     * Sama seperti syncMonitoringDocumentCard, tapi untuk invoice yang berasal
+     * dari Unit Quotation (id_unit_quotation), yang sebelumnya tidak pernah
+     * memicu pembuatan card Monitoring Document sama sekali.
+     */
+    private function syncMonitoringDocumentCardUnit(UnitQuotation $quote)
+    {
+        $hasNonEscrowPayment = Payment::where('id_unit_quotation', $quote->id)
+            ->where('method', '!=', 'Escrow')
+            ->exists();
+
+        if (!$hasNonEscrowPayment) {
+            return;
+        }
+
+        $pendingPO = \App\Models\PendingPO::where('id_unit_quotation', $quote->id)
+            ->where('status', '<', 6)
+            ->first();
+
+        if (!$pendingPO) {
+            return;
+        }
+
+        $board = \App\Models\KanbanBoard::where('type', 'monitoring')->first();
+        if (!$board) {
+            $board = \App\Models\KanbanBoard::create([
+                'title' => 'Monitoring Document',
+                'description' => 'Papan Kanban khusus untuk memantau dokumen PO/Sales Order.',
+                'type' => 'monitoring',
+                'created_by' => 1,
+            ]);
+
+            $defaultColumns = ['PO REFTECH', 'PO E-COMMERCE', 'Draft / SPK', 'Invoice Sent', 'Paid / Completed'];
+            foreach ($defaultColumns as $index => $colTitle) {
+                \App\Models\KanbanColumn::create([
+                    'board_id' => $board->id,
+                    'title' => $colTitle,
+                    'position' => $index,
+                ]);
+            }
+        }
+
+        $cardExists = \App\Models\KanbanTask::where('board_id', $board->id)
+            ->where('pending_po_id', $pendingPO->id)
+            ->exists();
+
+        if ($cardExists) {
+            return;
+        }
+
+        $idSales = $quote->id_sales;
+        $targetColTitle = ($idSales == 16) ? 'PO E-COMMERCE' : 'PO REFTECH';
+
+        $column = \App\Models\KanbanColumn::where('board_id', $board->id)
+            ->where('title', $targetColTitle)
+            ->first();
+
+        if (!$column) {
+            return;
+        }
+
+        $pos = \App\Models\KanbanTask::where('column_id', $column->id)->count();
+
+        $invoicePo = Invoice::where('id_unit_quotation', $quote->id)->whereNotNull('no_po')->where('no_po', '!=', '')->value('no_po');
+        $poNumber = $invoicePo ?: ($pendingPO->no_pending ?? 'No PO');
+        $companyName = $quote->client->company ?? 'Unknown Client';
 
         $taskTitle = "[$poNumber] - $companyName";
 

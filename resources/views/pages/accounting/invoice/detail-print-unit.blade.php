@@ -300,17 +300,20 @@
                             </td>
                         </tr>
                     @endif
-                    @if ($quote->tax || $totalPph > 0 || floatval($invoice->percent) < 100)
+                    @php
+                        $showTagihanBreakdown = floatval($invoice->percent) < 100 || in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment']);
+                    @endphp
+                    @if ($quote->tax || $totalPph > 0 || $showTagihanBreakdown)
                         <tr class="fw-medium" style="font-size: 13px">
                             <td colspan="{{ $labelSpan }}" class="text-end py-2" style="background-color:{{ $bgColor }}; padding-right: 10px !important;">
                                 <p class="m-0 fw-bold">TOTAL</p>
                             </td>
                             <td colspan="{{ $amountSpan }}" class="py-2 text-end" style="background-color:{{ $bgColor }}; padding-right: 10px !important;">
-                                <p class="m-0 fw-bold">Rp {{ number_format($quote->total, 0, '', '.') }}</p>
+                                <p class="m-0 fw-bold">Rp {{ number_format($showTagihanBreakdown ? $quote->total : $totalAfterPph, 0, '', '.') }}</p>
                             </td>
                         </tr>
                     @endif
-                    @if (floatval($invoice->percent) < 100 || in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment']))
+                    @if ($showTagihanBreakdown)
                         @if (in_array($invoice->type, ['BP', 'Balance Payment']))
                             @php
                                 $dpPercent = 100 - floatval($invoice->percent);

@@ -61,18 +61,23 @@ class SalesDashboardService
         $totalActiveQuotationCount = $activeSpQuotationCount + $activeUnitQuotationCount;
 
         // 3. Total Hot Prospect (Mau Closing)
-        $hotProspectSpCount = Quotation::where('id_sales', $salesUserId)
+        $hotProspectSpQuery = Quotation::where('id_sales', $salesUserId)
             ->where('level', '1')
             ->where('is_primary', '1')
-            ->whereIn('status', ['80', 'hot_prospect'])
-            ->count();
+            ->where('status', '80');
 
-        $hotProspectUnitCount = UnitQuotation::where('id_sales', $salesUserId)
+        $hotProspectSpCount = (clone $hotProspectSpQuery)->count();
+        $hotProspectSpNominal = (clone $hotProspectSpQuery)->sum('nett');
+
+        $hotProspectUnitQuery = UnitQuotation::where('id_sales', $salesUserId)
             ->where('is_latest', 1)
-            ->where('status', 'hot_prospect')
-            ->count();
+            ->where('status', 'hot_prospect');
+
+        $hotProspectUnitCount = (clone $hotProspectUnitQuery)->count();
+        $hotProspectUnitNominal = (clone $hotProspectUnitQuery)->sum(DB::raw('total - tax_amount'));
 
         $totalHotProspectCount = $hotProspectSpCount + $hotProspectUnitCount;
+        $totalHotProspectNominal = $hotProspectSpNominal + $hotProspectUnitNominal;
 
         $clients = Client::where('id_sales', $salesUserId)->get();
         $issue = Issues::all();
@@ -252,7 +257,8 @@ class SalesDashboardService
             'activeLeadsCount',
             'crmPotensialCount',
             'totalActiveQuotationCount',
-            'totalHotProspectCount'
+            'totalHotProspectCount',
+            'totalHotProspectNominal'
         ), $salesCharts, $forecastData);
     }
 

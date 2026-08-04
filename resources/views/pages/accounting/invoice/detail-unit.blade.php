@@ -323,11 +323,14 @@
                                         <td style="padding:6px 14px 6px 0; text-align:right; font-weight:500; color:#dc3545;">- Rp {{ number_format($totalPph, 0, '', '.') }}</td>
                                     </tr>
                                 @endif
-                                <tr style="border-top:2px solid #d0d0ff; background:{{ (floatval($invoice->percent) >= 100 && !in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment'])) ? 'yellow' : '#f0f0ff' }};">
-                                    <td style="padding:9px 16px 9px 14px; font-weight:700; font-size:13px; color:{{ (floatval($invoice->percent) >= 100 && !in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment'])) ? '#000' : '#3d3d8f' }};">TOTAL</td>
-                                    <td style="padding:9px 14px 9px 0; text-align:right; font-weight:700; font-size:13px; color:{{ (floatval($invoice->percent) >= 100 && !in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment'])) ? '#000' : '#696cff' }};">Rp {{ number_format($quote->total, 0, '', '.') }}</td>
+                                @php
+                                    $showTagihanBreakdown = in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment']) || floatval($invoice->percent) < 100;
+                                @endphp
+                                <tr style="border-top:2px solid #d0d0ff; background:{{ !$showTagihanBreakdown ? 'yellow' : '#f0f0ff' }};">
+                                    <td style="padding:9px 16px 9px 14px; font-weight:700; font-size:13px; color:{{ !$showTagihanBreakdown ? '#000' : '#3d3d8f' }};">TOTAL</td>
+                                    <td style="padding:9px 14px 9px 0; text-align:right; font-weight:700; font-size:13px; color:{{ !$showTagihanBreakdown ? '#000' : '#696cff' }};">Rp {{ number_format($showTagihanBreakdown ? $quote->total : $totalAfterPph, 0, '', '.') }}</td>
                                 </tr>
-                                @if (in_array($invoice->type, ['DP', 'BP', 'Balance Payment', 'Down Payment']) || floatval($invoice->percent) < 100)
+                                @if ($showTagihanBreakdown)
                                     @if (in_array($invoice->type, ['BP', 'Balance Payment']))
                                         @php
                                             $dpInvoices = isset($allInvoices) ? $allInvoices->reject(fn($i) => $i->id == $invoice->id) : collect();
