@@ -507,6 +507,8 @@ class KanbanController extends Controller
             'attachments.user',
             'pendingPo.quote.pic.client',
             'pendingPo.quote.sales',
+            'pendingPo.unitQuotation.client',
+            'pendingPo.unitQuotation.sales',
             'bast'
         ])->findOrFail($id);
 
@@ -635,14 +637,21 @@ class KanbanController extends Controller
         $soDetails = null;
         if ($task->pendingPo) {
             $po = $task->pendingPo;
-            $invoicePo = \App\Models\Invoice::where('id_quotation', $po->id_quotation)->whereNotNull('no_po')->where('no_po', '!=', '')->value('no_po');
+            $isUnit = (bool) $po->id_unit_quotation;
+            $quoteRef = $isUnit ? $po->unitQuotation : $po->quote;
+            $quoteIdCol = $isUnit ? 'id_unit_quotation' : 'id_quotation';
+            $quoteRefId = $isUnit ? $po->id_unit_quotation : $po->id_quotation;
+
+            $invoicePo = \App\Models\Invoice::where($quoteIdCol, $quoteRefId)->whereNotNull('no_po')->where('no_po', '!=', '')->value('no_po');
             $poNumber = $invoicePo ?: ($po->no_pending ?? 'No PO');
             $companyName = 'Unknown Client';
             $clientAddress = '';
             $clientId = null;
             $bastEntity = 'Reftech';
-            if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
-                $client = $po->quote->pic->client;
+            $client = $isUnit
+                ? ($quoteRef->client ?? null)
+                : (($quoteRef && $quoteRef->pic) ? $quoteRef->pic->client : null);
+            if ($client) {
                 $companyName = $client->company;
                 $clientAddress = $client->address;
                 $clientId = $client->id;
@@ -650,8 +659,8 @@ class KanbanController extends Controller
             }
 
             // Get Invoices and associate their payments sequentially
-            $invoices = \App\Models\Invoice::where('id_quotation', $po->id_quotation)->orderBy('id')->get();
-            $payments = \App\Models\Payment::where('id_quotation', $po->id_quotation)->orderBy('id')->get();
+            $invoices = \App\Models\Invoice::where($quoteIdCol, $quoteRefId)->orderBy('id')->get();
+            $payments = \App\Models\Payment::where($quoteIdCol, $quoteRefId)->orderBy('id')->get();
             
             $invoiceList = [];
             foreach ($invoices as $index => $invoice) {
@@ -729,11 +738,11 @@ class KanbanController extends Controller
                 'no_po' => $poNumber,
                 'company' => $companyName,
                 'address' => $clientAddress,
-                'sales_name' => $po->quote && $po->quote->sales ? $po->quote->sales->name : 'N/A',
-                'quote_id' => $po->id_quotation,
-                'quote_no' => $po->quote ? $po->quote->no_quote : 'N/A',
-                'quote_link' => url('/quotation/' . $po->id_quotation),
-                'quote_nett' => $po->quote ? number_format($po->quote->nett, 2, ',', '.') : '0',
+                'sales_name' => $quoteRef && $quoteRef->sales ? $quoteRef->sales->name : 'N/A',
+                'quote_id' => $quoteRefId,
+                'quote_no' => $quoteRef ? $quoteRef->no_quote : 'N/A',
+                'quote_link' => url(($isUnit ? '/unit-quotation/' : '/quotation/') . $quoteRefId),
+                'quote_nett' => $quoteRef ? number_format($isUnit ? $quoteRef->total : $quoteRef->nett, 2, ',', '.') : '0',
                 'type' => $po->type,
                 'date' => $po->date ? $po->date : '',
                 'invoices' => $invoiceList,
@@ -742,10 +751,10 @@ class KanbanController extends Controller
                 'service_report_id' => $task->service_report_id,
                 'active_report' => $activeReport,
                 'bast_prefill' => [
-                    'id_quotation' => $po->id_quotation,
+                    'id_quotation' => $quoteRefId,
                     'entity' => $bastEntity,
                     'customer_name' => $companyName,
-                    'work_title' => $po->quote ? $po->quote->title : '',
+                    'work_title' => $quoteRef ? $quoteRef->title : '',
                     'po_number' => $poNumber,
                 ],
                 'bast' => $task->bast ? [
@@ -1115,7 +1124,7 @@ class KanbanController extends Controller
         // Auto-update existing tasks titles to match new PO format if needed
         $existingTasks = KanbanTask::where('board_id', $board->id)
             ->whereNotNull('pending_po_id')
-            ->with(['pendingPo.quote.pic.client', 'assignees'])
+            ->with(['pendingPo.quote.pic.client', 'pendingPo.unitQuotation.client', 'assignees'])
             ->get();
 
         // Batch semua lookup yang tadinya di-query per-PO di dalam loop (N+1)
@@ -1124,9 +1133,17 @@ class KanbanController extends Controller
             ->filter()
             ->unique();
 
+        $unitQuotationIds = $existingTasks->pluck('pendingPo.id_unit_quotation')
+            ->filter()
+            ->unique();
+
         $invoicePoByQuotation = \App\Models\Invoice::whereIn('id_quotation', $quotationIds)
             ->whereNotNull('no_po')->where('no_po', '!=', '')
             ->pluck('no_po', 'id_quotation');
+
+        $invoicePoByUnitQuotation = \App\Models\Invoice::whereIn('id_unit_quotation', $unitQuotationIds)
+            ->whereNotNull('no_po')->where('no_po', '!=', '')
+            ->pluck('no_po', 'id_unit_quotation');
 
         $existingTaskPoIds = KanbanTask::where('board_id', $board->id)
             ->whereNotNull('pending_po_id')
@@ -1178,19 +1195,25 @@ class KanbanController extends Controller
         foreach ($existingTasks as $task) {
             $po = $task->pendingPo;
             if ($po) {
-                $poNumber = $invoicePoByQuotation->get($po->id_quotation) ?: ($po->no_pending ?? 'No PO');
-                $companyName = 'Unknown Client';
-                if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
-                    $companyName = $po->quote->pic->client->company;
-                }
+                $isUnit = (bool) $po->id_unit_quotation;
+                $quoteRef = $isUnit ? $po->unitQuotation : $po->quote;
+                $client = $isUnit
+                    ? ($quoteRef->client ?? null)
+                    : (($quoteRef && $quoteRef->pic) ? $quoteRef->pic->client : null);
+
+                $poNumber = $isUnit
+                    ? ($invoicePoByUnitQuotation->get($po->id_unit_quotation) ?: ($po->no_pending ?? 'No PO'))
+                    : ($invoicePoByQuotation->get($po->id_quotation) ?: ($po->no_pending ?? 'No PO'));
+                $companyName = $client ? $client->company : 'Unknown Client';
+
                 $expectedTitle = "[$poNumber] - $companyName";
                 if ($task->title !== $expectedTitle) {
                     $task->title = $expectedTitle;
                     $task->save();
                 }
 
-                if ($task->assignees->isEmpty() && $po->quote && $po->quote->id_sales) {
-                    $task->assignees()->sync([$po->quote->id_sales]);
+                if ($task->assignees->isEmpty() && $quoteRef && $quoteRef->id_sales) {
+                    $task->assignees()->sync([$quoteRef->id_sales]);
                 }
             }
         }

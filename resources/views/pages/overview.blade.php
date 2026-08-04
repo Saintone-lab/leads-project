@@ -43,7 +43,12 @@
                 }
             }
 
-            $salesPercentage = $targett > 0 ? round(($semesterTotalPO / $targett) * 100, 1) : 0;
+            // $targett dari controller adalah target BULANAN. Untuk mode 'full' (S1+S2),
+            // controller sudah mengalikan x2 (jadi setara 2 bulan), sehingga di sini cukup
+            // dikalikan count($getDC)/2 (=6) supaya total jadi target 12 bulan yang benar.
+            // Untuk mode semester biasa, dikalikan count($getDC) (=6 bulan) langsung.
+            $targettPeriod = $targett * ($report->semester === 'full' ? count($getDC) / 2 : count($getDC));
+            $salesPercentage = $targettPeriod > 0 ? round(($semesterTotalPO / $targettPeriod) * 100, 1) : 0;
             $salesColor = $salesPercentage >= 100 ? 'success' : ($salesPercentage >= 80 ? 'warning' : 'danger');
         @endphp
 
@@ -143,7 +148,7 @@
                         <div class="progress mt-2" style="height: 6px; border-radius: 4px;">
                             <div class="progress-bar bg-{{ $salesColor }}" style="width: {{ min($salesPercentage, 100) }}%; border-radius: 4px;"></div>
                         </div>
-                        <small class="text-muted mt-2 d-block fs-tiny">Target Semester: Rp {{ number_format($targett, 0, ',', '.') }}</small>
+                        <small class="text-muted mt-2 d-block fs-tiny">Target {{ $report->semester === 'full' ? 'Tahunan' : 'Semester' }}: Rp {{ number_format($targettPeriod, 0, ',', '.') }}</small>
                     </div>
                 </div>
             </div>
@@ -420,7 +425,8 @@
                                 <td class="text-center text-success">{{ $sPoCnt }}</td>
                                 <td class="text-center">
                                     @php
-                                        $totPct = $targett > 0 ? round(($sPO / $targett) * 100, 1) : 0;
+                                        $semesterTargett = $targett * count($getDC);
+                                        $totPct = $semesterTargett > 0 ? round(($sPO / $semesterTargett) * 100, 1) : 0;
                                     @endphp
                                     <span class="badge bg-{{ $totPct >= 100 ? 'success' : ($totPct >= 80 ? 'warning' : 'danger') }} rounded-pill">
                                         {{ $totPct }}%

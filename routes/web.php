@@ -4705,20 +4705,64 @@ AND u.id = ' . Auth::user()->id . ') AS price'), DB::raw('(SELECT COALESCE(COUNT
     });
 
     Route::get('/db/client/po-history/{id}', function ($id) {
+        $year = request()->query('year');
+
         $query = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('level', '1')->where('is_primary', '1')->where('quotation.status', '100')->where('pic.id_client', $id);
-        if (request()->query('year')) {
-            $query->whereYear('quotation.po_date', request()->query('year'));
+        if ($year) {
+            $query->whereYear('quotation.po_date', $year);
         }
-        $data = $query->get('quotation.*');
+        $data = $query->get('quotation.*')->toArray();
+
+        $unitQuery = \App\Models\UnitQuotation::where(function ($q) use ($id) {
+                $q->where('id_client', $id)->orWhereHas('pic', function ($p) use ($id) {
+                    $p->where('id_client', $id);
+                });
+            })
+            ->where('is_latest', 1)
+            ->where('status', 'po_received');
+        if ($year) {
+            $unitQuery->whereYear('po_received', $year);
+        }
+
+        foreach ($unitQuery->get() as $uq) {
+            $data[] = [
+                'id' => $uq->id,
+                'no_quote' => $uq->no_quote,
+                'title' => $uq->title ?? 'Penawaran Unit',
+                'po_date' => $uq->po_received ? substr($uq->po_received, 0, 10) : null,
+                'status' => '100',
+                'nett' => $uq->total - ($uq->tax_amount ?? 0),
+                'note' => $uq->note ?? '',
+                'is_unit_quotation' => true,
+            ];
+        }
+
         return response()->json(['data' => $data]);
     });
     Route::get('/db/client/po-summary/{id}', function ($id) {
+        $year = request()->query('year');
+
         $query = Quotation::join('pic', 'pic.id', '=', 'quotation.id_pic')->where('level', '1')->where('is_primary', '1')->where('quotation.status', '100')->where('pic.id_client', $id);
-        if (request()->query('year')) {
-            $query->whereYear('quotation.po_date', request()->query('year'));
+        if ($year) {
+            $query->whereYear('quotation.po_date', $year);
         }
         $totalPo = (clone $query)->count();
         $totalRevenue = (clone $query)->sum('quotation.nett');
+
+        $unitQuery = \App\Models\UnitQuotation::where(function ($q) use ($id) {
+                $q->where('id_client', $id)->orWhereHas('pic', function ($p) use ($id) {
+                    $p->where('id_client', $id);
+                });
+            })
+            ->where('is_latest', 1)
+            ->where('status', 'po_received');
+        if ($year) {
+            $unitQuery->whereYear('po_received', $year);
+        }
+        $unitRows = $unitQuery->get(['total', 'tax_amount']);
+        $totalPo += $unitRows->count();
+        $totalRevenue += $unitRows->sum(fn ($r) => $r->total - ($r->tax_amount ?? 0));
+
         $avgDeal = $totalPo > 0 ? $totalRevenue / $totalPo : 0;
         return response()->json([
             'total_revenue' => $totalRevenue,
