@@ -53,6 +53,8 @@
                                 <select class="form-select" name="pm_level" id="pm_level">
                                     <option value="PM1" {{ old('pm_level') == 'PM1' ? 'selected' : '' }}>PM1 (Minor)</option>
                                     <option value="PM2" {{ old('pm_level') == 'PM2' ? 'selected' : '' }}>PM2 (Major)</option>
+                                    <option value="PM3" {{ old('pm_level') == 'PM3' ? 'selected' : '' }}>PM3</option>
+                                    <option value="PM4" {{ old('pm_level') == 'PM4' ? 'selected' : '' }}>PM4</option>
                                 </select>
                                 <label for="pm_level">PM Level</label>
                             </div>

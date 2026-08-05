@@ -569,7 +569,6 @@
 @endpush
 @push('page-script')
     <script src="{{ asset('assets') }}/includes/repeater/repeater-invoice.js"></script>
-    <script src="{{ asset('assets') }}/includes/validator/quotation-validation.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
 @push('script')

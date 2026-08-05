@@ -63,7 +63,7 @@
                         <i class="mdi mdi-domain me-1"></i>Invoice To
                     </span>
                     @if ($quote->client?->npwp)
-                        <span class="px-2 py-0.5 rounded" style="font-size:10px; font-weight:600; background:#f0f2ff; color:#43497a; border:1px solid #d5d9ff;">
+                        <span class="px-2 py-0.5 rounded-0" style="font-size:10px; font-weight:600; background:#f0f2ff; color:#43497a; border:1px solid #d5d9ff;">
                             <i class="mdi mdi-card-account-details-outline me-1"></i>NPWP: {{ $quote->client->npwp }}
                         </span>
                     @endif

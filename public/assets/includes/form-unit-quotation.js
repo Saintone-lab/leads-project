@@ -839,6 +839,17 @@ $(function () {
         }
     }
 
+    // ── Hydrate draft items from "Generate ke Quotation" (Template PM, Unit Global) ──
+    if (window.PM_TEMPLATE_ITEMS && window.PM_TEMPLATE_ITEMS.length > 0) {
+        $.each(window.PM_TEMPLATE_ITEMS, function (i, item) {
+            if (item.type === 'header') {
+                addHeaderRowFromData(item);
+            } else {
+                addCustomRowFromData(item);
+            }
+        });
+    }
+
     // Format nilai diskon awal (mode edit) kalau tipenya nominal Rupiah.
     // Nilai dari server berbentuk decimal string ("300000.00") — parse dulu
     // sebagai float sebelum diformat, supaya titik desimalnya tidak ikut

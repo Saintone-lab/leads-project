@@ -530,6 +530,20 @@
 @endpush
 
 @push('page-script')
+    <script>
+        // Draft item dari "Generate ke Quotation" di halaman Unit Global (Template Penawaran PM)
+        (function () {
+            var raw = sessionStorage.getItem('pm_template_items');
+            if (raw) {
+                try {
+                    window.PM_TEMPLATE_ITEMS = JSON.parse(raw);
+                } catch (e) {
+                    window.PM_TEMPLATE_ITEMS = null;
+                }
+                sessionStorage.removeItem('pm_template_items');
+            }
+        })();
+    </script>
     <script src="{{ asset('assets') }}/includes/form-unit-quotation.js"></script>
     <script>
         (function () {
