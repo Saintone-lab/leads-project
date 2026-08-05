@@ -15,16 +15,16 @@
                     <div class="d-flex flex-row align-items-start gap-4 mt-2" style="font-size: 11px;">
                         <div class="info" style="max-width: 260px;">
                             <p class="mb-1 fw-bold text-dark" style="font-size: 11.5px;">
-                                <i class="mdi mdi-office-building-outline me-1 text-primary"></i>Office Address :
+                                <i class="mdi mdi-office-building-outline me-1 text-primary"></i><span class="i18n" data-en="OFFICE ADDRESS :">ALAMAT KANTOR</span>
                             </p>
                             <p class="mb-1 text-muted" style="line-height: 1.4;">Taman Kopo Indah V, Soho Sommerville No. 31, Bandung – Jawa Barat 40218</p>
                             <p class="mb-0 text-muted">
-                                <i class="mdi mdi-phone-outline me-1 text-primary"></i>022 54417653 &nbsp;|&nbsp; <i class="mdi mdi-email-outline me-1 text-primary"></i>info@reftech.id
+                                <i class="mdi mdi-phone-outline me-1 text-primary"></i>022 54417653 &nbsp;|&nbsp; <i class="mdi mdi-email-outline me-1 text-primary"></i>accounting@reftech.id
                             </p>
                         </div>
                         <div class="npwp_add" style="max-width: 280px;">
                             <p class="mb-1 fw-bold text-dark" style="font-size: 11.5px;">
-                                <i class="mdi mdi-file-document-outline me-1 text-primary"></i>NPWP Address :
+                                <i class="mdi mdi-file-document-outline me-1 text-primary"></i><span class="i18n" data-en="NPWP ADDRESS :">ALAMAT NPWP</span>
                             </p>
                             <p class="mb-1 text-muted" style="line-height: 1.4;">Komp. Negia Kencana Residence Blok B, No.2 Pasanggrahan, Ujung Berung Kota Bandung - Jawa Barat 40199</p>
                             <div class="px-2 py-0.5 rounded-0" style="background:#eef0ff; border:1px solid #d0d0ff; font-size:10.5px; font-weight:600; color:#3d3d8f; display:inline-block; border-radius:0 !important;">
@@ -48,55 +48,81 @@
             <div class="text-end">
                 <h1 class="fw-bold invoice-title-heading" style="color: #2529fa; letter-spacing: 2px;">INVOICE</h1>
                 <p class="mb-1 fw-bold text-dark" style="font-size:14px;">#{{ $invoice->no_invoice }}</p>
-                <p class="mb-1 text-muted small">{{ $invoice->date ? \Carbon\Carbon::parse($invoice->date)->format('d F Y') : '-' }}</p>
+                <p class="mb-1 text-muted small">{{ $invoice->date ? \Carbon\Carbon::parse($invoice->date)->format('d-m-Y') : '-' }}</p>
             </div>
         </div>
 
         <div style="height:2px; background:linear-gradient(90deg,#696cff 0%,#9c9eff 60%,#e0e0e0 100%); border-radius:2px; margin:16px 0 18px;"></div>
 
-        {{-- Invoice To + Document Info Box (Quote To Style) --}}
-        <div style="display:flex !important; align-items:stretch !important; gap:12px; margin-bottom:16px; font-size:12px;">
-            <div style="flex:1; display:flex; flex-direction:column; align-self:stretch; border:1px solid #dcdcdc; border-radius:0 !important; padding:10px 14px; background:#fafafa;">
-                <p class="mb-1 fw-bold text-uppercase" style="font-size:10px; letter-spacing:.5px; color:#555;">Invoice To</p>
-                <p class="mb-1 fw-bold" style="font-size:13.5px; color:#111;">{{ $quote->client?->company ?? '-' }}</p>
+        {{-- Invoice To + Document Info Box --}}
+        <div style="display:flex !important; align-items:stretch !important; gap:14px; margin-bottom:18px; font-size:12px;">
+            {{-- Card 1: Invoice To --}}
+            <div style="flex:1.4; display:flex; flex-direction:column; align-self:stretch; border:1px solid #e0e0e0; border-left:4px solid #696cff; border-radius:4px; padding:12px 16px; background:#fcfcfc;">
+                <div class="d-flex justify-content-between align-items-center mb-2 pb-1" style="border-bottom: 1px dashed #e4e4e4;">
+                    <span class="fw-bold text-uppercase" style="font-size:10.5px; letter-spacing:0.6px; color:#696cff;">
+                        <i class="mdi mdi-domain me-1"></i>Invoice To
+                    </span>
+                    @if ($quote->client?->npwp)
+                        <span class="px-2 py-0.5 rounded" style="font-size:10px; font-weight:600; background:#f0f2ff; color:#43497a; border:1px solid #d5d9ff;">
+                            <i class="mdi mdi-card-account-details-outline me-1"></i>NPWP: {{ $quote->client->npwp }}
+                        </span>
+                    @endif
+                </div>
+
+                <p class="mb-2 fw-bold text-dark" style="font-size:14px; line-height:1.3;">
+                    {{ $quote->client?->company ?? '-' }}
+                </p>
+
                 @php
-                    $contactParts = [];
                     $picName = $quote->pic?->name_pic ?? $quote->attn;
-                    if ($picName) {
-                        $contactParts[] = '<i class="mdi mdi-account-outline me-1" style="font-size:11px; color:#444;"></i><span style="color:#222; font-weight:500;">' . e($picName) . '</span>';
-                    }
-                    if ($quote->pic?->phone_pic || $quote->client?->phone) {
-                        $contactParts[] = '<i class="mdi mdi-phone-outline me-1" style="font-size:11px; color:#444;"></i><span style="color:#222; font-weight:500;">' . e($quote->pic?->phone_pic ?: $quote->client?->phone) . '</span>';
-                    }
-                    if ($quote->client?->npwp) {
-                        $contactParts[] = '<i class="mdi mdi-card-account-details-outline me-1" style="font-size:11px; color:#444;"></i><span style="color:#222; font-weight:500;">NPWP: ' . e($quote->client->npwp) . '</span>';
-                    }
-                @endphp
-                @if (count($contactParts) > 0)
-                    <p class="mb-1" style="font-size:11.5px; color:#333;">
-                        {!! implode(' &nbsp;|&nbsp; ', $contactParts) !!}
-                    </p>
-                @endif
-                @php
                     $targetAddress = $invoice->invoiceTo == '1' ? ($quote->client?->address ?? '-') : ($quote->client?->subAddress ?? '-');
                 @endphp
-                @if ($targetAddress)
-                    <p class="mb-0" style="font-size:11.5px; color:#222;">
-                        <i class="mdi mdi-map-marker-outline me-1" style="font-size:11px; color:#444;"></i><span style="font-weight:500;">{{ $targetAddress }}</span>
-                    </p>
-                @endif
+
+                <div style="display:grid; grid-template-columns: auto 1fr; gap:4px 12px; font-size:11.5px; color:#333;">
+                    @if ($picName)
+                        <span class="text-muted" style="white-space:nowrap;"><i class="mdi mdi-account-outline me-1 text-primary"></i>Attn / PIC</span>
+                        <span class="fw-medium text-dark">
+                            : {{ $picName }}
+                            @if ($quote->pic?->phone_pic)
+                                <span class="text-muted ms-1">({{ $quote->pic->phone_pic }})</span>
+                            @endif
+                        </span>
+                    @endif
+
+                    @if ($quote->client?->phone)
+                        <span class="text-muted" style="white-space:nowrap;"><i class="mdi mdi-phone-in-talk-outline me-1 text-primary"></i>Office Phone</span>
+                        <span class="fw-medium text-dark">: {{ $quote->client->phone }}</span>
+                    @endif
+
+                    @if ($targetAddress && $targetAddress !== '-')
+                        <span class="text-muted" style="white-space:nowrap;"><i class="mdi mdi-map-marker-outline me-1 text-primary"></i>Address</span>
+                        <span class="fw-medium text-dark" style="line-height:1.4;">: {{ $targetAddress }}</span>
+                    @endif
+                </div>
             </div>
-            <div style="min-width:240px; display:flex; flex-direction:column; align-self:stretch; border:1px solid #dcdcdc; border-radius:0 !important; padding:10px 14px; background:#fafafa;">
-                <p class="mb-1 fw-bold text-uppercase" style="font-size:10px; letter-spacing:.5px; color:#555;">Payment Terms &amp; Info</p>
-                <p class="mb-1 fw-semibold" style="font-size:12px; color:#222;">
-                    <i class="mdi mdi-clipboard-text-outline me-1 text-primary"></i>PO No: <span class="fw-bold">{{ $quote->po_number ?? '-' }}</span>
-                </p>
-                <p class="mb-1 fw-semibold" style="font-size:12px; color:#222;">
-                    <i class="mdi mdi-clock-outline me-1 text-primary"></i>Term: <span class="fw-bold">{{ $invoice->term ?? $quote->payment_method }}</span>
-                </p>
-                <p class="mb-0 text-muted" style="font-size:11.5px;">
-                    <i class="mdi mdi-account-outline me-1 text-primary"></i>Sales: <span class="fw-medium text-dark">{{ $quote->sales?->name ?? '-' }}</span>
-                </p>
+
+            {{-- Card 2: Payment Terms & Info --}}
+            <div style="min-width:240px; flex:1; display:flex; flex-direction:column; align-self:stretch; border:1px solid #e0e0e0; border-left:4px solid #8592a3; border-radius:4px; padding:12px 16px; background:#fcfcfc;">
+                <div class="mb-2 pb-1" style="border-bottom: 1px dashed #e4e4e4;">
+                    <span class="fw-bold text-uppercase" style="font-size:10.5px; letter-spacing:0.6px; color:#566a7f;">
+                        <i class="mdi mdi-file-document-outline me-1"></i>Payment Terms &amp; Info
+                    </span>
+                </div>
+
+                <div style="font-size:11.5px; color:#333;" class="my-auto">
+                    <div class="d-flex align-items-center mb-2 pb-1" style="border-bottom:1px dashed #f0f0f0;">
+                        <span class="text-muted" style="min-width:60px;"><i class="mdi mdi-clipboard-text-outline me-1 text-primary"></i>PO No</span>
+                        <span class="fw-bold text-dark">: {{ $quote->po_number ?? '-' }}</span>
+                    </div>
+                    <div class="mt-2">
+                        <div class="fw-medium text-dark mb-1">
+                            <i class="mdi mdi-clock-outline me-1 text-primary"></i>Term of Payment :
+                        </div>
+                        <div class="ps-2 ms-1" style="border-left:3px solid #696cff; margin-top:4px;">
+                            <div class="fw-bold text-dark ps-2" style="font-size:11.5px; line-height:1.45; white-space:pre-line;"><i class="mdi mdi-chevron-right text-primary me-1" style="font-size:14px;"></i>{{ $invoice->term ?? $quote->payment_method ?? '-' }}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -112,17 +138,17 @@
             <table class="table table-bordered m-0" style="border: 1px solid rgb(60,60,60); width: 100%;">
                 <thead class="table-light">
                     <tr>
-                        <th class="text-center" style="width:1%">No.</th>
-                        <th class="text-center" style="width:{{ $quote->tax ? '38%' : '45%' }}">DESKRIPSI</th>
-                        <th class="text-center">HARGA</th>
-                        <th class="text-center" style="width:1%; white-space:nowrap">Qty</th>
+                        <th class="text-center align-middle" style="width:1%">No.</th>
+                        <th class="text-center align-middle" style="width:{{ $quote->tax ? '38%' : '45%' }}"><span class="i18n" data-en="DESCRIPTION">DESKRIPSI</span></th>
+                        <th class="text-center align-middle"><span class="i18n" data-en="PRICE">HARGA</span></th>
+                        <th class="text-center align-middle" style="width:1%; white-space:nowrap">Qty</th>
                         @if ($hasDisc)
-                            <th class="text-center">Disc</th>
+                            <th class="text-center align-middle">Disc</th>
                         @endif
                         @if ($quote->tax)
-                            <th class="text-center">DPP</th>
+                            <th class="text-center align-middle">DPP</th>
                         @endif
-                        <th class="text-center">TOTAL HARGA</th>
+                        <th class="text-center align-middle"><span class="i18n" data-en="TOTAL PRICE">TOTAL HARGA</span></th>
                     </tr>
                 </thead>
                 @php
@@ -265,7 +291,7 @@
                     @if ($quote->tax)
                         <tr class="fw-medium" style="font-size: 13px">
                             <td colspan="{{ $labelSpan }}" class="text-end py-0" style="padding-right: 10px !important;">
-                                <p class="m-0">DPP Atas PPN</p>
+                                <p class="m-0"><span class="i18n" data-en="DPP on PPN">DPP Atas PPN</span></p>
                             </td>
                             <td colspan="{{ $amountSpan }}" class="py-0 text-end" style="padding-right: 10px !important;">
                                 <p class="m-0">Rp {{ number_format($afterDisc * 11 / 12, 0, '', '.') }}</p>
@@ -322,7 +348,7 @@
                             @if ($dpAmount > 0)
                                 <tr class="fw-medium" style="font-size: 13px">
                                     <td colspan="{{ $labelSpan }}" class="text-end py-1" style="padding-right: 10px !important; color:#dc3545;">
-                                        <p class="m-0">DP Telah Dibayar ({{ $dpPercent }}%)</p>
+                                        <p class="m-0"><span class="i18n" data-en="DP Already Paid ({{ $dpPercent }}%)">DP Telah Dibayar ({{ $dpPercent }}%)</span></p>
                                     </td>
                                     <td colspan="{{ $amountSpan }}" class="py-1 text-end" style="padding-right: 10px !important; color:#dc3545;">
                                         <p class="m-0">Rp {{ number_format($dpAmount, 0, '', '.') }}</p>
@@ -330,9 +356,14 @@
                                 </tr>
                             @endif
                         @endif
+                        @php
+                            $billingType    = in_array($invoice->type, ['BP', 'Balance Payment']) ? 'BP' : (in_array($invoice->type, ['DP', 'Down Payment']) ? 'DP' : $invoice->type);
+                            $billingLabelId = 'TAGIHAN ' . $billingType . ' (' . floatval($invoice->percent) . '%)';
+                            $billingLabelEn = 'AMOUNT DUE - ' . $billingType . ' (' . floatval($invoice->percent) . '%)';
+                        @endphp
                         <tr style="font-size: 13px; background:yellow; border-top:2px solid #e6c300;">
                             <td colspan="{{ $labelSpan }}" class="text-end py-2 fw-bold" style="padding-right: 10px !important; color:#000;">
-                                <p class="m-0 fw-bold">TAGIHAN {{ in_array($invoice->type, ['BP', 'Balance Payment']) ? 'BP' : (in_array($invoice->type, ['DP', 'Down Payment']) ? 'DP' : $invoice->type) }} ({{ floatval($invoice->percent) }}%)</p>
+                                <p class="m-0 fw-bold"><span class="i18n" data-en="{{ $billingLabelEn }}">{{ $billingLabelId }}</span></p>
                             </td>
                             <td colspan="{{ $amountSpan }}" class="py-2 fw-bold text-end" style="padding-right: 10px !important; color:#000;">
                                 <p class="m-0 fw-bold">Rp {{ number_format($totalAfterPph, 0, '', '.') }}</p>
@@ -346,8 +377,8 @@
         {{-- Terbilang Box --}}
         <div class="mt-3 mb-3 px-1 py-2 rounded-0" style="background:#f0f2ff; border: 1px dashed #696cff; display:inline-block; width:70%; border-radius:0 !important;">
             <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-weight:700; color:#696cff; font-size:12px;">Terbilang :</span>
-                <span style="font-weight:700; color:#111; font-size:12.5px;"># {{ $terbilang }} Rupiah</span>
+                <span style="font-weight:700; color:#696cff; font-size:12px;"><span class="i18n" data-en="Say Amount :">Terbilang :</span></span>
+                <span style="font-weight:700; color:#111; font-size:12.5px;" class="i18n" data-en="# {{ $terbilangEn }} Rupiah"># {{ $terbilang }} Rupiah</span>
             </div>
         </div>
 
@@ -356,7 +387,7 @@
             <div style="flex:0 0 55%;">
                 <div style="padding:12px 14px; border:1px solid #e0e0f0; border-radius:0 !important; background:#fafafa; font-size:11.5px;">
                     <p style="font-weight:700; margin-bottom:8px; color:#222; font-size:12px;">
-                        <span style="color:#696cff; margin-right:4px;">&#9650;</span> Pembayaran : Transfer / Giro
+                        <span style="color:#696cff; margin-right:4px;">&#9650;</span> <span class="i18n" data-en="Payment : Bank Transfer / Giro">Pembayaran : Transfer / Giro</span>
                     </p>
                     <table style="width:100%; border-collapse:collapse;">
                         @if ($quote->tax)
@@ -366,7 +397,7 @@
                             </tr>
                             <tr>
                                 <td style="padding:2px 0; color:#555;">Acc Name</td>
-                                <td style="padding:2px 0; font-weight:700; color:#696cff;">: PT. REFTECH JAYA OPTIMA</td>
+                                <td style="padding:2px 0; font-weight:700; color:#696cff;">: PT REFTECH JAYA OPTIMA</td>
                             </tr>
                             <tr>
                                 <td style="padding:2px 0; color:#555;">Acc No.</td>
@@ -395,7 +426,12 @@
             </div>
             <div style="flex:1;"></div>
             <div style="flex:0 0 30%; text-align:center; padding-top:8px;">
-                <p style="margin-bottom:4px; color:#777; font-size:11px;">Bandung, {{ $invoice->date ? \Carbon\Carbon::parse($invoice->date)->locale('ID')->translatedFormat('d F Y') : \Carbon\Carbon::now()->locale('ID')->translatedFormat('d F Y') }}</p>
+                @php
+                    $signDateBase = $invoice->date ? \Carbon\Carbon::parse($invoice->date) : \Carbon\Carbon::now();
+                    $signDateId   = $signDateBase->copy()->locale('id')->translatedFormat('d F Y');
+                    $signDateEn   = $signDateBase->copy()->locale('en')->translatedFormat('d F Y');
+                @endphp
+                <p style="margin-bottom:4px; color:#777; font-size:11px;">Bandung, <span class="i18n" data-en="{{ $signDateEn }}">{{ $signDateId }}</span></p>
                 @if ($quote->tax)
                     <p style="font-weight:700; font-size:12px; margin-bottom:4px; color:#222;">PT. Reftech Jaya Optima</p>
                 @endif
@@ -404,7 +440,7 @@
                         <img src="{{ url('') . '/' . $invoice->sign }}" alt="Signature" height="70">
                     </div>
                 @else
-                    <div style="padding:35px 0;"></div>
+                    <div style="padding:55px 0;"></div>
                 @endif
                 <p style="font-weight:700; font-size:13px; color:#111; border-bottom:1px solid #ddd; display:inline-block; padding-bottom:2px; margin-bottom:2px;">Ariep Rachman</p>
                 <p style="color:#777; font-size:11px; margin:0;">Director</p>
@@ -433,4 +469,20 @@
 @endpush
 @push('after-script')
     <script src="{{ asset('assets') }}/js/app-invoice-print.js"></script>
+@endpush
+@push('script')
+<script>
+    // Invoice language follows whatever was picked on the invoice detail page (passed via ?lang=en)
+    document.addEventListener('DOMContentLoaded', function () {
+        var lang = new URLSearchParams(window.location.search).get('lang');
+        if (lang !== 'en') {
+            return;
+        }
+        document.querySelectorAll('.i18n').forEach(function (el) {
+            if (el.dataset.en) {
+                el.textContent = el.dataset.en;
+            }
+        });
+    });
+</script>
 @endpush

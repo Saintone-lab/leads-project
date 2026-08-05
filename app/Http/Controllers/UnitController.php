@@ -10,6 +10,7 @@ use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Machine;
 use App\Models\Payment;
+use App\Models\PowerServicePrice;
 use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Quotation;
@@ -558,6 +559,63 @@ class UnitController extends Controller
             ->take(5)
             ->get();
         return view('pages.warehouse.unit.detail-global', compact('nonconsumable', 'consumable', 'equivalent', 'product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
+    }
+
+    /**
+     * Generate draft item Template Penawaran PM untuk sebuah unit + level PM,
+     * dirakit dari sparepart(pm_level) unit ini + tarif jasa power_service_prices.
+     * Dipakai AJAX di halaman detail-global untuk preview sebelum digenerate ke quotation.
+     */
+    public function pmTemplate(Request $request, $id)
+    {
+        $level = strtoupper($request->query('level', 'PM1'));
+        if (!in_array($level, ['PM1', 'PM2', 'PM3', 'PM4'])) {
+            return response()->json(['message' => 'Level PM tidak valid.'], 422);
+        }
+
+        $unit = Unit::findOrFail($id);
+
+        $parts = Sparepart::join('serial_product as sp', 'sp.id', '=', 'sparepart.id_equivalent')
+            ->join('product as p', 'p.id', '=', 'sp.id_product')
+            ->where('sparepart.id_unit', $id)
+            ->where('sparepart.pm_level', $level)
+            ->select('sparepart.*', 'sp.pn', 'sp.price', 'p.description', 'p.unit as unit_satuan')
+            ->get()
+            ->map(function ($part) {
+                return [
+                    'pn' => $part->pn,
+                    'description' => $part->description,
+                    'qty' => (float) ($part->qty ?: 1),
+                    'info_qty' => $part->unit_satuan ?: ($part->qty_info ?: 'Pcs'),
+                    'price' => (float) ($part->price ?: 0),
+                ];
+            });
+
+        $normalizedPower = \App\Http\Controllers\ForecastController::normalizePower($unit->power);
+        $servicePrice = $normalizedPower
+            ? PowerServicePrice::where('power', $normalizedPower)->first()
+            : null;
+
+        $priceField = 'price_' . strtolower($level);
+        $serviceFee = $servicePrice ? (float) $servicePrice->{$priceField} : null;
+
+        return response()->json([
+            'unit' => [
+                'id' => $unit->id,
+                'sku' => $unit->sku,
+                'brand' => $unit->brand,
+                'model' => $unit->model,
+                'power' => $unit->power,
+            ],
+            'level' => $level,
+            'parts' => $parts,
+            'service' => [
+                'label' => 'Jasa Service ' . $level . ($normalizedPower ? ' @ ' . $normalizedPower : ''),
+                'amount' => $serviceFee,
+                'matched' => (bool) $servicePrice,
+                'power_normalized' => $normalizedPower,
+            ],
+        ]);
     }
 
     public function updatePrice(Request $request, $id)

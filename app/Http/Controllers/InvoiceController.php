@@ -1137,6 +1137,7 @@ class InvoiceController extends Controller
         $totalPph     += $invoice->pph ?? 0;
         $totalAfterPph = $invoiceAmount - $totalPph;
         $terbilang     = $this->terbilang($totalAfterPph);
+        $terbilangEn   = $this->terbilangEn($totalAfterPph);
 
         $requestContract = Contract::join('quotation as q', 'q.id', '=', 'contract.id_quotation')
             ->join('pic as p', 'p.id', '=', 'q.id_pic')->join('client as c', 'c.id', '=', 'p.id_client')
@@ -1151,7 +1152,7 @@ class InvoiceController extends Controller
         $noSaleProspect = Prospect::whereNull('id_sales')->whereNull('provide')->count();
 
         return view('pages.accounting.invoice.detail-unit', compact(
-            'invoice', 'quote', 'allInvoices', 'payments', 'afterDiskon', 'terbilang',
+            'invoice', 'quote', 'allInvoices', 'payments', 'afterDiskon', 'terbilang', 'terbilangEn',
             'totalPph', 'totalAfterPph', 'invoiceAmount',
             'requestContract', 'requestInvoice', 'noSaleProspect'
         ));
@@ -1169,9 +1170,10 @@ class InvoiceController extends Controller
         $totalPph     += $invoice->pph ?? 0;
         $totalAfterPph = $invoiceAmount - $totalPph;
         $terbilang     = $this->terbilang($totalAfterPph);
+        $terbilangEn   = $this->terbilangEn($totalAfterPph);
 
         return view('pages.accounting.invoice.detail-print-unit', compact(
-            'invoice', 'quote', 'terbilang', 'totalPph', 'totalAfterPph', 'invoiceAmount'
+            'invoice', 'quote', 'terbilang', 'terbilangEn', 'totalPph', 'totalAfterPph', 'invoiceAmount'
         ));
     }
 
@@ -1337,6 +1339,63 @@ class InvoiceController extends Controller
         }
 
         return ucwords(trim($result));
+    }
+
+    private function terbilangEn($number)
+    {
+        $number = (int) abs($number);
+        if ($number === 0) {
+            return 'Zero';
+        }
+
+        return trim($this->terbilangEnPart($number));
+    }
+
+    private function terbilangEnPart($number)
+    {
+        $ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
+            "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen"];
+        $tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"];
+
+        if ($number < 20) {
+            return $ones[$number];
+        } elseif ($number < 100) {
+            $result = $tens[(int) ($number / 10)];
+            if ($number % 10) {
+                $result .= '-' . $ones[$number % 10];
+            }
+            return $result;
+        } elseif ($number < 1000) {
+            $result = $ones[(int) ($number / 100)] . ' Hundred';
+            if ($number % 100) {
+                $result .= ' ' . $this->terbilangEnPart($number % 100);
+            }
+            return $result;
+        } elseif ($number < 1000000) {
+            $result = $this->terbilangEnPart((int) ($number / 1000)) . ' Thousand';
+            if ($number % 1000) {
+                $result .= ' ' . $this->terbilangEnPart($number % 1000);
+            }
+            return $result;
+        } elseif ($number < 1000000000) {
+            $result = $this->terbilangEnPart((int) ($number / 1000000)) . ' Million';
+            if ($number % 1000000) {
+                $result .= ' ' . $this->terbilangEnPart($number % 1000000);
+            }
+            return $result;
+        } elseif ($number < 1000000000000) {
+            $result = $this->terbilangEnPart((int) ($number / 1000000000)) . ' Billion';
+            if ($number % 1000000000) {
+                $result .= ' ' . $this->terbilangEnPart($number % 1000000000);
+            }
+            return $result;
+        }
+
+        $result = $this->terbilangEnPart((int) ($number / 1000000000000)) . ' Trillion';
+        if ($number % 1000000000000) {
+            $result .= ' ' . $this->terbilangEnPart($number % 1000000000000);
+        }
+        return $result;
     }
 
     protected function convertToRoman($month)

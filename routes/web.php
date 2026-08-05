@@ -386,6 +386,7 @@ Route::group(["middleware" => "auth"], function () {
     Route::patch('/unit-reftech/{id}', [UnitController::class, 'updateUnitReftech'])->name('unit-reftech.edit');
     Route::get('/unit-global/{id}', [UnitController::class, 'showGlobal'])->name('unit-global.show');
     Route::patch('/unit-global/{id}/price', [UnitController::class, 'updatePrice'])->name('unit-global.update-price');
+    Route::get('/unit-global/{id}/pm-template', [UnitController::class, 'pmTemplate'])->name('unit-global.pm-template');
     Route::get('/cor-factor/calculator', [UnitController::class, 'corfac'])->name('calculator.correction');
 
     // Catalog Unit
