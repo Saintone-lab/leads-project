@@ -14,8 +14,10 @@ class SerialProduct extends Model
         'updated_at'
     ];
     protected $fillable = [
+        'id_product',
         'brand',
         'pn',
+        'fxp_parts',
         'image',
         'detail',
         'price',
@@ -28,6 +30,11 @@ class SerialProduct extends Model
     public function product()
     {
         return $this->belongsTo('App\Models\Product', 'id_product', 'id');
+    }
+
+    public function sparePartVendorPrices()
+    {
+        return $this->hasMany(\App\Models\SparePartVendorPrice::class, 'id_serial_product');
     }
     public function unit()
     {

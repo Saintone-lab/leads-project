@@ -34,10 +34,10 @@
                                                     <td>{{ $no }}</td>
                                                     <td class="text-nowrap align-top text-start">
                                                         <p class="mb-0 fw-semibold" style="font-size: 15px">
-                                                            {{ $products->detailProduct->replacement }}
+                                                            {{ $products->detailProduct?->replacement }}
                                                         </p>
                                                         <pre class="mb-0"
-                                                            style="font-size: 12px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $products->detailProduct->product->description }}</pre>
+                                                            style="font-size: 12px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $products->detailProduct?->product?->description }}</pre>
                                                     </td>
                                                     <td>
                                                         <div class="form-floating form-floating-outline">

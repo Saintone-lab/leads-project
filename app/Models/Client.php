@@ -27,6 +27,7 @@ class Client extends Model
         'web',
         'image',
         'source',
+        'source_detail',
         'role',
         'mobile',
         'address',
@@ -72,6 +73,10 @@ class Client extends Model
     public function machine()
     {
         return $this->hasMany('App\Models\Machine', 'id_client');
+    }
+    public function plants()
+    {
+        return $this->hasMany('App\Models\ClientPlant', 'id_client');
     }
     public function crmStatus()
     {

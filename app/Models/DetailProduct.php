@@ -15,11 +15,12 @@ DetailProduct extends Model
         'updated_at'
     ];
     protected $fillable = [
+        'id_product',
         'replacement',
+        'modal',
         'hpp',
         'stock',
         'warehouse_stock',
-        'pending_stock',
     ];
     
     public function unit()
@@ -33,10 +34,6 @@ DetailProduct extends Model
     public function detailProductIn()
     {
         return $this->hasMany('App\Models\DetailProductIn', 'id_detail_product');
-    }
-    public function sparepart()
-    {
-        return $this->hasMany('App\Models\Sparepart', 'id_equivalent');
     }
     public function detailChangeWarehouse()
     {

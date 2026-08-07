@@ -1,4 +1,8 @@
-<div class="modal animate__animated animate__fadeIn" id="overviewPO{{ $getPOModal[$item]['monthKey'] }}" tabindex="-1"
+@php
+    $monthKeyModal = $getPOModal[$item]['monthKey'] ?? $item;
+    $modalDataList = $getPOModal[$item]['data'] ?? [];
+@endphp
+<div class="modal animate__animated animate__fadeIn" id="overviewPO{{ $monthKeyModal }}" tabindex="-1"
     style="display: none;" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
         <div class="modal-content">
@@ -25,22 +29,28 @@
                                     $totalP = 0;
                                     $key = 0;
                                 @endphp
-                                @forelse ($getPOModal[$item]['data'] as $key => $quoteData)
+                                @forelse ($modalDataList as $key => $quoteData)
                                     @php
                                         $totalQ = $quoteData['nett'];
                                         $totalP += $totalQ;
-                                        $quoteObj = \App\Models\Quotation::where('id', $quoteData['id'])->first();
+                                        $isUnit = ($quoteData['source'] ?? 'quotation') === 'unit_quotation';
+                                        $quoteObj = $isUnit ? null : \App\Models\Quotation::where('id', $quoteData['id'])->first();
                                     @endphp
                                     <tr>
                                         <td class="fw-medium">
-                                            <a class="text-black"
-                                                href="{{ route('quotation.show', $quoteObj->id) }}">{{ $quoteObj->no_quote }}</a>
+                                            @if ($isUnit)
+                                                <a class="text-black"
+                                                    href="{{ route('unit-quotation.show', $quoteData['id']) }}">{{ $quoteData['no_quote'] }}</a>
+                                            @else
+                                                <a class="text-black"
+                                                    href="{{ route('quotation.show', $quoteObj->id) }}">{{ $quoteObj->no_quote }}</a>
+                                            @endif
                                         </td>
-                                        <td>{{ $quoteObj->pic->client->company ?? 'Client Di Hapus' }}</td>
-                                        <td>{{ $quoteObj->title }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($quoteObj->estimated_date)->format('d-m-Y') }}</td>
+                                        <td>{{ $isUnit ? $quoteData['company'] : ($quoteObj->pic->client->company ?? 'Client Di Hapus') }}</td>
+                                        <td>{{ $isUnit ? $quoteData['title'] : $quoteObj->title }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($isUnit ? $quoteData['estimated_date'] : $quoteObj->estimated_date)->format('d-m-Y') }}</td>
                                         <td class="text-end">Rp
-                                            {{ number_format($quoteObj->nett, 0, '', '.') }}</td>
+                                            {{ number_format($isUnit ? $quoteData['nett'] : $quoteObj->nett, 0, '', '.') }}</td>
                                     </tr>
                                     @php
                                         $key++;

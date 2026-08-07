@@ -46,19 +46,11 @@ $(function () {
                     },
                 },
                 {
-                    // For Checkboxes
+                    // Checkbox column removed, kept hidden to avoid reindexing other targets
                     targets: 1,
+                    visible: false,
                     orderable: false,
                     searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
                 },
                 {
                     targets: 2,
@@ -80,12 +72,21 @@ $(function () {
                                 $dataId
                             );
                             var dataSub = data.substring(0, 5);
+                            var pmBadge = '';
+                            if (full["pm_level"]) {
+                                var badgeColor = 'bg-label-primary';
+                                if (full["pm_level"] === 'PM2') badgeColor = 'bg-label-warning';
+                                if (full["pm_level"] === 'PM3') badgeColor = 'bg-label-danger';
+                                if (full["pm_level"] === 'PM4') badgeColor = 'bg-label-info';
+                                if (full["pm_level"] === 'Troubleshooting') badgeColor = 'bg-label-secondary';
+                                pmBadge = ' <span class="badge ' + badgeColor + ' ms-1" style="font-size: 0.7rem;">' + full["pm_level"] + '</span>';
+                            }
                             return (
-                                '<a class="text-dark" href="' +
+                                '<a class="text-dark fw-semibold" href="' +
                                 detailRoute +
                                 '">' +
                                 dataSub +
-                                "</a>"
+                                "</a>" + pmBadge
                             );
                         }
                         return data;

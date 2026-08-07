@@ -137,17 +137,33 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row g-2 mb-3">
+                            <div class="row g-2 mb-3" id="domainWrapper" style="display:none;">
                                 <div class="col mb-2">
                                     <div class="form-floating form-floating-outline">
-                                        <input type="text" id="areaAnimation" class="form-control"
-                                            placeholder="Contoh: Bandung" name="area"
-                                            value="{{ old('area', @$leads->area ?? '') }}">
-                                        <label for="areaAnimation">Area</label>
+                                        <input type="text" class="form-control" id="domainInput" name="source_detail"
+                                            list="domainList" maxlength="100" placeholder="example.com"
+                                            value="{{ old('source_detail', '') }}">
+                                        <label for="domainInput">Website Domain (optional)</label>
                                     </div>
+                                    <datalist id="domainList">
+                                        @foreach ($domainList ?? [] as $d)
+                                            <option value="{{ $d }}"></option>
+                                        @endforeach
+                                    </datalist>
                                 </div>
                             </div>
                             <div class="row g-2 mb-3">
+                                <div class="col mb-2">
+                                    <select id="selectArea" class="form-select" name="area" style="width:100%">
+                                        <option value=""></option>
+                                        @php $selectedArea = old('area', @$leads->area ?? ''); @endphp
+                                        @if($selectedArea)
+                                            <option value="{{ $selectedArea }}" selected>{{ $selectedArea }}</option>
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-3"> 
                                 <div class="col mb-2">
                                     <div class="form-floating form-floating-outline mb-4">
                                         <textarea class="form-control h-px-100" name="address" id="addressTextarea1"

@@ -1,35 +1,53 @@
 $(function () {
-    var dt_table_po_history = $(".datatable-po-history");
-    var Url = "/db/client/po-history/";
     var path = window.location.pathname;
     var id = path.substring(path.lastIndexOf("/") + 1);
+    var Url = "/db/client/po-history/";
+    var $yearFilter = $("#poYearFilter");
+    var dt_po_history;
+
+    function formatRupiah(value) {
+        return "Rp " + Number(value || 0).toLocaleString("id-ID");
+    }
+
+    function poHistoryUrl(year) {
+        return Url + id + (year ? "?year=" + year : "");
+    }
+
+    function loadPoSummary(year) {
+        $.ajax({
+            type: "GET",
+            url: "/db/client/po-summary/" + id,
+            data: year ? { year: year } : {},
+            headers: {
+                "Content-Type": "application/json",
+            },
+            success: function (res) {
+                $("#poTotalRevenue").text(formatRupiah(res.total_revenue));
+                $("#poTotalCount").text(res.total_po);
+                $("#poAvgDeal").text(formatRupiah(res.avg_deal));
+            },
+        });
+    }
+
+    var dt_table_po_history = $(".datatable-po-history");
 
     if (dt_table_po_history.length) {
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_po_history = dt_table_po_history.DataTable({
+        dt_po_history = dt_table_po_history.DataTable({
             ajax: {
                 type: "GET",
-                url: Url + id,
+                url: poHistoryUrl($yearFilter.val()),
                 headers: {
                     "Content-Type": "application/json",
                 },
-
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
             },
             columns: [
                 { data: "" },
                 { data: "id" },
                 { data: "id" },
-                { data: "po_date" },
                 { data: "no_quote" },
+                { data: "title" },
+                { data: "po_date" },
                 { data: "status" },
                 { data: "nett" },
             ],
@@ -46,19 +64,11 @@ $(function () {
                     },
                 },
                 {
-                    // For Checkboxes
+                    // Checkbox column removed, kept hidden to avoid reindexing other targets
                     targets: 1,
+                    visible: false,
                     orderable: false,
                     searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
                 },
                 {
                     targets: 2,
@@ -68,9 +78,6 @@ $(function () {
                 {
                     responsivePriority: 1,
                     targets: 3,
-                },
-                {
-                    targets: 4,
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
@@ -87,8 +94,17 @@ $(function () {
                     },
                 },
                 {
-                    // Label Status Percent
+                    targets: 4,
+                    render: function (data, type, full, meta) {
+                        return data ? data : "-";
+                    },
+                },
+                {
                     targets: 5,
+                },
+                {
+                    // Label Status Percent
+                    targets: 6,
                     render: function (data, type, full, meta) {
                         var $status_number = full["status"];
                         var $titleTool = full["note"];
@@ -152,6 +168,12 @@ $(function () {
                         );
                     },
                 },
+                {
+                    targets: 7,
+                    render: function (data, type, full, meta) {
+                        return formatRupiah(data);
+                    },
+                },
             ],
             order: [[2, "desc"]],
             drawCallback: function (settings) {
@@ -199,4 +221,15 @@ $(function () {
     dt_table_po_history.on("draw", function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
+
+    if ($yearFilter.length) {
+        loadPoSummary($yearFilter.val());
+        $yearFilter.on("change", function () {
+            var year = $(this).val();
+            loadPoSummary(year);
+            if (dt_po_history) {
+                dt_po_history.ajax.url(poHistoryUrl(year)).load();
+            }
+        });
+    }
 });

@@ -11,12 +11,40 @@ class PendingPO extends Model
     protected $table = "pending_po";
     protected $fillable = [
         'id_quotation',
+        'id_unit_quotation',
         'ekspidisi',
         'status',
+        'type',
+        'title',
+        'no_pending',
+        'delivery',
+        'date',
+        'project_category',
+        'project_status_step',
+        'doc_address_type',
+        'doc_address_manual',
+        'shipping_address_type',
+        'shipping_address_manual',
+        'combine_shipping_and_parts',
+        'doc_recipient_id',
+        'shipping_recipient_id',
     ];
     public function quote()
     {
         return $this->belongsTo('App\Models\Quotation', 'id_quotation', 'id');
+    }
+
+    public function unitQuotation()
+    {
+        return $this->belongsTo('App\Models\UnitQuotation', 'id_unit_quotation', 'id');
+    }
+    public function doc_recipient()
+    {
+        return $this->belongsTo('App\Models\Pic', 'doc_recipient_id', 'id');
+    }
+    public function shipping_recipient()
+    {
+        return $this->belongsTo('App\Models\Pic', 'shipping_recipient_id', 'id');
     }
     public function product_out()
     {

@@ -193,76 +193,106 @@
                                     <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
                                 </td>
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
-                                    <p class="mb-0">{{ number_format($product->price, 0, '', '.') }}</p>
+                                    <p class="mb-0">{{ $product->price == 0 ? 'SBO' : number_format($product->price, 0, '', '.') }}</p>
                                 </td>
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
                                     <p class="mb-0">{{ $product->disc }} %</p>
                                 </td>
                                 <td class="align-top py-1 text-end" style="border-bottom:none !important;">
-                                    <p class="mb-0">{{ number_format($product->amount, 0, '', '.') }}</p>
+                                    <p class="mb-0">{{ $product->price == 0 ? 'SBO' : number_format($product->amount, 0, '', '.') }}</p>
                                 </td>
                             </tr>
                         @endforeach
                     @endforeach
-                    <tr>
-                        <td colspan="2"></td>
-                        <td colspan="3" class="text-end">Subtotal :</td>
-                        <td class="text-end"> RP {{ number_format($quote->subtotal, 0, '', '.') }}</td>
-                    </tr>
-
-                    <tr>
-                        <td colspan="2"></td>
-                        <td colspan="3" class="text-end"> Discount :</td>
-                        <td class="text-end"> RP {{ number_format($quote->diskon, 0, '', '.') }}</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"></td>
-                        <td colspan="3" class="text-end"> Total After Discount :</td>
-                        <td class="text-end"> RP {{ number_format($quote->subtotal - $quote->diskon, 0, '', '.') }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="2"></td>
-                        <td colspan="3" class="text-end"> Total Tax :</td>
-                        <td class="text-end"> RP {{ number_format($tax, 0, '', '.') }}</td>
-                    </tr>
-                    <tr class="border-top">
-                        <td colspan="5" class="px-4 border-right" style="background-color: #E7FF00">
-                            <p class="fw-bold mb-0 text-black">TOTAL PRICE </p>
-                        </td>
-                        <td class="text-end px-4 border-left" style="background-color: #E7FF00">
-                            <p class="fw-bold mb-0 text-end text-black">RP
-                                {{ number_format($quote->harga_total, 0, '', '.') }}</p>
-                        </td>
-                    </tr>
                 </tbody>
             </table>
         </div>
-        <div class="mt-2"><br>
-            <h6>Note :</h6>
-            <pre class="mb-0"
-                style="font-size: 12px; font-family: inter; max-width: 100%; overflow-x: auto; white-space: pre-wrap; text-align: justify; background-color: #f8f8f8; padding: 10px;">{{ $quote->termncon[0]->note }}</pre>
+
+        <div class="d-flex justify-content-between align-items-start mt-3 mb-4" style="gap:16px;">
+            <div style="flex:1; font-size:12px;">
+                @if ($quote->termncon[0]->note)
+                    <p class="mb-1 fw-semibold" style="font-size:11px; color:#888; text-transform:uppercase; letter-spacing:.4px;">Note</p>
+                    <p class="mb-0" style="white-space:pre-wrap; color:#333;">{{ $quote->termncon[0]->note }}</p>
+                @endif
+            </div>
+            <div style="min-width:240px; font-size:12px;">
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr>
+                        <td style="padding:3px 8px 3px 0; color:#555;">Subtotal</td>
+                        <td style="padding:3px 0; text-align:right; font-weight:500;">Rp {{ number_format($quote->subtotal, 0, '', '.') }}</td>
+                    </tr>
+                    @if ($quote->diskon != 0)
+                        <tr>
+                            <td style="padding:3px 8px 3px 0; color:#555;">Discount</td>
+                            <td style="padding:3px 0; text-align:right; font-weight:500;">- Rp {{ number_format($quote->diskon, 0, '', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding:3px 8px 3px 0; color:#555;">After Discount</td>
+                            <td style="padding:3px 0; text-align:right; font-weight:500;">Rp {{ number_format($afterDisc, 0, '', '.') }}</td>
+                        </tr>
+                    @endif
+                    @if ($quote->tax != 0)
+                        <tr>
+                            <td style="padding:3px 8px 3px 0; color:#555;">Tax</td>
+                            <td style="padding:3px 0; text-align:right; font-weight:500;">Rp {{ number_format($tax, 0, '', '.') }}</td>
+                        </tr>
+                    @endif
+                    @if ($quote->shipping != 0)
+                        <tr>
+                            <td style="padding:3px 8px 3px 0; color:#555;">Shipping Cost</td>
+                            <td style="padding:3px 0; text-align:right; font-weight:500;">Rp {{ number_format($quote->shipping, 0, '', '.') }}</td>
+                        </tr>
+                    @endif
+                    <tr>
+                        <td colspan="2" style="padding:4px 0 0;"><hr style="margin:0; border-color:#ccc;"></td>
+                    </tr>
+                    <tr style="background:#FFF9C4;">
+                        <td style="padding:6px 8px 6px 6px; font-weight:700; font-size:13px; color:#333;">TOTAL PRICE</td>
+                        <td style="padding:6px 6px 6px 0; text-align:right; font-weight:700; font-size:13px; color:#333;">Rp {{ number_format($quote->harga_total, 0, '', '.') }}</td>
+                    </tr>
+                </table>
+            </div>
         </div>
         <div class="termncon">
-            <h5 class="my-4">Term & Condition</h5>
-            <div class="row">
-                <div class="col-3 fw-medium">
-                    <p class="mb-1">Validity Of Quotation</p>
-                    <p class="mb-1">Price </p>
-                    <p class="mb-1">Delivery Process </p>
-                    <p class="mb-1">Payment </p>
-                    <p class="mb-1">Warranty </p>
+            <div class="mb-4" style="font-size:12px;">
+                <p class="mb-2 fw-semibold" style="font-size:11px; text-transform:uppercase; letter-spacing:.5px; color:#888;">Term & Condition</p>
+                <table style="width:100%; border-collapse:collapse;">
+                    <tr>
+                        <td style="width:160px; padding:2px 0; color:#555; vertical-align:top;">Validity of Quotation</td>
+                        <td style="padding:2px 0; vertical-align:top;">: {{ $quote->termncon[0]->validity }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:2px 0; color:#555; vertical-align:top;">Price</td>
+                        <td style="padding:2px 0; vertical-align:top;">: {{ $quote->termncon[0]->pricing }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:2px 0; color:#555; vertical-align:top;">Delivery Process</td>
+                        <td style="padding:2px 0; vertical-align:top;">: {{ $quote->termncon[0]->delivery_process }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:2px 0; color:#555; vertical-align:top;">Payment</td>
+                        <td style="padding:2px 0; vertical-align:top;">: {{ $quote->termncon[0]->payment }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:2px 0; color:#555; vertical-align:top;">Warranty</td>
+                        <td style="padding:2px 0; vertical-align:top;">: {{ $quote->termncon[0]->warranty }}</td>
+                    </tr>
+                </table>
+            </div>
+            <hr class="my-3">
+            <div class="d-flex justify-content-between align-items-center" style="font-size:12px; color:#555;">
+                <div>
+                    <p class="mb-0">For further inquiries, please contact:</p>
+                    <p class="mb-0 fw-semibold" style="color:#333;">{{ $quote->sales->name }}</p>
+                    @if ($quote->sales->phone)
+                        <p class="mb-0">{{ $quote->sales->phone }}</p>
+                    @endif
                 </div>
-                <div class="col">
-                    <p class="mb-1">: {{ $quote->termncon[0]->validity }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->pricing }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->delivery_process }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->payment }}</p>
-                    <p class="mb-1">: {{ $quote->termncon[0]->warranty }}</p>
+                <div class="text-end" style="font-size:11px; color:#aaa;">
+                    <p class="mb-0">{{ $quote->pic->client->info == 'Reftech' ? 'PT Reftech Jaya Optima' : 'PT Kojisha Innotiv Indonesia' }}</p>
+                    <p class="mb-0">{{ Carbon\Carbon::parse($quote->estimated_date)->format('d F Y') }}</p>
                 </div>
             </div>
-            <p class="text-center mb-0 mt-2">if you have any questions about this quotation, please contact :</p>
-            <p class="text-center mb-0">{{ $quote->sales->name }} {{ $quote->sales->phone }}</p>
         </div>
     </div>
 </div>

@@ -53,6 +53,12 @@
                                 </div>
                             </div>
                             <div class="col-12">
+                                <div class="form-floating form-floating-outline mb-3">
+                                    <input class="form-control" type="text" placeholder="Contoh: Pengiriman barang ke Site Cilegon / Invoice ke kantor pusat" id="description" name="description">
+                                    <label for="description">Keterangan / Rincian Pengiriman</label>
+                                </div>
+                            </div>
+                            <div class="col-12">
                                 <div class="card shadow-none bg-transparent border border-label-secondary mb-3">
                                     <div class="card-body">
                                         <p class="fw-semibold text-start d-block mb-0">Charged to</p>

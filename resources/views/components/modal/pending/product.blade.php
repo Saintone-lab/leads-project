@@ -45,55 +45,71 @@
                                                         @endif
                                                     </td> --}}
                                                     @php
-                                                        if (@$item) {
-                                                            $stock = $item->equivalent->product->stock;
-                                                        } else {
-                                                            $stock = 0;
+                                                        $bdgStock = $item->equivalent->product->stock ?? 0;
+                                                        $bksStock = $item->equivalent->product->warehouse_stock ?? 0;
+                                                        $totalStock = $bdgStock + $bksStock;
+                                                        
+                                                        // Default selection logic:
+                                                        $selectedStatus = $item->status;
+                                                        if ($item->status == '1' || is_null($item->status)) {
+                                                            $selectedStatus = $totalStock >= $item->qty ? '2' : '3';
                                                         }
-                                                        $title =
-                                                            'BDG (' .
-                                                            $stock .
-                                                            ') | BKS (' .
-                                                            $item->equivalent->product->warehouse_stock .
-                                                            ')';
+
+                                                        // Auto allocation logic:
+                                                        $defaultBdg = $item->bdg;
+                                                        $defaultBks = $item->bks;
+                                                        if (($item->status == '1' || is_null($item->status)) && ($item->bdg == 0 && $item->bks == 0)) {
+                                                            if ($bdgStock >= $item->qty) {
+                                                                $defaultBdg = $item->qty;
+                                                                $defaultBks = 0;
+                                                            } elseif ($totalStock >= $item->qty) {
+                                                                $defaultBdg = $bdgStock;
+                                                                $defaultBks = $item->qty - $bdgStock;
+                                                            } else {
+                                                                $defaultBdg = $bdgStock;
+                                                                $defaultBks = $bksStock;
+                                                            }
+                                                        }
+                                                        
+                                                        $title = 'BDG (' . $bdgStock . ') | BKS (' . $bksStock . ')';
                                                     @endphp
                                                     <td class="text-start">
                                                         <pre class="mb-0"
                                                             style="font-size: 15px; font-family: 'Inter', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;"
                                                             data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $title }}">{{ $item->equivalent->product->go == 'Genuine' ? 'G' : 'R' }} - {{ $item->equivalent->brand }} {{ $item->equivalent->pn }}</pre>
                                                     </td>
-
+ 
                                                     <td>{{ $item->qty }} {{ $item->info_qty }}</td>
                                                     <td>
                                                         <div class="form-floating form-floating-outline">
                                                             <select class="form-select" tabindex="0" id="statusChange"
                                                                 name="status[]">
                                                                 <option value="1"
-                                                                    {{ $item->status == '1' ? 'selected' : '' }}>
+                                                                    {{ $selectedStatus == '1' ? 'selected' : '' }}>
                                                                     On Check
                                                                 </option>
                                                                 <option value="2"
-                                                                    {{ $item->status == '2' ? 'selected' : '' }}>
+                                                                    {{ $selectedStatus == '2' ? 'selected' : '' }}>
                                                                     Ready Stock
                                                                 </option>
                                                                 <option value="3"
-                                                                    {{ $item->status == '3' ? 'selected' : '' }}>
+                                                                    {{ $selectedStatus == '3' ? 'selected' : '' }}>
                                                                     Kurang
                                                                 </option>
                                                                 <option value="4"
-                                                                    {{ $item->status == '4' ? 'selected' : '' }}>
+                                                                    {{ $selectedStatus == '4' ? 'selected' : '' }}>
                                                                     Pre-Order
                                                                 </option>
                                                                 <option value="5"
-                                                                    {{ $item->status == '5' ? 'selected' : '' }}>
+                                                                    {{ $selectedStatus == '5' ? 'selected' : '' }}>
                                                                     Delivery Process
                                                                 </option>
                                                                 <option value="6"
-                                                                    {{ $item->status == '6' ? 'selected' : '' }}>
+                                                                    {{ $selectedStatus == '6' ? 'selected' : '' }}>
                                                                     Done
                                                                 </option>
                                                                 <option value="7"
-                                                                    {{ $item->status == '7' ? 'selected' : '' }}>
+                                                                    {{ $selectedStatus == '7' ? 'selected' : '' }}>
                                                                     Cancel
                                                                 </option>
                                                             </select>
@@ -105,7 +121,7 @@
                                                             <input type="number" class="form-control"
                                                                 id="exampleFormControlinput1" name="bdg[]"
                                                                 placeholder="Stock..."
-                                                                value="{{ @$item->bdg }}"></input>
+                                                                value="{{ $defaultBdg }}"></input>
                                                             <label for="exampleFormControlinput1">Bandung</label>
                                                         </div>
                                                     </td>
@@ -114,7 +130,7 @@
                                                             <input type="number" class="form-control"
                                                                 id="exampleFormControlinput1" name="bks[]"
                                                                 placeholder="Stock..."
-                                                                value="{{ @$item->bks }}"></input>
+                                                                value="{{ $defaultBks }}"></input>
                                                             <label for="exampleFormControlTextarea1">Bekasi</label>
                                                         </div>
                                                     </td>

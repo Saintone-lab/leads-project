@@ -1,39 +1,67 @@
 @extends('layouts.sales.app')
-@section('title', 'Expense')
+@section('title', 'Create Inventory Adjustment')
 @section('content')
-    <form id="formAuthentication" class="mb-3 fv-plugins-bootstrap5 fv-plugins-framework"
+    {{-- Hero Page Header & Top Bar --}}
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3 mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span class="text-muted fw-light">Finance / <a href="{{ route('expense-inventory.index') }}" class="text-muted">Inventory Adjustment</a> /</span> Create
+            </h4>
+            <p class="text-muted mb-0 small"><i class="mdi mdi-clipboard-text-outline me-1"></i> Koreksi nilai persediaan &amp; alokasi akun terkait</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('expense-inventory.index') }}" class="btn btn-label-secondary">
+                <i class="mdi mdi-arrow-left me-1"></i> Back
+            </a>
+            <button :disabled="focused" type="submit" form="formAuthentication" class="btn btn-primary shadow-sm">
+                <i class="mdi mdi-content-save me-1"></i> Save Adjustment
+            </button>
+        </div>
+    </div>
+
+    <form id="formAuthentication" class="fv-plugins-bootstrap5 fv-plugins-framework"
         action="{{ route('expense-inventory.store') }}" method="post" enctype="multipart/form-data">
         @csrf
-        <div class="card mb-3">
-            <div class="card-body">
-                <div class="form-invoice-repeater source-item">
-                    <div class="row">
-                        <div class="col-12 col-md-6">
-                            <div class="form-floating form-floating-outline mb-2">
+
+        <div class="form-invoice-repeater source-item">
+            {{-- ADJUSTMENT DETAILS --}}
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center">
+                    <h6 class="card-title mb-0 fw-bold text-dark">
+                        <i class="mdi mdi-file-document-outline me-2 text-primary fs-5"></i> Adjustment Details
+                    </h6>
+                </div>
+                <div class="card-body pt-4">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-4">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" placeholder="Put No Voucher Here ...."
                                     id="no-voucher-input" name="no_invoice" value="{{ old('no_invoice') }}">
                                 <label for="no-voucher-input">No Invoice</label>
                             </div>
                         </div>
-                        <div class="col-6 col-md-3">
-                            <div class="form-floating form-floating-outline mb-2">
+                        <div class="col-6 col-md-4">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="text" placeholder="Put Memo Here ...." id="memo-input"
                                     name="detail" value="{{ old('detail') }}">
-                                <label for="detail-input">Memo</label>
+                                <label for="memo-input">Memo</label>
                             </div>
                         </div>
-                        <div class="col-6 col-md-3">
-                            <div class="form-floating form-floating-outline mb-4">
+                        <div class="col-6 col-md-4">
+                            <div class="form-floating form-floating-outline">
                                 <input class="form-control" type="date" id="Date" name="date">
                                 <label for="Date">Date</label>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="row w-100">
-                        <div class="col-md-6 col-12 mb-md-0">
-                            <label for="account" class="mb-2">Account</label>
-                            <div class="form-floating form-floating-outline mb-2">
+                        <div class="col-12">
+                            <hr class="my-2">
+                            <div class="d-flex align-items-center text-muted small fw-bold text-uppercase mb-1" style="letter-spacing:.5px;">
+                                <i class="mdi mdi-format-list-bulleted-type me-1"></i> Account
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating form-floating-outline">
                                 <select id="account-1" class="select2 form-select invoice-item-account"
                                     data-allow-clear="true" name="account" data-id="1">
                                     <option> ---- Choose Account Here ---- </option>
@@ -46,12 +74,24 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mb-2" data-repeater-list="group-a">
-                        <div class="repeater-wrapper pt-0 pt-md-4" data-repeater-item="">
-                            <div class="d-flex border rounded position-relative pe-0">
-                                <div class="row w-100 p-3">
+                </div>
+            </div>
+
+            {{-- ADJUSTMENT ITEMS --}}
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center justify-content-between">
+                    <h6 class="card-title mb-0 fw-bold text-dark">
+                        <i class="mdi mdi-package-variant-closed me-2 text-primary fs-5"></i> Adjustment Items
+                    </h6>
+                    <span class="badge bg-label-secondary" id="items-count-badge">1 Item</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="mb-0" data-repeater-list="group-a">
+                        <div class="repeater-wrapper" data-repeater-item="">
+                            <div class="position-relative border-bottom p-3">
+                                <div class="row w-100">
                                     <div class="col-md-6 col-12 mb-md-0 mb-3">
-                                        <label for="product" class="mb-2">Product</label>
+                                        <label for="product" class="mb-2 small text-muted">Product</label>
                                         <div class="form-floating form-floating-outline mb-2">
                                             <select id="equivalent-dropdown"
                                                 class="select2 form-select invoice-item-equivalent" data-allow-clear="true"
@@ -78,28 +118,24 @@
                                         </div>
                                     </div>
                                     <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Qty</p>
-                                        <input type="number" class="form-control mb-3 invoice-item-qty" placeholder="Min 1"
+                                        <p class="mb-2 repeater-title small text-muted">Qty</p>
+                                        <input type="number" class="form-control invoice-item-qty" placeholder="Min 1"
                                             name="qty[]" id="qty-1" data-id="1" min="1"
                                             value="{{ old('qty[]') }}">
-                                        <p class="info-max-label" id="info-max-1"></p>
+                                        <p class="info-max-label small text-muted mb-0 mt-1" id="info-max-1"></p>
                                     </div>
                                     <div class="col-md-1 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Warehouse</p>
-                                        <div class="form-floating form-floating-outline">
-                                            <select class="form-select invoice-item-warehouse" id="warehouse-1"
-                                                data-id="1" aria-label="Default select example" name="warehouse[]">
-                                                <option>---Info---</option>
-                                                <option value="BDG">BDG
-                                                </option>
-                                                <option value="BKS">BKS
-                                                </option>
-                                            </select>
-                                        </div>
+                                        <p class="mb-2 repeater-title small text-muted">Warehouse</p>
+                                        <select class="form-select invoice-item-warehouse" id="warehouse-1"
+                                            data-id="1" aria-label="Default select example" name="warehouse[]">
+                                            <option>---Info---</option>
+                                            <option value="BDG">BDG</option>
+                                            <option value="BKS">BKS</option>
+                                        </select>
                                     </div>
                                     <div class="col-md-2 col-12 mb-md-0 mb-3">
-                                        <p class="mb-2 repeater-title">Price</p>
-                                        <div class="input-group" data-price="1">
+                                        <p class="mb-2 repeater-title small text-muted">Price</p>
+                                        <div class="input-group input-group-sm" data-price="1">
                                             <span class="input-group-text">Rp. </span>
                                             <input type="text" class="form-control invoice-item-price-label"
                                                 id="price-label-1" data-id="1" min="0"
@@ -110,57 +146,77 @@
                                                 id="price-1" value="{{ old('price[]') }}" hidden>
                                         </div>
                                     </div>
-                                    <div class="col-md-2 col-12 pe-0">
-                                        <p class="mb-2 repeater-title">Amount</p>
-                                        <p class="mb-0 amount-label" id="amount-label-1" data-id="1">
+                                    <div class="col-md-2 col-12 pe-4 text-md-end">
+                                        <p class="mb-2 repeater-title small text-muted">Amount</p>
+                                        <p class="mb-0 amount-label fw-semibold text-primary" id="amount-label-1" data-id="1">
                                             {{ old(strval('amount[]')) }}</p>
                                         <input type="number" class="form-control invoice-item-amount" name="amount[]"
                                             id="amount-1" data-id="1" min="12" value="{{ old('amount[]') }}"
                                             hidden>
                                     </div>
                                 </div>
-                                <div
-                                    class="d-flex flex-column align-items-center justify-content-between border-start p-2">
-                                    <i class="mdi mdi-close cursor-pointer bg-danger text-white btn-del"
-                                        data-repeater-delete=""></i>
-                                </div>
+                                <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-del position-absolute top-0 end-0 m-2"
+                                    data-repeater-delete="">
+                                    <i class="mdi mdi-delete-outline"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-8 mb-2">
-                            <button type="button" class="btn btn-sm btn-primary waves-effect waves-light btn-add"
-                                data-repeater-create="">
-                                <i class="mdi mdi-plus me-1"></i> Add Item
-                            </button>
-                        </div>
-                        <div class="col-4 mb-2">
-                            <div class="input-group input-group-merge mb-3" data-amount="1">
-                                <span class="input-group-text">Rp. </span>
-                                <div class="form-floating form-floating-outline">
-                                    <input type="text" class="form-control invoice-item-total-label" name="harga"
-                                        placeholder="Total Here" id="total-label"value="{{ old('total[]') }}" disabled>
-                                    <input class="form-control invoice-item-total" type="number" name="total"
-                                        id="total" value="{{ old('total[]') }}" hidden>
-                                    <label for="total">Total</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <p class="fs-5 fw-medium mt-2 p-2 invoice-item-say-total w-100"
-                        style="background-color: rgb(248, 248, 248); width:70%;"> Say
-                        amount: # Rupiah</p>
-                    <div class="float-end">
-                        <a href="{{ route('quotation.index') }}" type="button"
-                            class="btn btn-lg btn-outline-secondary">
-                            Back
-                        </a>
-                        <button :disabled="focused" type="submit" class="btn btn-lg btn-primary">
-                            Save
+                    <div class="d-flex flex-wrap gap-2 p-3 border-top bg-light-subtle">
+                        <button type="button" class="btn btn-sm btn-primary shadow-sm btn-add" data-repeater-create="">
+                            <i class="mdi mdi-plus me-1"></i> Add Item
                         </button>
                     </div>
                 </div>
             </div>
+
+            {{-- SUMMARY --}}
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-lg-7">
+                            <h6 class="fw-bold mb-2 text-dark">
+                                <i class="mdi mdi-text-long me-1 text-primary"></i> Say Amount
+                            </h6>
+                            <p class="fs-6 fw-medium mb-0 p-3 rounded-3 invoice-item-say-total bg-light-subtle border">
+                                Say amount: # Rupiah
+                            </p>
+                        </div>
+                        <div class="col-lg-5">
+                            <div class="card border-0 shadow-sm overflow-hidden" style="background: #ffffff; border: 1px solid #e0e0ff !important; border-radius: 12px;">
+                                <div class="card-header py-3 px-4 bg-light border-bottom d-flex align-items-center justify-content-between">
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-xs bg-label-primary rounded me-2 d-flex align-items-center justify-content-center" style="width:28px; height:28px;">
+                                            <i class="mdi mdi-calculator text-primary fs-6"></i>
+                                        </div>
+                                        <h6 class="fw-bold mb-0 text-dark">Total Summary</h6>
+                                    </div>
+                                    <span class="badge bg-label-primary px-2 py-1" style="font-size:10px;">IDR SUMMARY</span>
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="p-3 rounded-3 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #f0f2ff 0%, #e8ebff 100%); border: 1px dashed #696cff;">
+                                        <div>
+                                            <div class="text-uppercase fw-bold text-primary" style="font-size: 10px; letter-spacing: 0.8px;">Total Amount</div>
+                                            <div class="text-muted" style="font-size: 10px;">( Total seluruh item )</div>
+                                        </div>
+                                        <input type="text" class="form-control invoice-item-total-label border-0 bg-transparent text-end fw-bolder text-primary fs-4 p-0"
+                                            name="harga" placeholder="Total Here" id="total-label" value="{{ old('total[]') }}" disabled style="max-width: 160px; letter-spacing: -0.5px;">
+                                        <input class="form-control invoice-item-total" type="number" name="total"
+                                            id="total" value="{{ old('total[]') }}" hidden>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end gap-2 mb-4">
+            <a href="{{ route('expense-inventory.index') }}" class="btn btn-label-secondary">Cancel</a>
+            <button :disabled="focused" type="submit" class="btn btn-primary shadow-sm px-4">
+                <i class="mdi mdi-content-save me-1"></i> Save Adjustment
+            </button>
         </div>
     </form>
 @endsection()
@@ -264,6 +320,11 @@
                 });
             }
 
+            function updateItemsCountBadge() {
+                var count = $('.repeater-wrapper').length;
+                $('#items-count-badge').text(count + (count === 1 ? ' Item' : ' Items'));
+            }
+
             $(".invoice-item-price-label").on('keyup', function() {
                 var input = $(this)
                 var id = input.data('id');
@@ -290,11 +351,14 @@
 
                 // Panggil fungsi inisialisasi saat halaman dimuat
                 initializeSelect2Account();
+                updateItemsCountBadge();
 
                 // Jika ada elemen dinamis yang ditambahkan, gunakan event listener
                 $(document).on('repeater:added', function() {
                     initializeSelect2Account();
+                    updateItemsCountBadge();
                 });
+                $(document).on('repeater:deleted', updateItemsCountBadge);
             });
 
             $(`.invoice-item-equivalent`).on('change', function(ev) {

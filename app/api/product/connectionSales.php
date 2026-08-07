@@ -2,11 +2,11 @@
 use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
-$host = "localhost";
-$users = "u877155683_reftech_my";
-$pass = "REFtechjaya321!";
+$host = env('DB_HOST', '127.0.0.1');
+$users = env('DB_USERNAME', 'root');
+$pass = env('DB_PASSWORD', '');
 
-$databaseName = "u877155683_reftech_my";
+$databaseName = env('DB_DATABASE', 'u877155683_reftech_my');
 $tableName = "product";
 
 // Periksa apakah pengguna terotentikasi
@@ -20,7 +20,7 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT p.*,
+        $query = "SELECT p.*, p.go as go,
                     CONCAT(' (', 
                         CASE 
                             WHEN p.go = 'Replacement' THEN 'R'

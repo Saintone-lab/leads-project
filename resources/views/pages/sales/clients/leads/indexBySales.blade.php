@@ -14,37 +14,59 @@
         </div>
     @endif
 
-    <h4 class="fw-bold py-3 mb-4">
-        <span class="text-muted fw-light">Clients /</span> Leads
-    </h4>
-    <div class="nav-align-top mb-4">
-        <ul class="nav nav-pills mb-3" role="tablist">
-            @foreach ($sales as $sale)
-                <li class="nav-item" role="presentation">
-                    <button type="button"
-                        class="nav-link waves-effect waves-light select-sales {{ $sale->id == 1 ? 'active' : '' }}"
-                        aria-selected="true" data-id="{{ $sale->id }}">
-                        {{ $sale->name }}
-                    </button>
-                </li>
-            @endforeach
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane fade active show" id="navs-pills-top-leads" role="tabpanel">
-                <div class="card-datatable pt-0">
-                    <table class="datatable-leads-by-sales table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Company</th>
-                                <th>R/U</th>
-                                <th>Status</th>
-                                <th>Address</th>
-                                <th>Lass Contact</th>
-                                <th>Next FU</th>
-                                <th>Flag</th>
-                            </tr>
-                        </thead>
-                    </table>
+    <!-- Header Banner Card -->
+    <div class="card clean-card mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge bg-label-primary fs-6 px-3 py-2">
+                            <i class="mdi mdi-account-group-outline me-1"></i> Directory Client
+                        </span>
+                    </div>
+                    <h4 class="fw-bold mb-0 text-dark">Leads by Sales</h4>
+                    <small class="text-muted">
+                        Pantau data leads tiap sales secara terpusat.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-minimalist mb-4">
+        <div class="card-header card-minimalist-header py-2">
+            <ul class="nav nav-pills card-header-pills border-0 m-0 flex-nowrap overflow-auto" role="tablist">
+                @foreach ($sales as $sale)
+                    <li class="nav-item" role="presentation">
+                        <button type="button"
+                            class="nav-link fw-semibold waves-effect waves-light select-sales {{ $sale->id == 1 ? 'active' : '' }}"
+                            aria-selected="true" data-id="{{ $sale->id }}">
+                            {{ $sale->name }}
+                            <span class="badge rounded-pill bg-label-primary ms-1">{{ $leadsCountBySales[$sale->id] ?? 0 }}</span>
+                        </button>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="tab-content border-0 p-0 m-0">
+                <div class="tab-pane fade active show p-3" id="navs-pills-top-leads" role="tabpanel">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-leads-by-sales table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Company</th>
+                                    <th>R/U</th>
+                                    <th>Status</th>
+                                    <th>Address</th>
+                                    <th>Lass Contact</th>
+                                    <th>Next FU</th>
+                                    <th>Flag</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -68,6 +90,34 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+    <style>
+        .card-minimalist {
+            border: 1px solid #e0e2e8 !important;
+            box-shadow: none !important;
+            border-radius: 12px;
+        }
+        .card-minimalist-header {
+            border-bottom: 1px solid #e0e2e8 !important;
+            background-color: #fafbfe;
+            border-top-left-radius: 12px !important;
+            border-top-right-radius: 12px !important;
+        }
+        .card-header-pills .nav-link {
+            border-radius: 20px;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            margin-right: 0.35rem;
+            color: #697a8d;
+        }
+        .card-header-pills .nav-link.active {
+            background-color: #696cff;
+            color: #fff;
+        }
+        .card-header-pills .nav-link.active .badge {
+            background-color: rgba(255, 255, 255, 0.25) !important;
+            color: #fff !important;
+        }
+    </style>
 @endpush
 
 @push('after-script')

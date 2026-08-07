@@ -1,27 +1,20 @@
 $(function () {
-    var dt_table_quotation_client = $(".datatable-quotation-client");
-    var Url = "/db/product/quotation/";
     var path = window.location.pathname;
     var id = path.substring(path.lastIndexOf('/') + 1);
 
-    if (dt_table_quotation_client.length) {
+    function initQuotationTable(selector, url) {
+        var $table = $(selector);
+        if (!$table.length) return;
+
         $('[data-toggle="tooltip"]').tooltip();
-        var dt_quotation_client = dt_table_quotation_client.DataTable({
+
+        var dt = $table.DataTable({
             ajax: {
                 type: "GET",
-                url: Url + id,
+                url: url,
                 headers: {
                     "Content-Type": "application/json",
                 },
-                // success: function (hasil, Url) {
-                //     console.log("Url:", Url);
-                //     console.log(hasil);
-                // },
-                // error: function (error) {
-                //     console.log("Url:", Url);
-                //     console.error("Error:", error);
-                //     console.log("error disini");
-                // },
             },
             columns: [
                 { data: "" },
@@ -52,19 +45,11 @@ $(function () {
                     },
                 },
                 {
-                    // For Checkboxes
+                    // Checkbox column removed, kept hidden to avoid reindexing other targets
                     targets: 1,
+                    visible: false,
                     orderable: false,
                     searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
                 },
                 {
                     targets: 2,
@@ -76,9 +61,11 @@ $(function () {
                     render: function (data, type, full, row) {
                         if (type === "display") {
                             var $dataId = full["id"];
-                            var detailRoute = route("quotation.show", $dataId);
+                            var isUnit = full["is_unit_quotation"];
+                            var detailRoute = isUnit ? route("unit-quotation.show", $dataId) : route("quotation.show", $dataId);
+                            var badgeUnit = isUnit ? ' <span class="badge bg-label-info ms-1" style="font-size:10px;">Smart</span>' : '';
                             return (
-                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>"
+                                '<a class="text-dark" href="' + detailRoute + '">' + data + "</a>" + badgeUnit
                             );
                         }
                         return data;
@@ -203,14 +190,12 @@ $(function () {
                 },
             ],
             drawCallback: function (settings) {
-                console.log("drawCallback");
                 $('[data-toggle="tooltip"]').tooltip();
             },
             order: [[2, "desc"]],
             displayLength: 7,
             lengthMenu: [7, 10, 25, 50, 75, 100],
-            buttons: [
-            ],
+            buttons: [],
             responsive: {
                 details: {
                     display: $.fn.dataTable.Responsive.display.modal({
@@ -246,8 +231,13 @@ $(function () {
                 },
             },
         });
+
+        $table.on("draw", function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
     }
-    dt_table_quotation_client.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
+
+    initQuotationTable(".datatable-quotation-active", "/db/product/quotation/active/" + id);
+    initQuotationTable(".datatable-quotation-loss", "/db/product/quotation/loss/" + id);
+    initQuotationTable(".datatable-quotation-archive", "/db/product/quotation/archive/" + id);
 });

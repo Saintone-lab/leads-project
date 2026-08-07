@@ -83,7 +83,7 @@
                                 <div class="card-body">
                                     <p class="text-muted">Supplier</p>
                                     <h5 class="mb-0">{{ $product->supp->supplier ?? $product->supplier }}</h5>
-                                    <p class="mb-0">{{ $product->supp->info }}</p>
+                                    <p class="mb-0">{{ $product->supp->info ?? '' }}</p>
                                     <h6 class="mb-0">{{ $product->supp->npwp ?? '' }}</h6>
                                 </div>
                             </div>
@@ -172,12 +172,12 @@
                                 <td class="align-top">{{ $no }}</td>
                                 <td class="text-nowrap align-top">
                                     <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                        {{ $products->detailProduct->replacement }}
+                                        {{ $products->detailProduct?->replacement }}
                                     </p>
                                     <pre class="mb-0"
-                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $products->detailProduct->product->description }}</pre>
+                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $products->detailProduct?->product?->description }}</pre>
                                 </td>
-                                <td class="align-top">{{ $products->qty }} {{ $products->detailProduct->product->unit }}
+                                <td class="align-top">{{ $products->qty }} {{ $products->detailProduct?->product?->unit }}
                                 </td>
                                 <td class="align-top">RP {{ number_format($products->modal, 0, '', '.') }}</td>
                                 <td class="align-top">RP {{ number_format($products->amount, 0, '', '.') }}</td>
@@ -235,13 +235,13 @@
                                 <td class="align-top">{{ $no }}</td>
                                 <td class="text-nowrap align-top">
                                     <p class="mb-0 fw-semibold" style="font-size: 12px">
-                                        {{ $retur->replacement->replacement }}
+                                        {{ $retur->replacement?->replacement }}
                                     </p>
                                     <pre class="mb-0"
-                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $retur->replacement->product->description }}</pre>
+                                        style="font-size: 10px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 100%; overflow-x: auto; white-space: pre-wrap;">{{ $retur->replacement?->product?->description }}</pre>
                                 </td>
                                 <td class="align-top">{{ $retur->qty }}
-                                    {{ $retur->replacement->product->unit }}
+                                    {{ $retur->replacement?->product?->unit }}
                                 </td>
                                 <td class="align-top">{{ $retur->note }}</td>
                                 <td class="align-top">

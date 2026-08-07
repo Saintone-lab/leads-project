@@ -104,9 +104,9 @@
                                                 <select id="replacement-dropdown-{{ $key }}"
                                                     class="select2 form-select invoice-item-replacement"
                                                     data-allow-clear="true" name="replacement[]" data-id="{{ $key }}">
-                                                    <option> ---- Choose Commodity || Replacement Here ---- </option>
+                                                    <option value=""> ---- Choose Commodity || Replacement Here ---- </option>
                                                     @foreach ($fullRep[$key] as $products)
-                                                        <option value="{{ $products->id }}">
+                                                        <option value="{{ $products->id }}" {{ count($fullRep[$key]) == 1 ? 'selected' : '' }}>
                                                             {{ $products->product->commodity }}
                                                             ({{ $products->product->detail_desc }})
                                                             ||

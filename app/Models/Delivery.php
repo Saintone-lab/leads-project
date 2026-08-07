@@ -16,6 +16,8 @@ class Delivery extends Model
     ];
     protected $fillable = [
         'id_invoice',
+        'id_suo',
+        'id_unit_quotation',
         'destination',
     ];
 
@@ -26,5 +28,9 @@ class Delivery extends Model
     public function detail()
     {
         return $this->hasMany('App\Models\DetailDelivery', 'id_delivery');
+    }
+    public function unitQuotation()
+    {
+        return $this->belongsTo('App\Models\UnitQuotation', 'id_unit_quotation', 'id');
     }
 }

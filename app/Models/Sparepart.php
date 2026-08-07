@@ -15,6 +15,7 @@ class Sparepart extends Model
     protected $fillable = [
         'qty',
         'qty_info',
+        'pm_level',
     ];
     public function unit()
     {
@@ -22,6 +23,6 @@ class Sparepart extends Model
     }
     public function equivalent()
     {
-        return $this->belongsTo('App\Models\DetailProduct', 'id_equivalent', 'id');
+        return $this->belongsTo('App\Models\SerialProduct', 'id_equivalent', 'id');
     }
 }

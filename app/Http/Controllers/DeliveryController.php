@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Client;
 use App\Models\Delivery;
 use App\Models\DetailDelivery;
 use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Quotation;
+use App\Models\Suo;
 use App\Models\SubtitleQuotation;
+use App\Models\UnitQuotation;
 use Illuminate\Http\Request;
 
 class DeliveryController extends Controller
@@ -97,9 +100,23 @@ class DeliveryController extends Controller
     {
         $delivery = Delivery::find($id);
         $dDelivery = DetailDelivery::where('id_delivery', $id)->get();
-        $invoice = invoice::find($delivery->id_invoice);
-        $quote = Quotation::find($invoice->id_quotation);
-        // $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+
+        // SUO delivery — tidak punya id_invoice
+        if ($delivery->id_suo) {
+            $suo    = Suo::with(['detail', 'sales'])->find($delivery->id_suo);
+            $client = Client::where('company', $suo->company)->first();
+            return view('pages.suo.sj-detail', compact('delivery', 'dDelivery', 'suo', 'client'));
+        }
+
+        // Unit Quotation delivery
+        if ($delivery->id_unit_quotation) {
+            $unitQuote = UnitQuotation::with(['client', 'pic', 'sales'])->find($delivery->id_unit_quotation);
+            $invoice   = $delivery->id_invoice ? Invoice::find($delivery->id_invoice) : null;
+            return view('pages.unit-quotation.sj-detail', compact('delivery', 'dDelivery', 'unitQuote', 'invoice'));
+        }
+
+        $invoice  = Invoice::find($delivery->id_invoice);
+        $quote    = Quotation::find($invoice->id_quotation);
         $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
 
         return view("pages.accounting.delivery.detail", compact('subQuote', 'delivery', 'dDelivery', 'invoice', 'quote'));
@@ -140,8 +157,9 @@ class DeliveryController extends Controller
         $detDelevery = DetailDelivery::where('id_delivery', $id)->get();
 
         $delDelivery = $delivery->delete();
+        $delDetDelivery = true;
         foreach ($detDelevery as $product) {
-            $delDetDelivery = $product->delete();
+            $delDetDelivery = $product->delete() && $delDetDelivery;
         }
         if ($delDelivery && $delDetDelivery) {
             return 1;
@@ -231,11 +249,26 @@ class DeliveryController extends Controller
     }
     public function print_delivery($id)
     {
-        $delivery = Delivery::find($id);
+        $delivery  = Delivery::find($id);
         $dDelivery = DetailDelivery::where('id_delivery', $id)->get();
-        $invoice = invoice::find($delivery->id_invoice);
-        $quote = Quotation::find($invoice->id_quotation);
-        // $dQuote = DetailQuotation::where('id_quotation', $invoice->id_quotation)->get();
+
+        // SUO delivery — tidak ada id_invoice
+        if ($delivery->id_suo) {
+            $suo    = Suo::with(['detail', 'sales'])->find($delivery->id_suo);
+            $client = Client::where('company', $suo->company)->first();
+            $view   = request('format') == '1' ? 'pages.suo.sj-print-type1' : 'pages.suo.sj-print';
+            return view($view, compact('delivery', 'dDelivery', 'suo', 'client'));
+        }
+
+        // Unit Quotation delivery
+        if ($delivery->id_unit_quotation) {
+            $unitQuote = UnitQuotation::with(['client', 'pic', 'sales'])->find($delivery->id_unit_quotation);
+            $invoice   = $delivery->id_invoice ? Invoice::find($delivery->id_invoice) : null;
+            return view('pages.unit-quotation.sj-print', compact('delivery', 'dDelivery', 'unitQuote', 'invoice'));
+        }
+
+        $invoice  = Invoice::find($delivery->id_invoice);
+        $quote    = Quotation::find($invoice->id_quotation);
         $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $quote->id)->get();
 
         return view("pages.accounting.delivery.detail-print", compact('subQuote', 'delivery', 'dDelivery', 'invoice', 'quote'));
@@ -292,5 +325,14 @@ class DeliveryController extends Controller
         } else {
             return redirect('/delivery/' . $id)->with('error', 'Terjadi kesalahan saat mengirim data');
         }
+    }
+
+    public function toggleItemView($id)
+    {
+        $item = DetailDelivery::findOrFail($id);
+        $item->view = $item->view == '1' ? '0' : '1';
+        $item->save();
+
+        return response()->json(['success' => true, 'view' => $item->view]);
     }
 }

@@ -1,18 +1,93 @@
 @extends('layouts.sales.app')
-@section('title', 'expense')
+@section('title', 'Cashflow Statement')
 @section('content')
-    <h3 class="text-center">
-        Pilih Bulan / Tahun nya Untuk Masuk Detail Cashflow
-    </h3>
-    <div class="btn-group d-flex justify-content-center align-items-center">
-        <div class="form-floating form-floating-outline mb-4 mx-3">
-            <input class="form-control" type="month" id="html5-month-input">
-            <label for="html5-month-input">Month</label>
-        </div>
+    <div class="py-3 mb-3">
+        <h4 class="fw-bold mb-1">
+            <span class="text-muted fw-light">Finance / Statement /</span> Cashflow Statement
+        </h4>
+        <p class="text-muted mb-0 small"><i class="mdi mdi-cash-sync me-1"></i> Laporan arus kas masuk &amp; keluar</p>
+    </div>
 
-        <div class="form-floating form-floating-outline mb-4" style="width: 15%">
-            <select id="yearSelect" class="form-control"></select>
-            <label for="html5-year-input">Year</label>
+    {{-- Ringkasan bulan & tahun berjalan, biar gak "blind pick" periode dulu --}}
+    @foreach ([
+        ['data' => $ringkasanBulan, 'label' => $ringkasanBulanLabel, 'badge' => 'Bulan Berjalan'],
+        ['data' => $ringkasanTahun, 'label' => $ringkasanTahunLabel, 'badge' => 'Tahun Berjalan'],
+    ] as $r)
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center justify-content-between">
+                <h6 class="card-title mb-0 fw-bold text-dark">
+                    <i class="mdi mdi-calendar-month-outline me-2 text-primary fs-5"></i> Ringkasan {{ $r['label'] }}
+                </h6>
+                <span class="badge bg-label-secondary">{{ $r['badge'] }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 rounded-3 bg-light-subtle border h-100">
+                            <div class="text-muted small mb-1">Kas Masuk Operasi</div>
+                            <div class="fw-bold fs-6 text-success">Rp {{ number_format($r['data']['kasMasuk'], 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 rounded-3 bg-light-subtle border h-100">
+                            <div class="text-muted small mb-1">Kas Keluar Operasi</div>
+                            <div class="fw-bold fs-6 text-danger">Rp {{ number_format($r['data']['kasKeluar'], 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 rounded-3 bg-light-subtle border h-100">
+                            <div class="text-muted small mb-1">Net Aktivitas Investasi</div>
+                            <div class="fw-bold fs-6 {{ $r['data']['netInvestasi'] < 0 ? 'text-danger' : 'text-success' }}">Rp {{ number_format($r['data']['netInvestasi'], 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 rounded-3 bg-light-subtle border h-100">
+                            <div class="text-muted small mb-1">Net Aktivitas Pendanaan</div>
+                            <div class="fw-bold fs-6 {{ $r['data']['netPendanaan'] < 0 ? 'text-danger' : 'text-success' }}">Rp {{ number_format($r['data']['netPendanaan'], 0, ',', '.') }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+    <p class="text-muted small mb-3 mt-n2">
+        <i class="mdi mdi-information-outline me-1"></i>
+        Angka di atas parsial (belum termasuk perubahan persediaan), bukan net cashflow final. Klik salah satu periode di bawah untuk lihat laporan lengkap.
+    </p>
+
+    {{-- Warning data belum lengkap --}}
+    <div class="alert alert-warning d-flex align-items-start gap-2 mb-3" role="alert">
+        <i class="mdi mdi-alert-outline fs-5 mt-1"></i>
+        <div>
+            <div class="fw-semibold">Laporan Cashflow ini belum lengkap</div>
+            <div class="small">
+                Belum mencakup <strong>perubahan nilai persediaan</strong> dan <strong>saldo kas awal/akhir periode</strong>
+                &mdash; menunggu modul ledger stok &amp; mutasi kas.
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm mx-auto" style="max-width: 560px;">
+        <div class="card-body text-center py-5">
+            <div class="avatar avatar-lg bg-label-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:64px; height:64px;">
+                <i class="mdi mdi-cash-sync fs-3 text-primary"></i>
+            </div>
+            <h5 class="fw-bold mb-1">Pilih Periode Cashflow Statement</h5>
+            <p class="text-muted small mb-4">Laporan akan tampil di halaman detail, tombol Print tersedia di sana</p>
+            <div class="row g-3 justify-content-center">
+                <div class="col-6">
+                    <div class="form-floating form-floating-outline">
+                        <input class="form-control" type="month" id="html5-month-input">
+                        <label for="html5-month-input">Per Bulan</label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-floating form-floating-outline">
+                        <select id="yearSelect" class="form-control"></select>
+                        <label for="html5-year-input">Per Tahun</label>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection()
@@ -62,7 +137,7 @@
         yearSelect.addEventListener('change', function() {
             if (!this.value) return;
 
-            window.open(`/cashflow-print/${this.value}`, '_blank');
+            window.location.href = `/cashflow-detail/${this.value}`;
         });
 
         document.getElementById('html5-month-input').addEventListener('change', function() {
@@ -70,7 +145,7 @@
 
             const [year, month] = this.value.split('-');
 
-            window.open(`/cashflow-print/${year}/${month}`, '_blank');
+            window.location.href = `/cashflow-detail/${year}/${month}`;
         });
 
         function formatNumber(n) {

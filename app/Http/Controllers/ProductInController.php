@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\DetailProduct;
 use App\Models\DetailProductIn;
+use Illuminate\Support\Facades\Auth;
 use App\Models\DetailReturn;
 use App\Models\Product;
 use App\Models\ProductIn;
@@ -37,7 +38,8 @@ class ProductInController extends Controller
     {
         $suppliers = Supplier::all();
         $detProduct = DetailProduct::join('product', 'detail_product.id_product', '=', 'product.id')->get('detail_product.*');
-        return view('pages.warehouse.product-in.form', compact('detProduct', 'suppliers'));
+        $nextNoProductIn = $this->generateNoProductIn();
+        return view('pages.warehouse.product-in.form', compact('detProduct', 'suppliers', 'nextNoProductIn'));
     }
 
     /**
@@ -46,6 +48,22 @@ class ProductInController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
+    private function generateNoProductIn(): string
+    {
+        $year = now()->format('Y');
+        $month = now()->format('m');
+        $prefix = "PIN/{$year}/{$month}/";
+
+        $last = ProductIn::where('no_product_in', 'like', $prefix . '%')
+            ->orderByDesc('no_product_in')
+            ->value('no_product_in');
+
+        $lastSeq = $last ? (int) substr($last, -3) : 0;
+        $nextSeq = str_pad($lastSeq + 1, 3, '0', STR_PAD_LEFT);
+
+        return $prefix . $nextSeq;
+    }
+
     public function store(Request $request)
     {
         $rule = [
@@ -63,6 +81,8 @@ class ProductInController extends Controller
         $supplier = Supplier::find($request->supplier);
         // Masukan Data ke Tabel Quotataion
         $productIn = new ProductIn();
+        $productIn->no_product_in = $this->generateNoProductIn();
+        $productIn->created_by = Auth::id();
         $productIn->no_do = NULL;
         $productIn->invoice = $request->invoice;
         $productIn->id_supplier = $request->supplier;
@@ -238,6 +258,8 @@ class ProductInController extends Controller
         $supplier = Supplier::find($request->supplier);
         // Masukan Data ke Tabel Quotataion
         $productIn = new ProductIn();
+        $productIn->no_product_in = $this->generateNoProductIn();
+        $productIn->created_by = Auth::id();
         $productIn->no_do = $request->no_do;
         $productIn->invoice = null;
         // $productIn->id_supplier = null;
@@ -386,6 +408,126 @@ class ProductInController extends Controller
     }
 
 
+    public function logistic_update(Request $request, $id)
+    {
+        $productIn = ProductIn::find($id);
+        $productIn->no_do       = $request->no_do;
+        $productIn->date        = $request->date;
+        $productIn->id_supplier = $request->id_supplier ?: $productIn->id_supplier;
+        $productIn->info        = $request->info;
+        $productIn->save();
+
+        foreach ($request->items ?? [] as $detailId => $values) {
+            $detail = DetailProductIn::find($detailId);
+            if (!$detail) continue;
+
+            $oldDetailProductId = $detail->id_detail_product;
+            $oldQty             = $detail->qty;
+            $oldWarehouse       = $detail->warehouse;
+            $newDetailProductId = $values['id_detail_product'] ?? $oldDetailProductId;
+            $newQty             = (int) ($values['qty'] ?? $oldQty);
+            $newWarehouse       = $values['warehouse'] ?? $oldWarehouse;
+
+            // Revert stok lama
+            $oldProductD = DetailProduct::find($oldDetailProductId);
+            if ($oldProductD) {
+                $oldProduct = $oldProductD->product;
+                if ($oldWarehouse == 'BDG') {
+                    $oldProductD->stock           -= $oldQty;
+                    $oldProduct->stock            -= $oldQty;
+                } else {
+                    $oldProductD->warehouse_stock -= $oldQty;
+                    $oldProduct->warehouse_stock  -= $oldQty;
+                }
+                $oldProductD->save();
+                $oldProduct->save();
+            }
+
+            // Terapkan stok baru
+            $newProductD = DetailProduct::find($newDetailProductId);
+            if ($newProductD) {
+                $newProduct = $newProductD->product;
+                if ($newWarehouse == 'BDG') {
+                    $newProductD->stock           += $newQty;
+                    $newProduct->stock            += $newQty;
+                } else {
+                    $newProductD->warehouse_stock += $newQty;
+                    $newProduct->warehouse_stock  += $newQty;
+                }
+                $newProductD->save();
+                $newProduct->save();
+            }
+
+            $detail->id_detail_product = $newDetailProductId;
+            $detail->qty               = $newQty;
+            $detail->warehouse         = $newWarehouse;
+            $detail->save();
+        }
+
+        // Tambah item baru
+        foreach ($request->new_items ?? [] as $newItem) {
+            if (empty($newItem['id_detail_product']) || empty($newItem['qty'])) continue;
+
+            $dProductIn = new DetailProductIn();
+            $dProductIn->id_product_in    = $id;
+            $dProductIn->id_detail_product = $newItem['id_detail_product'];
+            $dProductIn->qty              = (int) $newItem['qty'];
+            $dProductIn->warehouse        = $newItem['warehouse'];
+            $dProductIn->modal            = null;
+            $dProductIn->amount           = null;
+            $dProductIn->save();
+
+            $productD = DetailProduct::find($newItem['id_detail_product']);
+            if ($productD) {
+                $product = $productD->product;
+                if ($newItem['warehouse'] == 'BDG') {
+                    $productD->stock          += $dProductIn->qty;
+                    $product->stock           += $dProductIn->qty;
+                } else {
+                    $productD->warehouse_stock += $dProductIn->qty;
+                    $product->warehouse_stock  += $dProductIn->qty;
+                }
+                $productD->save();
+                $product->save();
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => 'Data berhasil diperbarui']);
+    }
+
+    public function destroyDetail($id)
+    {
+        $detail = DetailProductIn::find($id);
+        if (!$detail) return response()->json(['success' => false, 'message' => 'Item tidak ditemukan'], 404);
+
+        // Revert stok
+        $productD = $detail->detailProduct;
+        if ($productD) {
+            $product = $productD->product;
+            if ($detail->warehouse == 'BDG') {
+                $productD->stock          -= $detail->qty;
+                $product->stock           -= $detail->qty;
+            } else {
+                $productD->warehouse_stock -= $detail->qty;
+                $product->warehouse_stock  -= $detail->qty;
+            }
+            $productD->save();
+            $product->save();
+        }
+
+        $detail->delete();
+        return response()->json(['success' => true, 'message' => 'Item berhasil dihapus']);
+    }
+
+    public function preview($id)
+    {
+        $product    = ProductIn::find($id);
+        $detail     = DetailProductIn::where('id_product_in', $id)->get();
+        $suppliers  = Supplier::all();
+        $detProduct = DetailProduct::join('product', 'detail_product.id_product', '=', 'product.id')->get('detail_product.*');
+        return view('pages.warehouse.product-in.preview', compact('product', 'detail', 'suppliers', 'detProduct'));
+    }
+
     public function productIn_print($id)
     {
         $product = ProductIn::find($id);
@@ -420,6 +562,26 @@ class ProductInController extends Controller
             return redirect()->back()->with('success', 'Supplier berhasil ditambahkan!');
         }
     }
+    public function quickStoreSupplier(Request $request)
+    {
+        $request->validate([
+            'code'     => 'required|string|max:255',
+            'supplier' => 'required|string|max:255',
+            'info'     => 'required|in:Lokal,Import',
+        ]);
+
+        $supplier = new Supplier();
+        $supplier->code = $request->code;
+        $supplier->supplier = $request->supplier;
+        $supplier->info = $request->info;
+        $supplier->save();
+
+        return response()->json([
+            'success' => true,
+            'data'    => $supplier->only('id', 'code', 'supplier', 'info'),
+        ]);
+    }
+
     public function deleteSupplier($id)
     {
         $supplier = Supplier::find($id);

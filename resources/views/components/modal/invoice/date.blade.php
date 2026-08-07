@@ -34,10 +34,10 @@
                                     data-allow-clear="true">
                                     <option value="1"
                                         {{ old('address', $invoice->invoiceTo) == '1' ? 'selected' : '' }}>
-                                        {{ $quote->pic->client->address }}</option>
+                                        {{ $quote->client?->address ?? $quote->pic?->client?->address }}</option>
                                     <option value="2"
                                         {{ old('address', $invoice->invoiceTo) == '2' ? 'selected' : '' }}>
-                                        {{ $quote->pic->client->subAddress }}</option>
+                                        {{ $quote->client?->subAddress ?? $quote->pic?->client?->subAddress }}</option>
                                 </select>
                                 <label for="selectAddress">Choose Address</label>
                             </div>

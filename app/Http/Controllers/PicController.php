@@ -113,6 +113,13 @@ class PicController extends Controller
      */
     public function destroy($id)
     {
+        $hasCompletedQuote = Quotation::where('id_pic', $id)
+            ->where(function ($q) {
+                $q->where('status', '100')->orWhereNotNull('po_file');
+            })
+            ->exists();
+        if ($hasCompletedQuote) return 0;
+
         $pic = Pic::find($id);
         $quoteD = Quotation::where('id_pic', $id)->get();
 
@@ -247,6 +254,13 @@ class PicController extends Controller
 
     public function destroyOnCust($id)
     {
+        $hasCompletedQuote = Quotation::where('id_pic', $id)
+            ->where(function ($q) {
+                $q->where('status', '100')->orWhereNotNull('po_file');
+            })
+            ->exists();
+        if ($hasCompletedQuote) return 0;
+
         $pic = Pic::find($id);
         $quoteD = Quotation::where('id_pic', $id)->get();
 
@@ -342,6 +356,13 @@ class PicController extends Controller
 
     public function destroyOnCrm($id)
     {
+        $hasCompletedQuote = Quotation::where('id_pic', $id)
+            ->where(function ($q) {
+                $q->where('status', '100')->orWhereNotNull('po_file');
+            })
+            ->exists();
+        if ($hasCompletedQuote) return 0;
+
         $pic = Pic::find($id);
         $quoteD = Quotation::where('id_pic', $id)->get();
 

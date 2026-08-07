@@ -10,7 +10,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel5">
+                    <h4 class="modal-title" id="exampleModalLabel5-stock-{{ $product->id }}">
                         {{ 'Update Stock' . @$product->commodity }}
                     </h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -53,19 +53,19 @@
                         </div>
                         <div class="col-8 mb-2">
                             <div class="form-floating form-floating-outline mb-3">
-                                <input type="number" id="stock" class="form-control recent-office-stock-label"
+                                <input type="number" id="recent-office-stock-label" class="form-control recent-office-stock-label"
                                     name="stock" value="{{ old('stock', $product->stock) }}" disabled>
-                                <input type="number" id="stock" class="form-control recent-office-stock"
+                                <input type="number" id="recent-office-stock" class="form-control recent-office-stock"
                                     name="office_recent_stock" value="{{ old('stock', $product->stock) }}" hidden>
-                                <label for="Recent Stock">Recent Office Stock</label>
+                                <label for="recent-office-stock-label">Recent Office Stock</label>
                             </div>
                             <div class="form-floating form-floating-outline mb-3">
-                                <input type="number" id="stock" class="form-control recent-warehouse-stock-label"
+                                <input type="number" id="recent-warehouse-stock-label" class="form-control recent-warehouse-stock-label"
                                     name="stock" value="{{ old('stock', $product->warehouse_stock) }}" disabled>
-                                <input type="number" id="stock" class="form-control recent-warehouse-stock"
+                                <input type="number" id="recent-warehouse-stock" class="form-control recent-warehouse-stock"
                                     name="warehouse_recent_stock" value="{{ old('stock', $product->warehouse_stock) }}"
                                     hidden>
-                                <label for="Recent Stock">Recent Warehouse Stock</label>
+                                <label for="recent-warehouse-stock-label">Recent Warehouse Stock</label>
                             </div>
                             <div class="form-floating form-floating-outline">
                                 <input type="number" id="pending_stock" class="form-control" name="pending_recent_stock"
@@ -85,16 +85,16 @@
                             </div>
                             <div class="col-6 mb-2">
                                 <div class="form-floating form-floating-outline mb-3">
-                                    <input type="number" id="stock" class="form-control office-stock"
+                                    <input type="number" id="office-stock-{{ $i }}" class="form-control office-stock"
                                         name="office_stock[]" data-id="{{ $i }}"
                                         value="{{ old('stock', $detail->stock) }}">
-                                    <label for="Recent Stock"> Office Stock</label>
+                                    <label for="office-stock-{{ $i }}"> Office Stock</label>
                                 </div>
                                 <div class="form-floating form-floating-outline">
-                                    <input type="number" id="stock" class="form-control warehouse-stock"
+                                    <input type="number" id="warehouse-stock-{{ $i }}" class="form-control warehouse-stock"
                                         name="warehouse_stock[]" data-id="{{ $i }}"
                                         value="{{ old('stock', $detail->warehouse_stock) }}">
-                                    <label for="warehouse"> Warehouse Stock</label>
+                                    <label for="warehouse-stock-{{ $i }}"> Warehouse Stock</label>
                                 </div>
                             </div>
                             <div class="col-2"></div>

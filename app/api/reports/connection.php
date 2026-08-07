@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
@@ -20,7 +20,7 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT r.id, r.no_service, c.company, r.jobdesc, CONCAT(sp.brand, ' ', un.sku) AS brand_type,
+        $query = "SELECT r.id, r.no_service, c.company, r.jobdesc, CONCAT(sp.brand, ' ', un.model) AS brand_type,
         COALESCE(NULLIF(CONCAT_WS(' / ', m.serial, m.tag), ''), '-') AS serial_tag, r.date
         FROM reports r
         JOIN machine m on r.id_machine = m.id

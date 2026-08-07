@@ -769,10 +769,8 @@
                 }
             });
             // Formatting Discount Quotation
-            $("#diskon-label").on({
-                keyup: function() {
-                    formatCurrencyDiscount($(this));
-                }
+            $("#diskon-label").on('keyup change input', function() {
+                formatCurrencyDiscount($(this));
             });
 
             function initializeSelect2Address() {

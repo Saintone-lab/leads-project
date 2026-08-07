@@ -76,6 +76,14 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\Audit', 'id_technician');
     }
+    public function toolsAssigned()
+    {
+        return $this->hasMany('App\Models\FixedAsset', 'id_pic')->where('type', 'Tools');
+    }
+    public function toolAssignmentEntry()
+    {
+        return $this->hasOne('App\Models\ToolAssignmentTechnician', 'user_id');
+    }
     public function product_out()
     {
         return $this->hasMany('App\Models\ProductOut', 'id_user');
@@ -113,5 +121,15 @@ class User extends Authenticatable
     public function latestRole()
     {
         return $this->hasOne(DetailUser::class, 'id_users')->latestOfMany();
+    }
+
+    public function kanbanBoards()
+    {
+        return $this->belongsToMany(KanbanBoard::class, 'kanban_board_members', 'user_id', 'board_id');
+    }
+
+    public function handledSales()
+    {
+        return $this->belongsToMany(User::class, 'accounting_sales_mapping', 'id_accounting', 'id_sales');
     }
 }

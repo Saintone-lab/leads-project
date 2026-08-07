@@ -1,167 +1,210 @@
 @extends('layouts.sales.app')
-@section('title', 'Data Product')
+@section('title', 'Data Unit Global')
 @section('content')
-    <h4 class="fw-bold py-3 mb-4">
-        Unit
-    </h4>
-    {{-- <div class="card mb-4">
-        <div class="card-widget-separator-wrapper">
-            <div class="card-body card-widget-separator">
-                <div class="row gy-4 gy-sm-1">
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
-                            <div>
-                                <p class="mb-2">Comodity</p>
-                                <h4 class="mb-2">{{ $commodity }}</h4>
-                                <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
-                            </div>
-                            <div class="avatar me-sm-4">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-home-outline mdi-24px"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <hr class="d-none d-sm-block d-lg-none me-4">
-                    </div>
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
-                            <div>
-                                <p class="mb-2">Equivalent</p>
-                                <h4 class="mb-2">{{ $sproduct }}</h4>
-                                <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
-                            </div>
-                            <div class="avatar me-lg-4">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-laptop mdi-24px"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <hr class="d-none d-sm-block d-lg-none">
-                    </div>
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex justify-content-between align-items-start border-end pb-3 pb-sm-0 card-widget-3">
-                            <div>
-                                <p class="mb-2">Pruchase Order</p>
-                                <h4 class="mb-2">1</h4>
-                                <p class="mb-0"><span class="badge rounded-pill bg-label-success"></span></p>
-                            </div>
-                            <div class="avatar me-sm-4">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-wallet-giftcard mdi-24px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="mb-2">Loss Order</p>
-                                <h4 class="mb-2">2</h4>
-                                <p class="mb-0"><span class="badge rounded-pill bg-label-danger"></span></p>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-currency-usd mdi-24px"></i>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+    <div class="d-flex justify-content-between align-items-center py-3 mb-4">
+        <h4 class="fw-bold mb-0">
+            <span class="text-muted fw-light">Warehouse /</span> Unit Global
+        </h4>
+        @if (in_array(Auth::user()->role, ['Admin', 'Logistic']))
+            <a data-bs-toggle="modal" data-bs-target="#createProduct">
+                <button class="btn btn-primary btn-sm">
+                    <i class="mdi mdi-plus me-1"></i> Add Unit
+                </button>
+            </a>
+        @endif
+    </div>
+
+    <div class="card">
+        <div class="card-header p-0 border-bottom">
+            <ul class="nav nav-tabs" id="unitGlobalTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active px-4 py-3" data-bs-toggle="tab"
+                        data-bs-target="#tab-compressor" type="button" role="tab">
+                        Air Compressor Screw
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3" id="btn-tab-piston"
+                        data-bs-toggle="tab" data-bs-target="#tab-piston"
+                        type="button" role="tab">
+                        Piston
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3" id="btn-tab-dryer"
+                        data-bs-toggle="tab" data-bs-target="#tab-dryer"
+                        type="button" role="tab">
+                        Refrigerant Dryer
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3" id="btn-tab-desiccant"
+                        data-bs-toggle="tab" data-bs-target="#tab-desiccant"
+                        type="button" role="tab">
+                        Desiccant Dryer
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3" id="btn-tab-filtration"
+                        data-bs-toggle="tab" data-bs-target="#tab-filtration"
+                        type="button" role="tab">
+                        Filtration System
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3" id="btn-tab-tank"
+                        data-bs-toggle="tab" data-bs-target="#tab-tank"
+                        type="button" role="tab">
+                        Air Receiver Tank
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link px-4 py-3" id="btn-tab-booster"
+                        data-bs-toggle="tab" data-bs-target="#tab-booster"
+                        type="button" role="tab">
+                        Booster Compressor
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-compressor" role="tabpanel">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-unit-compressor table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">SKU</th>
+                                <th class="text-center">Brand</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">Motor Power</th>
+                                <th class="text-center">Max Pressure</th>
+                                <th class="text-center">Air Capacity</th>
+                                <th class="text-center">Connection</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-piston" role="tabpanel">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-unit-piston table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">SKU</th>
+                                <th class="text-center">Brand</th>
+                                <th class="text-center">Type</th>
+                                <th class="text-center">Motor Power</th>
+                                <th class="text-center">Max Pressure</th>
+                                <th class="text-center">Air Capacity</th>
+                                <th class="text-center">Connection</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-dryer" role="tabpanel">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-unit-dryer table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">SKU</th>
+                                <th class="text-center">Brand</th>
+                                <th class="text-center">Model</th>
+                                <th class="text-center">FAD / Air Cap</th>
+                                <th class="text-center">Refrigerant Type</th>
+                                <th class="text-center">Voltage</th>
+                                <th class="text-center">Connection</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-desiccant" role="tabpanel">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-unit-desiccant table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">SKU</th>
+                                <th class="text-center">Brand</th>
+                                <th class="text-center">FAD / Air Cap</th>
+                                <th class="text-center">Refrigerant Type</th>
+                                <th class="text-center">PDP</th>
+                                <th class="text-center">Voltage</th>
+                                <th class="text-center">Connection</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="tab-filtration" role="tabpanel">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-unit-filtration table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">SKU</th>
+                                <th class="text-center">Brand</th>
+                                <th class="text-center">Model</th>
+                                <th class="text-center">FAD</th>
+                                <th class="text-center">Connection</th>
+                                <th class="text-center">Filtration</th>
+                                <th class="text-center">Oil Content</th>
+                                <th class="text-center">Grade</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="tab-tank" role="tabpanel">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-unit-tank table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">SKU</th>
+                                <th class="text-center">Capacity</th>
+                                <th class="text-center">Material</th>
+                                <th class="text-center">Dimension</th>
+                                <th class="text-center">Working Pressure</th>
+                                <th class="text-center">Test Pressure</th>
+                                <th class="text-center">Tipe</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="tab-booster" role="tabpanel">
+                <div class="card-datatable table-responsive pt-0">
+                    <table class="datatable-unit-booster table table-bordered">
+                        <thead>
+                            <tr>
+                                <th class="text-center">SKU</th>
+                                <th class="text-center">Brand</th>
+                                <th class="text-center">Model / Bare</th>
+                                <th class="text-center">Inlet Pressure</th>
+                                <th class="text-center">Outlet Pressure</th>
+                                <th class="text-center">Inlet Capacity</th>
+                                <th class="text-center">Outlet Capacity</th>
+                                <th class="text-center">Motor Power</th>
+                            </tr>
+                        </thead>
+                    </table>
                 </div>
             </div>
         </div>
-    </div> --}}
-    <div class="card mb-3">
-        <div class="card-datatable table-responsive pt-0 mb-4">
-            @if (Auth::user()->role == 'Admin')
-                <table class="datatable-product-unit-global table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>SKU</th>
-                            <th>Brand</th>
-                            <th>Type</th>
-                            <th>Voltage</th>
-                            <th>Power</th>
-                            <th>Pressure</th>
-                            <th>Capacity</th>
-                            <th>status</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
-                </table>
-            @else
-                <table class="datatable-product-sales-unit-global table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Unit</th>
-                            <th>Brand</th>
-                            <th>Type</th>
-                            <th>Voltage</th>
-                            <th>Power</th>
-                            <th>Pressure</th>
-                            <th>Capacity</th>
-                        </tr>
-                    </thead>
-                </table>
-            @endif
-        </div>
-        <hr>
-        <div class="card-datatable table-responsive pt-0">
-            @if (Auth::user()->role == 'Admin')
-                <table class="datatable-product-unit-global-dryer table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>SKU</th>
-                            <th>Brand</th>
-                            <th>Type</th>
-                            <th>Voltage</th>
-                            <th>Power</th>
-                            <th>Pressure</th>
-                            <th>Capacity</th>
-                            <th>status</th>
-                            <th>Price</th>
-                        </tr>
-                    </thead>
-                </table>
-            @else
-                <table class="datatable-product-sales-unit-global-dryer table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Unit</th>
-                            <th>Brand</th>
-                            <th>Type</th>
-                            <th>Voltage</th>
-                            <th>Power</th>
-                            <th>Pressure</th>
-                            <th>Capacity</th>
-                        </tr>
-                    </thead>
-                </table>
-            @endif
-        </div>
     </div>
+
     @include('components.modal.warehouse.unit.form-global')
 @endsection()
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-bs5/datatables.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" />
-    <link rel="stylesheet"
-        href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
+    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-buttons-bs5/buttons.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/animate-css/animate.css">
-    <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
 @endpush
@@ -179,8 +222,12 @@
 @push('page-script')
     <script src="{{ asset('assets') }}/js/tables-datatables-basic.js"></script>
     <script src="{{ asset('assets') }}/includes/table-unit-global.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-unit-global-sales.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-piston-global.js"></script>
     <script src="{{ asset('assets') }}/includes/table-unit-dryer-global.js"></script>
-    <script src="{{ asset('assets') }}/includes/table-unit-dryer-global-sales.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-desiccant-global.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-filtration-global.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-tank-global.js"></script>
+    <script src="{{ asset('assets') }}/includes/table-unit-booster-global.js"></script>
     <script src="{{ asset('assets') }}/js/forms-selects.js"></script>
 @endpush
+

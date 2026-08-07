@@ -29,13 +29,14 @@
                 <div class="card-body">
                     <div class="form-invoice-repeater source-item">
                         <div class="row mb-2">
-                            <div class="col-12 col-lg-3 mb-3">
+                            <div class="col-12 col-lg-4 mb-3">
                                 <div class="form-floating form-floating-outline">
                                     <select id="select2Basic" class="select2 form-select form-select-lg invoice-item-client"
                                         data-allow-clear="true" name="id_pic" {{ @$quotation ? 'disabled' : '' }}>
-                                        <option> ---- Choose Company Here ---- </option>
+                                        <option value=""> ---- Choose Company Here ---- </option>
                                         @foreach ($pic as $charge)
                                             <option value="{{ $charge->id }}"
+                                                data-role="{{ $charge->role }}"
                                                 {{ @$quotation->pic->id_client == $charge->id ? 'selected' : '' }}>
                                                 {{ $charge->company }}
                                             </option>
@@ -47,7 +48,7 @@
                             @if (@$quotation)
                                 <input type="text" name="id_pic" id="idPic" value="{{ $quotation->id_pic }}" hidden>
                             @endif
-                            <div class="col-12 col-lg-3">
+                            <div class="col-12 col-lg-2 mb-3">
                                 <div class="form-floating form-floating-outline mb-2">
                                     <select id="pic-dropdown" class="select2 form-select invoice-item-pic"
                                         data-allow-clear="true" name="pic" disabled>
@@ -180,21 +181,23 @@
                                                 <label for="product" class="mb-2">Product</label>
                                                 <div class="form-floating form-floating-outline mb-2">
                                                     <select id="product-{{ $id }}"
-                                                        class="select2 form-select invoice-item-product"
+                                                        class="form-select invoice-item-product"
                                                         data-allow-clear="true" name="product[]"
                                                         data-id="{{ $id }}">
                                                         <option value="">---- Choose Part Number Here ----
                                                         </option>
-                                                        @foreach ($product as $products)
-                                                            <option value="{{ $products->id }}"
-                                                                data-replacement="{{ $products->id }}"
-                                                                {{ $quote->id_equivalent == "{$products->id}" ? 'selected' : '' }}>
-                                                                {{ $products->brand }} {{ $products->pn }}
-                                                                ({{ $products->detail_desc }})
-                                                                ||
-                                                                {{ $products->go }}
-                                                            </option>
-                                                        @endforeach
+                                                        @if (!empty($quote->id_equivalent) && !empty($quote->equivalent))
+                                                                <option value="{{ $quote->id_equivalent }}"
+                                                                    data-replacement="{{ $quote->id_equivalent }}"
+                                                                    data-commodity="{{ $quote->equivalent->id_product }}"
+                                                                    data-unit="{{ $quote->equivalent->product->unit ?? 'Pcs' }}"
+                                                                    selected>
+                                                                    {{ $quote->equivalent->brand }} {{ $quote->equivalent->pn }}
+                                                                    ({{ $quote->equivalent->product->detail_desc ?? '' }})
+                                                                    ||
+                                                                    {{ $quote->equivalent->product->go ?? '' }}
+                                                                </option>
+                                                            @endif
                                                     </select>
                                                     <label for="product-{{ $id }}">Product Part
                                                         Number</label>
@@ -231,52 +234,11 @@
                                                     data-id="{{ $dataDetail }}" min="1"
                                                     value="{{ old('qty[]', $quote->qty) }}">
                                                 <div class="form-floating form-floating-outline mb-4">
-                                                    <select class="form-select invoice-item-info" id="info-qty-1"
-                                                        data-id="1" aria-label="Default select example"
-                                                        name="info_qty[]">
-                                                        <option>---Info---</option>
-                                                        <option value="Pcs"
-                                                            {{ $quote->info_qty == 'Pcs' ? 'selected' : '' }}>Pcs
-                                                        </option>
-                                                        <option value="Set"
-                                                            {{ $quote->info_qty == 'Set' ? 'selected' : '' }}>Set
-                                                        </option>
-                                                        <option value="Pail"
-                                                            {{ $quote->info_qty == 'Pail' ? 'selected' : '' }}>Pail
-                                                        </option>
-                                                        <option value="Unit"
-                                                            {{ $quote->info_qty == 'Unit' ? 'selected' : '' }}>Unit
-                                                        </option>
-                                                        <option value="Lot"
-                                                            {{ $quote->info_qty == 'Lot' ? 'selected' : '' }}>Lot
-                                                        </option>
-                                                        <option value="Meter"
-                                                            {{ $quote->info_qty == 'Meter' ? 'selected' : '' }}>Meter
-                                                        </option>
-                                                        <option value="Can"
-                                                            {{ $quote->info_qty == 'Can' ? 'selected' : '' }}>Can
-                                                        </option>
-                                                        <option value="Hari"
-                                                            {{ $quote->info_qty == 'Hari' ? 'selected' : '' }}>Hari
-                                                        </option>
-                                                        <option value="Bulan"
-                                                            {{ $quote->info_qty == 'Bulan' ? 'selected' : '' }}>Bulan
-                                                        </option>
-                                                        <option value="Kg"
-                                                            {{ $quote->info_qty == 'Kg' ? 'selected' : '' }}>Kg
-                                                        </option>
-                                                        <option value="Tube"
-                                                            {{ $quote->info_qty == 'Tube' ? 'selected' : '' }}>Tube
-                                                        </option>
-                                                        <option value="Titik"
-                                                            {{ $quote->info_qty == 'Titik' ? 'selected' : '' }}>Titik
-                                                        </option>
-                                                        <option value="Batang"
-                                                            {{ $quote->info_qty == 'Batang' ? 'selected' : '' }}>Batang
-                                                        </option>
-                                                    </select>
-                                                    <label for="exampleFormControlSelect1">Info</label>
-                                                </div>
+                                                    <input type="text" class="form-control invoice-item-info" id="info-qty-{{ $id }}"
+                                                         data-id="{{ $id }}" name="info_qty[]" readonly
+                                                         value="{{ old('info_qty[]', $quote->info_qty) }}">
+                                                     <label for="info-qty-{{ $id }}">Satuan</label>
+                                                 </div>
                                             </div>
                                             <div class="col-md-1 col-12 mb-md-0 mb-3">
                                                 <p class="mb-2 repeater-title">Discount</p>
@@ -360,136 +322,75 @@
                             </div>
                             <div class="col-lg-2"></div>
                             <div class="col-lg-4">
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mt-5 mb-3">
-                                    <div class="card-body ">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start"
-                                                for="collapsible-pincode">Sub
-                                                Total :</label>
-                                            <div class="col-sm-8">
-                                                {{-- @if (@$dquotation)
-                                                    <input type="number" id="subtotal" class="form-control"
-                                                        name="subtotal"
-                                                        value="{{ old('subtotal', @$quotation->subtotal ?? '') }}">
-                                                @else --}}
-                                                    <p class="mb-0 subtotal-label" id="subtotal-label" data-id="1">
-                                                        {{ old('subtotal', @$quotation->subtotal ? 'RP ' . number_format(@$quotation->subtotal, 0, '', '.') : '') }}
-                                                    </p>
-                                                    <input type="number" id="subtotal" class="form-control"
-                                                        name="subtotal"
-                                                        value="{{ old('subtotal', @$quotation->subtotal ?? '') }}" hidden>
-                                                {{-- @endif --}}
+                                <div class="card border border-secondary-subtle shadow-sm mb-3 mt-5">
+                                    <div class="card-header bg-transparent border-bottom py-3">
+                                        <h5 class="mb-0 fw-semibold text-primary"><i class="mdi mdi-calculator me-2"></i>Financial Summary</h5>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <!-- Sub Total Row -->
+                                        <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
+                                            <span class="text-secondary fw-medium">Sub Total</span>
+                                            <div class="text-end">
+                                                <span class="fs-5 fw-bold text-dark subtotal-label" id="subtotal-label">
+                                                    {{ old('subtotal', @$quotation->subtotal ? 'Rp ' . number_format(@$quotation->subtotal, 0, '', '.') : 'Rp 0') }}
+                                                </span>
+                                                <input type="number" id="subtotal" name="subtotal"
+                                                    value="{{ old('subtotal', @$quotation->subtotal ?? '') }}" hidden>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start" for="collapsible-tax">Tax
-                                                :</label>
-                                            <div class="col-sm-8">
-                                                <select id="tax" class="form-select form-select-lg"
-                                                    style="background: none; border: none;" name="tax">
-                                                    <option disabled>-----Select Tax-----</option>
-                                                    <option value="0"
-                                                        {{ @$quotation->tax == '0' ? 'selected' : '' }}>
-                                                        Without Tax</option>
-                                                    <option value="11"
-                                                        {{ @$quotation->tax == '11' ? 'selected' : '' }}>
-                                                        <span> With PPN <small class="text-muted"> 12%</small> </span>
-                                                    </option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
-                                    <div class="card-body ">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start"
-                                                for="collapsible-pincode">Weight Total :</label>
-                                            <div class="col-sm-8">
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control info-weight-total-label"
-                                                        id="info-weight-total" style="background: none; border: none;"
-                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$" disabled
-                                                        value="{{ old('weight', @$quotation->weight ? $quotation->weight + ' g' : '0 g') }}">
-                                                    <input type="number" name="weight" id="info-weight-total"
-                                                        value="{{ old('weight', @$quotation->weight ?? '0') }}" hidden>
+
+                                        <!-- Tax Row (Toggle Switch) -->
+                                        <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
+                                            <span class="text-secondary fw-medium">Tax (PPN 11%)</span>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span id="tax-amount-label" class="text-muted small fw-semibold me-1">Rp 0</span>
+                                                <div class="form-check form-switch mb-0">
+                                                    <input class="form-check-input" type="checkbox" id="tax-toggle" {{ @$quotation->tax == '11' ? 'checked' : '' }}>
+                                                    <input type="number" name="tax" id="tax" value="{{ old('tax', @$quotation->tax ?? '0') }}" hidden>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
-                                    <div class="card-body ">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start"
-                                                for="collapsible-pincode">Shipping :</label>
-                                            <div class="col-sm-8">
-                                                <div class="input-group">
-                                                    <span class="input-group-text"
-                                                        style="background: none; border: none;">Rp.
-                                                    </span>
-                                                    <input type="text" id="shipping-label" class="form-control"
-                                                        placeholder="Shipping Cost Here....." data-type="currency"
-                                                        style="background: none; border: none;"
-                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$"
-                                                        value="{{ old('shipping', @$quotation->shipping ? number_format(@$quotation->shipping, 0, '', '.') : '0') }}">
-                                                    <input type="number" name="shipping" id="shipping"
-                                                        value="{{ old('shipping', @$quotation->shipping ?? '0') }}"
-                                                        hidden>
-                                                </div>
+
+                                        <!-- Hidden Weight Total for JQuery Compatibility -->
+                                        <input type="number" name="weight" class="info-weight-total-label" value="{{ old('weight', @$quotation->weight ?? '0') }}" hidden>
+
+                                        <!-- Shipping Row -->
+                                        <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
+                                            <span class="text-secondary fw-medium">Shipping</span>
+                                            <div class="input-group input-group-sm" style="width: 180px;">
+                                                <span class="input-group-text bg-transparent">Rp</span>
+                                                <input type="text" id="shipping-label" class="form-control text-end"
+                                                    placeholder="0" data-type="currency"
+                                                    value="{{ old('shipping', @$quotation->shipping ? number_format(@$quotation->shipping, 0, '', '.') : '0') }}">
+                                                <input type="number" name="shipping" id="shipping"
+                                                    value="{{ old('shipping', @$quotation->shipping ?? '0') }}" hidden>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
-                                    <div class="card-body ">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start"
-                                                for="collapsible-pincode">Discount :</label>
-                                            <div class="col-sm-8">
-                                                <div class="input-group">
-                                                    <span class="input-group-text"
-                                                        style="background: none; border: none;">Rp.
-                                                    </span>
-                                                    <input type="text" id="diskon-label" class="form-control"
-                                                        placeholder="Discount Here....." data-type="currency"
-                                                        style="background: none; border: none;"
-                                                        pattern="^[0-9]\d{0,2}(\.\d{3})*$"
-                                                        value="{{ old('diskon', @$quotation->diskon ? number_format(@$quotation->diskon, 0, '', '.') : '0') }}">
-                                                    <input type="number" name="diskon" id="diskon"
-                                                        value="{{ old('diskon', @$quotation->diskon ?? '0') }}" hidden>
-                                                </div>
+
+                                        <!-- Discount Row -->
+                                        <div class="d-flex align-items-center justify-content-between p-3 border-bottom">
+                                            <span class="text-secondary fw-medium">Discount</span>
+                                            <div class="input-group input-group-sm" style="width: 180px;">
+                                                <span class="input-group-text bg-transparent">Rp</span>
+                                                <input type="text" id="diskon-label" class="form-control text-end"
+                                                    placeholder="0" data-type="currency"
+                                                    value="{{ old('diskon', @$quotation->diskon ? number_format(@$quotation->diskon, 0, '', '.') : '0') }}">
+                                                <input type="number" name="diskon" id="diskon"
+                                                    value="{{ old('diskon', @$quotation->diskon ?? '0') }}" hidden>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="card shadow-none bg-light text-secondary border border-secondary mb-3">
-                                    <input type="number" id="totalNoTax" name="total_no_tax"
-                                        value="{{ old('total_no_tax', @$quotation->total_no_tax ?? '') }}" hidden>
-                                    <div class="card-body ">
-                                        <div class="row">
-                                            <label class="col-sm-4 col-form-label text-sm-start"
-                                                for="collapsible-pincode">Total
-                                                :</label>
-                                            <div class="col-sm-8">
-                                                {{-- @if (@$dquotation)
-                                                    <input type="number" id="hargaTotal" class="form-control"
-                                                        name="harga_total"
-                                                        value="{{ old('harga_total', @$quotation->harga_total ?? '') }}">
-                                                @else --}}
-                                                    <p class="mb-0 harga-total-label" id="hargaTotalLabel"
-                                                        data-id="1">
-                                                        {{ old('harga_total', @$quotation->harga_total ? 'RP ' . number_format(@$quotation->harga_total, 0, '', '.') : '') }}
-                                                    </p>
-                                                    <input type="number" id="hargaTotal" class="form-control"
-                                                        name="harga_total"
-                                                        value="{{ old('harga_total', @$quotation->harga_total ?? '') }}"
-                                                        hidden>
-                                                {{-- @endif --}}
+
+                                        <!-- Total Row (Highlighted) -->
+                                        <div class="d-flex align-items-center justify-content-between p-3 bg-label-primary">
+                                            <input type="number" id="totalNoTax" name="total_no_tax"
+                                                value="{{ old('total_no_tax', @$quotation->total_no_tax ?? '') }}" hidden>
+                                            <span class="text-primary fw-bold fs-5">Total</span>
+                                            <div class="text-end">
+                                                <span class="fs-4 fw-bold text-primary harga-total-label" id="hargaTotalLabel">
+                                                    {{ old('harga_total', @$quotation->harga_total ? 'Rp ' . number_format(@$quotation->harga_total, 0, '', '.') : 'Rp 0') }}
+                                                </span>
+                                                <input type="number" id="hargaTotal" name="harga_total"
+                                                    value="{{ old('harga_total', @$quotation->harga_total ?? '') }}" hidden>
                                             </div>
                                         </div>
                                     </div>
@@ -535,11 +436,74 @@
                     currency: 'IDR'
                 });
 
+                // Custom Select2 rendering for Client to display beautiful role badges (Customer / Leads)
+                if ($('#select2Basic').length) {
+                    if ($('#select2Basic').hasClass("select2-hidden-accessible")) {
+                        $('#select2Basic').select2('destroy');
+                    }
+                    $('#select2Basic').select2({
+                        placeholder: ' ---- Choose Company Here ---- ',
+                        allowClear: true,
+                        width: '100%',
+                        templateResult: formatClientOption,
+                        templateSelection: formatClientSelection,
+                        escapeMarkup: function(markup) {
+                            return markup;
+                        }
+                    });
+                }
+
+                function formatClientOption(state) {
+                    if (!state.id) {
+                        return state.text;
+                    }
+                    var role = $(state.element).data('role') || 'Leads';
+                    var badgeClass = (role === 'Customers') ? 'bg-label-success' : 'bg-label-warning';
+                    var roleLabel = (role === 'Customers') ? 'Customer' : 'Leads';
+                    return '<span class="d-flex align-items-center"><span class="badge ' + badgeClass + ' me-2">' + roleLabel + '</span>' + state.text + '</span>';
+                }
+
+                function formatClientSelection(state) {
+                    if (!state.id) {
+                        return state.text;
+                    }
+                    var role = $(state.element).data('role') || 'Leads';
+                    var badgeClass = (role === 'Customers') ? 'bg-label-success' : 'bg-label-warning';
+                    var roleLabel = (role === 'Customers') ? 'Customer' : 'Leads';
+                    return '<span class="d-flex align-items-center"><span class="badge ' + badgeClass + ' me-2">' + roleLabel + '</span>' + state.text + '</span>';
+                }
+
                 function initializeSelect2Product() {
-                    $('.invoice-item-product').select2({
+                    $('.invoice-item-product').not('.select2-hidden-accessible').select2({
                         placeholder: ' ---- Choose Part Number Here ---- ',
                         allowClear: true,
                         width: '100%',
+                        ajax: {
+                            url: '{{ route('quotation.products.search') }}',
+                            dataType: 'json',
+                            delay: 250,
+                            data: function (params) {
+                                return {
+                                    q: params.term
+                                };
+                            },
+                            processResults: function (data) {
+                                return {
+                                    results: data
+                                };
+                            },
+                            cache: true
+                        }
+                    }).on('select2:select', function (e) {
+                        var data = e.params.data;
+                        $(this).find('option:selected')
+                            .attr('data-replacement', data.replacement)
+                            .data('replacement', data.replacement)
+                            .attr('data-commodity', data.commodity)
+                            .data('commodity', data.commodity)
+                            .attr('data-unit', data.unit)
+                            .data('unit', data.unit);
+                        $(this).trigger('change');
                     });
                 }
                 $(document).ready(function() {
@@ -757,30 +721,28 @@
                     });
                 });
 
-                $('.invoice-item-product').on('change', function(ev) {
-                    var replacementId = $(this).find(':selected').data('replacement');
+                // 1. Delegated Change handler for Product dropdown
+                $(document).on('change', '.invoice-item-product', function(ev) {
+                    var selectedOpt = $(this).find(':selected');
+                    var replacementId = selectedOpt.data('replacement');
+                    if (!replacementId) return;
                     var Url = '/quotation/sparepart/' + replacementId;
-                    var commodity = $(this).find(':selected').data('commodity');
+                    var commodity = selectedOpt.data('commodity');
                     var id = $(this).data('id');
-                    // console.log('Replacement ID:', replacementId);
-                    // console.log('URL:', Url);
-                    // console.log('Textarea ID:', id);
+                    var unit = selectedOpt.data('unit');
+
+                    // Set unit value automatically
+                    $(`#info-qty-${id}`).val(unit || 'Pcs');
 
                     $.ajax({
                         url: '/product-in/replacement/' + commodity,
                         type: 'GET',
                         success: function(response) {
-                            // console.log('AJAX Response:', response);
-                            $(`#info-stock-${id}`).text(response[0].stock);
-                            $(`#info-weight-${id}`).text(response[0].weight);
-
-                            var weightTotal = 0;
-
-                            $('.info-weight-label').each(() => {
-                                weightTotal += parseInt($(`#info-weight-${id}`).text());
-                            });
-                            console.log('Weight Total : ', weightTotal);
-                            $(`.info-weight-total-label`).val(weightTotal + ' g');
+                            if (response && response.length > 0) {
+                                $(`#info-stock-${id}`).text(response[0].stock);
+                                $(`#info-weight-${id}`).text(response[0].weight);
+                            }
+                            recalculateTotals();
                         }
                     });
 
@@ -788,44 +750,22 @@
                         url: Url,
                         type: 'GET',
                         success: function(response) {
-                            console.log('Replacement Id : ', replacementId);
-                            console.log('URL: ', Url);
-
-                            console.log('AJAX Response:', response);
-                            $(`#detailProduct-${id}`).val(response[0].detail);
-                            $(`#priceLabel-${id}`).val(formatPrice(response[0].price));
-                            $(`#price-${id}`).val(response[0].price);
-                            var sTotal = 0,
-                                row = 0,
-                                amount = 0,
-                                hasil = 0,
-                                harga = response[0].price,
-                                disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
-                                    `#disc-${id}`).val());
-                            $(`#qty-${id}`).val(1);
-                            // menghitung hasil
-                            hasil = harga * $(`#qty-${id}`).val();
-                            // menghitung amount
-                            amount = (hasil - (hasil * disc / 100));
-                            // memasukan data amount dan subtotal
-                            $(`#amount-${id}`).val(amount);
-                            $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                            $('.amount-label').each(() => {
-                                row++;
-                                sTotal += parseInt($(`#amount-${row}`).val())
-                            });
-                            $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                            $('#subtotal').val(sTotal);
-
-                            var noTax = 0;
-                            var hTotal = 0;
-                            var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax')
-                                .val());
-                            hTotal = parseInt(sTotal - disc + (sTotal * tax / 100));
-                            noTax = parseInt(sTotal - disc)
-                            $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                            $('#hargaTotal').val(hTotal);
-                            $('#totalNoTax').val(noTax);
+                            if (response && response.length > 0) {
+                                $(`#detailProduct-${id}`).val(response[0].detail);
+                                $(`#priceLabel-${id}`).val(formatPrice(response[0].price));
+                                $(`#price-${id}`).val(response[0].price);
+                                
+                                var price = response[0].price;
+                                var disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val());
+                                $(`#qty-${id}`).val(1);
+                                
+                                var amount = price * 1;
+                                var discountedAmount = amount - (amount * disc / 100);
+                                
+                                $(`#amount-${id}`).val(discountedAmount);
+                                $(`#amount-label-${id}`).html(`${formatter.format(discountedAmount)}`);
+                            }
+                            recalculateTotals();
                         },
                         error: function(xhr, status, error) {
                             console.error('Error:', error);
@@ -833,344 +773,101 @@
                     });
                 });
 
-
-                $(".invoice-item-price-label").on('keyup', function() {
-                    var input = $(this)
+                // 2. Formatting Price
+                $(document).on('keyup', '.invoice-item-price-label', function() {
+                    var input = $(this);
                     var id = input.data('id');
                     var input_val = input.val();
 
-                    // original length
+                    if (input_val === "") return;
+
                     var original_len = input_val.length;
+                    var caret_pos = input.prop("selectionStart");
 
-                    // add commas to number
-                    // remove all non-digits
                     input_val = formatNumber(input_val);
-                    input_val = input_val;
-
-                    // send updated string to input
                     input.val(input_val);
+                    
                     var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
-                    console.log(id);
-                    $(`#price-${id}`).val(nomorInt);
+                    $(`#price-${id}`).val(isNaN(nomorInt) ? 0 : nomorInt);
+
+                    var updated_len = input_val.length;
+                    caret_pos = updated_len - original_len + caret_pos;
+                    input[0].setSelectionRange(caret_pos, caret_pos);
                 });
 
-                // Logic amount + Subtotal
-                $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc').on('keyup change click', function(
-                    ev) {
-                    // mengambil ID
+                // 3. Delegated Logic for item amount calculation (keyup/change/click on price-label, qty, disc)
+                $(document).on('keyup change click', '.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc', function() {
                     var id = $(this).data('id');
-                    // prepare data
-                    var sTotal = 0,
-                        row = 0,
-                        amount = 0,
-                        hasil = 0,
-                        valHarga = isNaN(parseInt($(`#price-${id}`).val())) ? 0 : parseInt($(`#price-${id}`)
-                            .val()),
-                        harga = Number(valHarga),
-                        disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val()),
-                        qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`).val());
-                    // menghitung hasil
-                    console.log(harga);
-                    hasil = harga * qty;
-                    // menghitung amount
-                    amount = (hasil - (hasil * disc / 100));
-                    // memasukan data amount dan subtotal
-                    $(`#amount-${id}`).val(amount);
-                    $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                    $('.amount-label').each(() => {
-                        row++;
-                        sTotal += parseInt($(`#amount-${row}`).val())
-                    });
-                    $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                    $('#subtotal').val(sTotal);
+                    var valHarga = isNaN(parseInt($(`#price-${id}`).val())) ? 0 : parseInt($(`#price-${id}`).val());
+                    var disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val());
+                    var qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`).val());
+                    
+                    var amount = valHarga * qty;
+                    var discountedAmount = amount - (amount * disc / 100);
+                    
+                    $(`#amount-${id}`).val(discountedAmount);
+                    $(`#amount-label-${id}`).html(`${formatter.format(discountedAmount)}`);
+                    
+                    recalculateTotals();
                 });
 
-                // Logic Harga Total
-                $('#subtotal, #tax, #shipping-label, #diskon-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-disc')
-                    .on('keyup change',
-                        () => {
-                            var noTax = 0;
-                            var hTotal = 0;
-                            var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
-                            var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
-                            var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
-                            var dTotal = sTotal - discount;
-                            var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                            hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
-                            noTax = parseInt(dTotal + shipping);
-                            console.log(hTotal);
-                            $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                            $('#hargaTotal').val(hTotal);
-                            $('#totalNoTax').val(noTax);
-                        });
-                $('.btn-del').on('click', function() {
-                    var id = $(this).data('id');
-                    // prepare data
-                    var sTotal = 0,
-                        row = 0,
-                        amount = 0,
-                        hasil = 0,
-                        valHarga = isNaN(parseInt($(`#price-${id}`).val())) ? 0 : parseInt($(`#price-${id}`)
-                            .val()),
-                        harga = Number(valHarga),
-                        disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(`#disc-${id}`).val()),
-                        qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`).val());
-                    // menghitung hasil
-                    console.log(harga);
-                    hasil = harga * qty;
-                    // menghitung amount
-                    amount = (hasil - (hasil * disc / 100));
-                    // memasukan data amount dan subtotal
-                    $(`#amount-${id}`).val(amount);
-                    $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                    $('.amount-label:visible').each(() => {
-                        row++;
-                        if (row === id) {
-                            valamount = 0;
-                        } else {
-                            valamount = parseInt($(`#amount-${row}`).val());
+                // 4. Delegated handler for general total calculations
+                $(document).on('keyup change', '#subtotal, #tax, #shipping-label, #diskon-label', function() {
+                    recalculateTotals();
+                });
+
+                // 4.1. Tax toggle switch change handler
+                $(document).on('change', '#tax-toggle', function() {
+                    var isChecked = $(this).is(':checked');
+                    $('#tax').val(isChecked ? '11' : '0').trigger('change');
+                });
+
+                // 5. Recalculate totals on repeater added/deleted events
+
+
+                $(document).on('repeater:deleted', function() {
+                    recalculateTotals();
+                });
+
+                // 6. Central Recalculation function
+                function recalculateTotals() {
+                    var sTotal = 0;
+                    $('.invoice-item-amount').each(function() {
+                        if ($(this).closest('[data-repeater-item]').is(':visible')) {
+                            var val = parseInt($(this).val());
+                            if (!isNaN(val)) {
+                                sTotal += val;
+                            }
                         }
-                        sTotal += valamount;
                     });
-                    console.log("ini id:" + id);
-
+                    
                     $('#subtotal-label').html(`${formatter.format(sTotal)}`);
                     $('#subtotal').val(sTotal);
 
-                    var noTax = 0;
-                    var hTotal = 0;
-                    var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal').val());
                     var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($('#shipping').val());
                     var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon').val());
-                    var dTotal = sTotal - discount;
                     var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                    hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
-                    noTax = parseInt(dTotal + shipping);
-                    console.log(hTotal);
+                    
+                    var dTotal = sTotal - discount;
+                    var hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
+                    var noTax = parseInt(dTotal + shipping);
+
                     $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
                     $('#hargaTotal').val(hTotal);
                     $('#totalNoTax').val(noTax);
-                });
-
-                // Logic Subtotal dan Amount Setelah Tambah Product
-                $('.btn-add').on('click', () => {
-
-                    $('.invoice-item-product').on('change', function(ev) {
-                        var replacementId = $(this).find(':selected').data('replacement');
-                        var Url = '/quotation/sparepart/' + replacementId;
-                        var commodity = $(this).find(':selected').data('commodity');
-                        var id = $(this).data('id');
-                        // console.log('Replacement ID:', replacementId);
-                        // console.log('URL:', Url);
-                        console.log('Textarea ID:', id);
-
-                        $.ajax({
-                            url: '/product-in/replacement/' + commodity,
-                            type: 'GET',
-                            success: function(response) {
-                                console.log('AJAX Response:', response);
-                                $(`#info-stock-${id}`).text(response[0].stock);
-                                $(`#info-weight-${id}`).text(response[0].weight);
-
-                                var row = 0,
-                                    weightTotal = 0;
-
-                                $('.info-weight-label').each(() => {
-                                    row++;
-                                    weightTotal += parseInt($(`#info-weight-${row}`)
-                                        .text());
-                                });
-                                console.log('Weight Total : ', weightTotal);
-                                $(`.info-weight-total-label`).val(weightTotal + ' g');
+                    
+                    // Recalculate total weight
+                    var weightTotal = 0;
+                    $('.info-weight-label').each(function() {
+                        if ($(this).closest('[data-repeater-item]').is(':visible')) {
+                            var w = parseInt($(this).text());
+                            if (!isNaN(w)) {
+                                weightTotal += w;
                             }
-                        });
-                        $.ajax({
-                            url: Url,
-                            type: 'GET',
-
-                            success: function(response) {
-                                console.log('AJAX Response:', response);
-                                $(`#detailProduct-${id}`).val(response[0].detail);
-                                $(`#priceLabel-${id}`).val(formatPrice(response[0].price));
-                                $(`#price-${id}`).val(response[0].price);
-                                var sTotal = 0,
-                                    row = 0,
-                                    amount = 0,
-                                    hasil = 0,
-                                    harga = response[0].price,
-                                    disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 :
-                                    parseInt($(
-                                        `#disc-${id}`).val());
-                                $(`#qty-${id}`).val(1);
-                                // menghitung hasil
-                                hasil = harga * $(`#qty-${id}`).val();
-                                // menghitung amount
-                                amount = (hasil - (hasil * disc / 100));
-                                // memasukan data amount dan subtotal
-                                $(`#amount-${id}`).val(amount);
-                                $(`#amount-label-${id}`).html(
-                                    `${formatter.format(amount)}`);
-                                $('.amount-label').each(() => {
-                                    row++;
-                                    sTotal += parseInt($(`#amount-${row}`).val())
-                                });
-                                $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                                $('#subtotal').val(sTotal);
-
-                                var noTax = 0;
-                                var hTotal = 0;
-                                var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($(
-                                        '#tax')
-                                    .val());
-                                hTotal = parseInt(sTotal - disc + (sTotal * tax / 100));
-                                noTax = parseInt(sTotal - disc)
-                                $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                                $('#hargaTotal').val(hTotal);
-                                $('#totalNoTax').val(noTax);
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('Error:', error);
-                            }
-                        });
-                    });
-                    $(".invoice-item-price-label").on('keyup', function() {
-                        var input = $(this)
-                        var id = input.data('id');
-                        var input_val = input.val();
-
-                        // don't validate empty input
-                        if (input_val === "") {
-                            return;
                         }
-
-                        // original length
-                        var original_len = input_val.length;
-
-                        // initial caret position 
-                        var caret_pos = input.prop("selectionStart");
-
-                        // add commas to number
-                        // remove all non-digits
-                        input_val = formatNumber(input_val);
-                        input_val = input_val;
-
-                        // send updated string to input
-                        input.val(input_val);
-                        var nomorInt = parseFloat(input_val.replace(/[.,]/g, ''));
-                        console.log(id);
-                        $(`#price-${id}`).val(nomorInt);
-
-                        // put caret back in the right position
-                        var updated_len = input_val.length;
-                        caret_pos = updated_len - original_len + caret_pos;
-                        input[0].setSelectionRange(caret_pos, caret_pos);
                     });
-                    $('.invoice-item-price-label, .invoice-item-qty, .invoice-item-disc').on(
-                        'keyup change click',
-                        function(ev) {
-                            var id = $(this).data('id');
-                            var sTotal = 0,
-                                row = 0;
-                            var amount = 0,
-                                hasil = 0,
-                                disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
-                                    `#disc-${id}`).val()),
-                                qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`)
-                                    .val());
-                            hasil = $(`#price-${id}`).val() * qty;
-                            amount = (hasil - (hasil * disc / 100));
-                            $(`#amount-${id}`).val(amount);
-                            $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                            $('.amount-label').each(() => {
-                                row++;
-                                sTotal += parseInt($(`#amount-${row}`).val())
-                            })
-                            console.log(sTotal + "<total row>" + row);
-                            console.log("Anda Sedang berada di Id : " + id);
-                            $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                            $('#subtotal').val(sTotal);
-                        });
-
-                    // Logic Harga Total
-                    $('#subtotal, #tax, #shipping-label, #diskon-label, .invoice-item-price-label, .invoice-item-qty, .invoice-item-disc')
-                        .on('keyup change',
-                            () => {
-                                var noTax = 0;
-                                var hTotal = 0;
-                                var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal')
-                                    .val());
-                                var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
-                                    '#shipping').val());
-                                var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon')
-                                    .val());
-                                var dTotal = sTotal - discount;
-                                var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                                hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
-                                noTax = parseInt(dTotal + shipping);
-                                console.log(hTotal);
-                                $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                                $('#hargaTotal').val(hTotal);
-                                $('#totalNoTax').val(noTax);
-                            });
-
-                    $('.btn-del').on('click', function() {
-                        var id = $(this).data('id');
-                        // prepare data
-                        var sTotal = 0,
-                            row = 0,
-                            amount = 0,
-                            hasil = 0,
-                            valHarga = isNaN(parseInt($(`#price-${id}`).val())) ? 0 : parseInt($(
-                                    `#price-${id}`)
-                                .val()),
-                            harga = Number(valHarga),
-                            disc = isNaN(parseInt($(`#disc-${id}`).val())) ? 0 : parseInt($(
-                                `#disc-${id}`).val()),
-                            qty = isNaN(parseInt($(`#qty-${id}`).val())) ? 0 : parseInt($(`#qty-${id}`)
-                                .val());
-                        // menghitung hasil
-                        console.log(harga);
-                        hasil = harga * qty;
-                        // menghitung amount
-                        amount = (hasil - (hasil * disc / 100));
-                        // memasukan data amount dan subtotal
-                        $(`#amount-${id}`).val(amount);
-                        $(`#amount-label-${id}`).html(`${formatter.format(amount)}`);
-                        $('.amount-label:visible').each(() => {
-                            row++;
-                            if (row === id) {
-                                valamount = 0;
-                            } else {
-                                valamount = parseInt($(`#amount-${row}`).val());
-                            }
-                            sTotal += valamount;
-                        });
-                        console.log("ini id:" + id);
-
-                        $('#subtotal-label').html(`${formatter.format(sTotal)}`);
-                        $('#subtotal').val(sTotal);
-
-                        var noTax = 0;
-                        var hTotal = 0;
-                        var sTotal = isNaN(parseInt($('#subtotal').val())) ? 0 : parseInt($('#subtotal')
-                            .val());
-                        var shipping = isNaN(parseInt($('#shipping').val())) ? 0 : parseInt($(
-                            '#shipping').val());
-                        var discount = isNaN(parseInt($('#diskon').val())) ? 0 : parseInt($('#diskon')
-                            .val());
-                        var dTotal = sTotal - discount;
-                        var tax = isNaN(parseInt($('#tax').val())) ? 0 : parseInt($('#tax').val());
-                        hTotal = parseInt(dTotal + (dTotal * tax / 100) + shipping);
-                        noTax = parseInt(dTotal + shipping);
-                        console.log(hTotal);
-                        $('#hargaTotalLabel').html(`${formatter.format(hTotal)}`);
-                        $('#hargaTotal').val(hTotal);
-                        $('#totalNoTax').val(noTax);
-                    });
-
-                    initializeSelect2Product();
-                });
-
+                    $(`.info-weight-total-label`).val(weightTotal + ' g');
+                }
             })
         </script>
     @endpush

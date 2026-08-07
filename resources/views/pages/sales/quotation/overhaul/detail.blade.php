@@ -197,13 +197,13 @@
                                             <p class="mb-0">{{ $product->qty }} {{ $product->info_qty }}</p>
                                         </td>
                                         <td class="align-top py-1 text-end" style="border-bottom:none !important;">
-                                            <p class="mb-0">RP {{ number_format($product->price, 0, '', '.') }}</p>
+                                            <p class="mb-0">{{ $product->price == 0 ? 'SBO' : 'RP ' . number_format($product->price, 0, '', '.') }}</p>
                                         </td>
                                         <td class="align-top py-1" style="border-bottom:none !important;">
                                             <p class="mb-0">{{ $product->disc }} %</p>
                                         </td>
                                         <td class="align-top py-1 text-end" style="border-bottom:none !important;">
-                                            <p class="mb-0">RP {{ number_format($product->amount, 0, '', '.') }}</p>
+                                            <p class="mb-0">{{ $product->price == 0 ? 'SBO' : 'RP ' . number_format($product->amount, 0, '', '.') }}</p>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -421,6 +421,10 @@
                                 href="{{ route('overhaul-revision.quotation', @$primQuote->id ?? $lastQuote->id) }}">
                                 + Revisi Quotation
                             </a>
+                            <a class="btn btn-outline-info d-grid w-100 mb-3 waves-effect"
+                                href="{{ route('edit-overhaul.quotation', $quote->id) }}">
+                                + Edit Quotation
+                            </a>
                         </div>
                     </div>
                 @endif
@@ -440,6 +444,20 @@
                                 </a>
                             </div>
                         </div>
+                        @php
+                            $pendingPo = \App\Models\PendingPO::where('id_quotation', $quote->id)->first();
+                        @endphp
+                        @if ($pendingPo)
+                            @if ($pendingPo->type === 'Project')
+                                <a href="{{ route('project-monitoring.show', $pendingPo->id) }}" class="btn btn-info d-grid w-100 waves-effect mb-3">
+                                    <i class="mdi mdi-eye-outline me-1"></i> View Order
+                                </a>
+                            @else
+                                <a href="{{ route('pending-po.show', $pendingPo->id) }}" class="btn btn-info d-grid w-100 waves-effect mb-3">
+                                    <i class="mdi mdi-eye-outline me-1"></i> View Order
+                                </a>
+                            @endif
+                        @endif
                         @if (Auth::user()->role == 'Sales')
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
@@ -537,14 +555,14 @@
                                             PO</button>
                                     @else
                                         <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-upload-po"
-                                            data-bs-toggle="modal" data-bs-target="#uploadPo"
-                                            data-npwp="{{ $quote->pic->client->npwp ?? '' }}">Upload PO</button>
+                                             data-npwp="{{ $quote->pic->client->npwp ?? '' }}"
+                                             data-client-url="{{ $quote->pic->client->role == 'Leads' ? route('detail.leads', $quote->pic->client->id) : route('existing.show', $quote->pic->client->id) }}">Upload PO</button>
                                     @endif
                                 @endif
                             @endif
                         </div>
                     </div>
-                    @if ($quote->status == 100 && isset($invoice))
+                    @if ($quote->status == 100 && $quote->po_file != null && isset($invoice))
                         <div class="card mb-3">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-3">

@@ -31,35 +31,35 @@
                                             @forelse ($ondue as $item)
                                                 @php
                                                     $no++;
-                                                    $days = \Carbon\Carbon::parse($item->due_date)->diffInDays(
-                                                        \Carbon\Carbon::today(),
-                                                        false,
-                                                    );
+                                                    $days = \Carbon\Carbon::parse($item->due_date)->diffInDays(\Carbon\Carbon::today(), false);
+                                                    if ($item->id_unit_quotation) {
+                                                        $uq           = $item->unitQuotation;
+                                                        $inv          = \App\Models\Invoice::where('id_unit_quotation', $item->id_unit_quotation)->whereNotNull('no_invoice')->first();
+                                                        $invoiceRoute = $inv ? route('invoice.show_unit', $inv->id) : '#';
+                                                        $invoiceNo    = $inv?->no_invoice ?? '-';
+                                                        $itemDate     = $uq?->created_at?->format('d-m-Y') ?? '-';
+                                                        $company      = $uq?->client?->company ?? '-';
+                                                        $total        = $item->harga_total;
+                                                    } else {
+                                                        $inv0         = $item->quotation->invoice->first();
+                                                        $invoiceRoute = $inv0 ? route('invoice.show', $inv0->id) : '#';
+                                                        $invoiceNo    = $inv0?->no_invoice ?? '-';
+                                                        $itemDate     = $item->quotation->po_date ?? '-';
+                                                        $company      = $item->quotation->pic->client->company ?? '-';
+                                                        $total        = $item->quotation->harga_total;
+                                                    }
                                                 @endphp
                                                 <tr>
                                                     <td>{{ $no }}</td>
                                                     <td>
-                                                        <a href="{{ route('invoice.show', $item->quotation->invoice[0]->id) }}" class="text-dark text-decoration-none">
-                                                            {{ $item->quotation->invoice[0]->no_invoice }}
+                                                        <a href="{{ $invoiceRoute }}" class="text-dark text-decoration-none">
+                                                            {{ $invoiceNo }}
                                                         </a>
                                                     </td>
-                                                    <td>
-                                                        <p>
-                                                            {{ $item->quotation->po_date }}
-                                                        </p>
-                                                    </td>
-                                                    <td>
-                                                    <td>
-                                                        {{ $item->quotation->pic->client->company }}
-                                                    </td>
-                                                    <td>
-                                                        <p>
-                                                            {{ abs($days) }} Days Left
-                                                        </p>
-                                                    </td>
-                                                    </td>
-                                                    <td>{{ number_format($item->quotation->harga_total, 0, ',', '.') }}
-                                                    </td>
+                                                    <td><p>{{ $itemDate }}</p></td>
+                                                    <td>{{ $company }}</td>
+                                                    <td><p>{{ abs($days) }} Days Left</p></td>
+                                                    <td>{{ number_format($total, 0, ',', '.') }}</td>
                                                 </tr>
                                             @empty
                                                 <tr>

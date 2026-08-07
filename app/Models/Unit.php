@@ -17,6 +17,9 @@ class Unit extends Model
     ];
     protected $fillable = [
         'sku',
+        'brand',
+        'model',
+        'type_unit',
         'desc',
         'warehouse_stock',
         'frist_stock',
@@ -27,11 +30,27 @@ class Unit extends Model
         'bar',
         'power',
         'air_cap',
+        'voltage',
         'connect',
+        'cooling',
+        'exhaust',
         'dimension',
         'weight',
+        'refrigerant_type',
+        'pdp',
+        'filtration',
+        'oil_content',
+        'grade',
+        'capacity',
+        'material',
+        'test_pressure',
+        'inlet_pressure',
+        'outlet_pressure',
+        'inlet_cap',
+        'outlet_cap',
         'status',
         'type',
+        'generation',
     ];
     
     public function detail()

@@ -1,15 +1,29 @@
 @extends('layouts.sales.app')
-@section('title', 'expense')
+@section('title', 'Expense')
 @section('content')
-    <div class="card mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3 mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span class="text-muted fw-light">Finance /</span> Expense
+            </h4>
+            <p class="text-muted mb-0 small"><i class="mdi mdi-cash-multiple me-1"></i> Pencatatan pengeluaran &amp; pembayaran cheque</p>
+        </div>
+    </div>
+
+    <div class="card mb-3 border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center">
+            <h6 class="card-title mb-0 fw-bold text-dark">
+                <i class="mdi mdi-receipt-text-outline me-2 text-primary fs-5"></i> Daftar Expense
+            </h6>
+        </div>
         <div class="card-datatable table-responsive pt-0">
-            <table
-                class="datatable-expense-data table table-striped">
+            <table class="datatable-expense-data table table-bordered">
                 <thead>
                     <tr>
-                        <th>Date</th>
-                        <th>memo</th>
+                        <th>No. Expense</th>
                         <th>No Invoice</th>
+                        <th>Date</th>
+                        <th>Memo</th>
                         <th>No Cheque</th>
                         <th>Amount</th>
                     </tr>

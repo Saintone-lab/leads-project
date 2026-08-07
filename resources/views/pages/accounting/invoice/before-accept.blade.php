@@ -346,6 +346,10 @@
             </div>
             <div class="card mb-3">
                 <div class="card-body">
+                    <div class="mb-3">
+                        <p class="mb-1 text-muted fw-semibold" style="font-size: 14px;">No. PO</p>
+                        <p class="mb-0 fw-bold style="font-size: 16px;">{{ $invoice->no_po ?? '-' }}</p>
+                    </div>
                     <a href="{{ route('download-po.quotation', $quote->id) }}"
                         class="btn btn-primary d-grid w-100 waves-effect mb-3"> Download PO</a>
                     <button type="button" class="btn btn-secondary w-100 waves-effect waves-light mb-3"

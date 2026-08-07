@@ -10,16 +10,18 @@ use App\Models\DetailQuotation;
 use App\Models\Invoice;
 use App\Models\Machine;
 use App\Models\Payment;
+use App\Models\PowerServicePrice;
 use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
-use App\Models\Sparepart;
 use App\Models\Unit;
+use App\Models\UnitPmTemplateItem;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UnitController extends Controller
 {
@@ -30,9 +32,10 @@ class UnitController extends Controller
      */
     public function index()
     {
-        $unit = SerialProduct::whereNotNull('detail')->get();
-        $units = Machine::where('id_client', 5387)->get();
-        return view('pages.warehouse.unit.index', compact('unit', 'units'));
+        // Halaman "unit siap ditawarkan" — datanya dimuat via AJAX per tab (lihat
+        // table-unit-ready.js), sumbernya fixed_asset (qc_status='ok') join unit.
+        // Versi lama berbasis Machine ada di index-legacy.blade.php (tidak dipakai lagi).
+        return view('pages.warehouse.unit.index');
     }
 
     /**
@@ -188,41 +191,60 @@ class UnitController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // Rules for validation
         $rule = [
-            'sku' => 'required',
-            'desc' => 'required',
-            'voltage' => 'required',
-            'note' => 'required',
-            'bar' => 'required',
+            'sku'  => 'required',
+            'unit' => 'required',
         ];
-
-        // Custom validation messages
         $message = [
-            'sku.required' => 'Field sku Wajib Diisi',
-            'desc.required' => 'Field description Wajib Diisi',
-            'voltage.required' => 'Field Voltage Wajib Diisi',
-            'note.required' => 'Field note Wajib Diisi',
-            'bar.required' => 'Field bar Wajib Diisi',
+            'sku.required'  => 'Field SKU wajib diisi',
+            'unit.required' => 'Kategori unit wajib dipilih',
         ];
 
         $this->validate($request, $rule, $message);
-        // dd($request);
         $unit = Unit::find($id);
-        $unit->sku = $request->sku;
-        $unit->status = $request->status;
-        $unit->desc = $request->desc;
-        $unit->voltage = $request->voltage;
-        $unit->bar = $request->bar;
-        $unit->power = $request->power;
-        $unit->connect = $request->connect;
-        $unit->air_cap = $request->air_cap;
-        $unit->dimension = $request->dimension;
-        $unit->weight = $request->weight;
-        $unit->note = $request->note;
-        $unit->unit = $request->unit;
+        $unit->sku              = $request->sku;
+        $unit->brand            = $request->brand ?? '';
+        $unit->model            = $request->model ?? '';
+        $unit->desc             = $request->desc ?? $unit->desc;
+        $unit->unit             = $request->unit;
+        $unit->voltage          = $request->voltage ?? '';
+        $unit->bar              = $request->bar ?: null;
+        $unit->power            = $request->power ?? '';
+        $unit->air_cap          = $request->air_cap ?: null;
+        $unit->connect          = $request->connect ?? '';
+        $unit->type_unit        = $request->type_unit ?? '';
+        $unit->generation       = $request->generation ?: null;
+        $unit->cooling          = $request->cooling ?? '';
+        $unit->exhaust          = $request->exhaust ?? '';
+        $unit->refrigerant_type = $request->refrigerant_type ?? '';
+        $unit->pdp              = $request->pdp ?? '';
+        $unit->dimension        = $request->dimension ?? '';
+        $unit->weight           = $request->weight ?: null;
+        $unit->filtration       = $request->filtration ?? '';
+        $unit->oil_content      = $request->oil_content ?? '';
+        $unit->grade            = $request->grade ?? '';
+        $unit->material         = $request->material ?? '';
+        $unit->capacity         = $request->capacity ?: null;
+        $unit->test_pressure    = $request->test_pressure ?: null;
+        $unit->note             = $request->note;
+        $unit->status           = $request->status;
         $unitSave = $unit->save();
         if ($unitSave) {
+            SerialProduct::updateOrCreate(
+                ['id_product' => $unit->id],
+                [
+                    'brand'     => $unit->brand ?? '',
+                    'pn'        => $unit->model ?? '',
+                    'bar'       => $unit->bar,
+                    'air_cap'   => $unit->air_cap,
+                    'detail'    => $unit->desc,
+                    'image'     => '',
+                    'fxp_parts' => '',
+                    'rental'    => '0',
+                    'second'    => '0',
+                    'new'       => '0',
+                ]
+            );
             return redirect('/unit-global/' . $unit->id)->with('message', 'data telah di tambahkan');
         }
     }
@@ -244,15 +266,8 @@ class UnitController extends Controller
         // $replacement = DetailProduct::where('id_product', $id)->get();
         // $equivalents = SerialProduct::where('id_product', $id)->get();
 
+        SerialProduct::where('id_product', $id)->delete();
         $delUnit = $unit->delete();
-
-        // foreach ($replacement as $replace) {
-        //     $delReplace = $replace->delete();
-        // }
-
-        // foreach ($equivalents as $equivalent) {
-        //     $delEqui = $equivalent->delete();
-        // }
 
         if ($delUnit) {
             return 1;
@@ -370,55 +385,66 @@ class UnitController extends Controller
         return view('pages.warehouse.unit.index-global');
     }
 
+    public function checkSku(Request $request)
+    {
+        $sku    = trim($request->query('sku', ''));
+        $exists = Unit::where('sku', $sku)->where('type', 'global')->first(['id', 'sku', 'unit', 'brand', 'model']);
+        return response()->json([
+            'exists' => (bool) $exists,
+            'data'   => $exists,
+        ]);
+    }
+
     public function storeGlobal(Request $request)
     {
-        // Rules for validation
         $rule = [
-            'sku' => 'required',
-            'desc' => 'required',
-            'voltage' => 'required',
-            'note' => 'required',
-            'bar' => 'required',
+            'sku'  => 'required',
+            'unit' => 'required',
         ];
-
-        // Custom validation messages
         $message = [
-            'sku.required' => 'Field sku Wajib Diisi',
-            'desc.required' => 'Field description Wajib Diisi',
-            'voltage.required' => 'Field voltage Wajib Diisi',
-            'note.required' => 'Field note Wajib Diisi',
-            'bar.required' => 'Field bar Wajib Diisi',
+            'sku.required'  => 'Field SKU wajib diisi',
+            'unit.required' => 'Kategori unit wajib dipilih',
         ];
-
         $this->validate($request, $rule, $message);
+
         $lastUnit = Unit::orderBy('id', 'desc')->first();
         $lastProduct = Product::orderBy('id', 'desc')->first();
         $unit = new Unit;
         if (@$lastUnit) {
-            if ($lastUnit->id > $lastProduct->id) {
-                $unit->id = $lastUnit->id + 1;
-            } else {
-                $unit->id = $lastProduct->id + 1;
-            }
+            $unit->id = ($lastUnit->id > $lastProduct->id) ? $lastUnit->id + 1 : $lastProduct->id + 1;
         } else {
             $unit->id = $lastProduct->id + 1;
         }
-        $unit->sku = $request->sku;
-        $unit->status = 'global';
-        $unit->desc = $request->desc;
-        $unit->voltage = $request->voltage;
-        $unit->bar = $request->bar;
-        $unit->power = $request->power;
-        $unit->connect = $request->connect;
-        $unit->air_cap = $request->air_cap;
-        $unit->dimension = $request->dimension;
-        $unit->weight = $request->weight;
-        $unit->note = $request->note;
-        $unit->unit = $request->unit;
-        $unit->stock = 0;
-        $unit->first_stock = 0;
-        $unit->warehouse_stock = 0;
-        $unit->type = 'global';
+        $unit->sku              = $request->sku;
+        $unit->brand            = $request->brand ?? '';
+        $unit->model            = $request->model ?? '';
+        $unit->desc             = $request->desc ?? '';
+        $unit->unit             = $request->unit;
+        $unit->voltage          = $request->voltage ?? '';
+        $unit->bar              = $request->bar ?: null;
+        $unit->power            = $request->power ?? '';
+        $unit->air_cap          = $request->air_cap ?: null;
+        $unit->connect          = $request->connect ?? '';
+        $unit->type_unit        = $request->type_unit ?? '';
+        $unit->generation       = $request->generation ?: null;
+        $unit->cooling          = $request->cooling ?? '';
+        $unit->exhaust          = $request->exhaust ?? '';
+        $unit->refrigerant_type = $request->refrigerant_type ?? '';
+        $unit->pdp              = $request->pdp ?? '';
+        $unit->dimension        = $request->dimension ?? '';
+        $unit->weight           = $request->weight ?: null;
+        $unit->filtration       = $request->filtration ?? '';
+        $unit->oil_content      = $request->oil_content ?? '';
+        $unit->grade            = $request->grade ?? '';
+        $unit->material         = $request->material ?? '';
+        $unit->capacity         = $request->capacity ?: null;
+        $unit->test_pressure    = $request->test_pressure ?: null;
+        $unit->note             = $request->note;
+        $unit->stock            = 0;
+        $unit->first_stock      = 0;
+        $unit->warehouse_stock  = 0;
+        $unit->status           = 'global';
+        $unit->type             = 'global';
         // foreach ($request->unit as $key => $value) {
         //     if ($value == 'rental') {
         //         $unit->rental = '1';
@@ -432,22 +458,46 @@ class UnitController extends Controller
         // }
         $unitSave = $unit->save();
         if ($unitSave) {
+            SerialProduct::create([
+                'id_product' => $unit->id,
+                'brand'      => $unit->brand ?? '',
+                'pn'         => $unit->model ?? '',
+                'bar'        => $unit->bar,
+                'air_cap'    => $unit->air_cap,
+                'detail'     => $unit->desc,
+                'image'      => '',
+                'fxp_parts'  => '',
+                'rental'     => '0',
+                'second'     => '0',
+                'new'        => '0',
+            ]);
             return redirect('/unit-global/' . $unit->id)->with('message', 'data telah di tambahkan');
         }
     }
+    /**
+     * Search semua Unit Global (bukan cuma yang sudah dipublish ke catalog_unit).
+     * Dipakai picker "Load Template PM" di form Unit Quotation.
+     */
+    public function searchGlobal(Request $request)
+    {
+        $q = trim($request->query('q', ''));
+        $like = '%' . $q . '%';
+
+        $units = Unit::where('sku', 'like', $like)
+            ->orWhere('brand', 'like', $like)
+            ->orWhere('model', 'like', $like)
+            ->orWhere('unit', 'like', $like)
+            ->orderBy('brand')
+            ->orderBy('sku')
+            ->limit(30)
+            ->get(['id', 'sku', 'brand', 'model', 'unit', 'power']);
+
+        return response()->json($units);
+    }
+
     public function showGlobal($id)
     {
         $product = Unit::find($id);
-        $consumable = Sparepart::join('serial_product as sp', 'sp.id', '=', 'sparepart.id_equivalent')
-            ->join('product as p', 'p.id', '=', 'sp.id_product')
-            ->where('p.category', 'Consumable Part')
-            ->where('sparepart.id_unit', $id)
-            ->select("sparepart.*", 'sp.pn', 'p.description', 'p.warehouse_stock', 'p.stock')->get();
-        $nonconsumable = Sparepart::join('serial_product as sp', 'sp.id', '=', 'sparepart.id_equivalent')
-            ->join('product as p', 'p.id', '=', 'sp.id_product')
-            ->where('p.category', 'Non Consumable Part')
-            ->where('sparepart.id_unit', $id)
-            ->select("sparepart.*", 'sp.pn', 'p.description', 'p.warehouse_stock', 'p.stock')->get();
         $allStock = $product->stock + $product->warehouse_stock;
         $details = DetailProduct::where('id_product', $id)->get();
         $serials = SerialProduct::where('id_product', $id)->get();
@@ -455,7 +505,6 @@ class UnitController extends Controller
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
-        // dd($consumable);
         // Comment Buat Admin
         $firstComments = Comment::where('id_user', Auth::id())
             ->groupBy('id_status')
@@ -520,7 +569,181 @@ class UnitController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.warehouse.unit.detail-global', compact('nonconsumable', 'consumable', 'equivalent', 'product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
+        return view('pages.warehouse.unit.detail-global', compact('equivalent', 'product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
+    }
+
+    /**
+     * Ambil draft item Template Penawaran PM (tersimpan di unit_pm_template_items) untuk
+     * sebuah unit + level PM, plus tarif jasa power_service_prices.
+     * Dipakai AJAX di halaman detail-global untuk builder & preview sebelum digenerate ke quotation.
+     */
+    public function pmTemplate(Request $request, $id)
+    {
+        $level = strtoupper($request->query('level', 'PM1'));
+        if (!in_array($level, ['PM1', 'PM2', 'PM3', 'PM4'])) {
+            return response()->json(['message' => 'Level PM tidak valid.'], 422);
+        }
+
+        $unit = Unit::findOrFail($id);
+
+        // Item template tersimpan, urut apa adanya (bisa selang-seling header/part/custom)
+        $rawItems = UnitPmTemplateItem::where('id_unit', $id)
+            ->where('level', $level)
+            ->orderBy('sort_order')
+            ->get();
+
+        // Bulk-fetch data equivalent (brand/pn/stok live) buat item type=part, supaya pas
+        // di-load ke form quotation bisa jadi baris "Spare Part" beneran (id_equivalent kebawa)
+        // dan terkoneksi ke logic baca stok saat konversi ke PO — bukan cuma baris teks custom.
+        $equivalentIds = $rawItems->where('type', 'part')->pluck('id_equivalent')->filter()->unique()->values();
+        $equivalentsMap = collect();
+        if ($equivalentIds->isNotEmpty()) {
+            $equivalentsMap = SerialProduct::join('product as p', 'p.id', '=', 'serial_product.id_product')
+                ->whereIn('serial_product.id', $equivalentIds)
+                ->select(
+                    'serial_product.id as id_equivalent',
+                    'serial_product.pn',
+                    'serial_product.brand',
+                    'serial_product.price',
+                    'p.description as product_desc',
+                    'p.go as genuine_status',
+                    'p.unit as product_unit',
+                    'p.warehouse_stock',
+                    'p.stock',
+                    'p.pending_stock'
+                )
+                ->get()
+                ->keyBy('id_equivalent');
+        }
+
+        $formatBullets = function ($text) {
+            if (empty($text)) return '';
+            $lines = preg_split('/\r\n|\r|\n/', $text);
+            $formatted = [];
+            foreach ($lines as $idx => $line) {
+                $trimmed = trim(preg_replace('/^[\s\-\*\•]+/u', '', $line));
+                if ($trimmed !== '') {
+                    if (preg_match('/^Scope of Work\s*:?/i', $trimmed) || (substr($trimmed, -1) === ':' && $idx === 0)) {
+                        $formatted[] = $trimmed;
+                    } else {
+                        $formatted[] = '• ' . $trimmed;
+                    }
+                }
+            }
+            return implode("\n", $formatted);
+        };
+
+        $items = $rawItems->map(function ($item) use ($equivalentsMap, $formatBullets) {
+            $mapped = [
+                'id' => $item->id,
+                'type' => $item->type,
+                'id_equivalent' => $item->id_equivalent,
+                'label' => $item->label,
+                'description' => $formatBullets($item->description),
+                'qty' => (float) $item->qty,
+                'info_qty' => $item->info_qty ?: 'Pcs',
+                'price' => (float) $item->price,
+            ];
+            if ($item->type === 'part' && $item->id_equivalent && $equivalentsMap->has($item->id_equivalent)) {
+                $mapped['equivalent'] = $equivalentsMap->get($item->id_equivalent);
+            }
+            return $mapped;
+        });
+
+        // Saran (bukan otomatis dipasang) buat tombol "Tambah Jasa Service" — prefill dari pricelist Forecast
+        $normalizedPower = \App\Http\Controllers\ForecastController::normalizePower($unit->power);
+        $servicePrice = $normalizedPower
+            ? PowerServicePrice::where('power', $normalizedPower)->first()
+            : null;
+
+        $standardTemplate = PowerServicePrice::where('power', 'STANDARD_TEMPLATE')->first()
+            ?? PowerServicePrice::whereNotNull('desc_pm1')->latest()->first();
+
+        $priceField = 'price_' . strtolower($level);
+        $descField = 'desc_' . strtolower($level);
+        $noteField = 'note_' . strtolower($level);
+        $serviceFee = $servicePrice ? (float) $servicePrice->{$priceField} : null;
+        
+        $serviceDesc = ($standardTemplate && !empty($standardTemplate->{$descField}))
+            ? $standardTemplate->{$descField}
+            : ($servicePrice ? $servicePrice->{$descField} : null);
+
+        $serviceNote = ($standardTemplate && !empty($standardTemplate->{$noteField}))
+            ? $standardTemplate->{$noteField}
+            : ($servicePrice ? $servicePrice->{$noteField} : null);
+
+        $serviceDesc = $formatBullets($serviceDesc);
+        $serviceNote = $formatBullets($serviceNote);
+
+        return response()->json([
+            'unit' => [
+                'id' => $unit->id,
+                'sku' => $unit->sku,
+                'brand' => $unit->brand,
+                'model' => $unit->model,
+                'power' => $unit->power,
+            ],
+            'level' => $level,
+            'items' => $items,
+            'note' => $serviceNote,
+            'service_suggestion' => [
+                'label' => 'Preventive Maintenance ' . $level,
+                'description' => $serviceDesc,
+                'amount' => $serviceFee,
+                'matched' => (bool) $servicePrice,
+                'power_normalized' => $normalizedPower,
+            ],
+        ]);
+    }
+
+    /**
+     * Simpan (replace penuh) daftar item Template Penawaran PM untuk sebuah unit + level.
+     * Dipanggil dari builder di halaman detail-global tiap kali user klik "Simpan Template"
+     * atau "Generate ke Quotation" (auto-save dulu supaya Forecast Sales ikut update).
+     */
+    public function pmTemplateSave(Request $request, $id)
+    {
+        $level = strtoupper($request->input('level', ''));
+        if (!in_array($level, ['PM1', 'PM2', 'PM3', 'PM4'])) {
+            return response()->json(['message' => 'Level PM tidak valid.'], 422);
+        }
+
+        Unit::findOrFail($id);
+        $items = $request->input('items', []);
+
+        DB::transaction(function () use ($id, $level, $items) {
+            UnitPmTemplateItem::where('id_unit', $id)->where('level', $level)->delete();
+
+            foreach ($items as $i => $item) {
+                if (empty($item['label'])) {
+                    continue;
+                }
+                $type = in_array($item['type'] ?? '', ['custom', 'header']) ? $item['type'] : 'part';
+                UnitPmTemplateItem::create([
+                    'id_unit' => $id,
+                    'level' => $level,
+                    'type' => $type,
+                    'id_equivalent' => $item['id_equivalent'] ?? null,
+                    'label' => $item['label'],
+                    'description' => $item['description'] ?? null,
+                    'qty' => $item['qty'] ?? 1,
+                    'info_qty' => $item['info_qty'] ?? 'Pcs',
+                    'price' => $item['price'] ?? 0,
+                    'sort_order' => $i,
+                ]);
+            }
+        });
+
+        return response()->json(['message' => 'Template PM ' . $level . ' berhasil disimpan.']);
+    }
+
+    public function updatePrice(Request $request, $id)
+    {
+        SerialProduct::where('id_product', $id)
+            ->update(['price' => $request->input('price', 0)]);
+
+        return redirect()->route('unit-global.show', $id)
+            ->with('success', 'Harga pricelist berhasil diperbarui.');
     }
 
     public function corfac()
@@ -545,39 +768,4 @@ class UnitController extends Controller
         }
     }
 
-    public function storeSparepart(Request $request, $id)
-    {
-        // Rules for validation
-        $rule = [
-            'id_equivalent' => 'required',
-            'qty' => 'required',
-        ];
-
-        // Custom validation messages
-        $message = [
-            'id_equivalent.required' => 'Field Sparepart Wajib Diisi',
-            'qty.required' => 'Field quantity Wajib Diisi',
-        ];
-
-        $this->validate($request, $rule, $message);
-        $sparepart = new Sparepart();
-        $sparepart->id_unit = $id;
-        $sparepart->id_equivalent = $request->id_equivalent;
-        $sparepart->qty = $request->qty;
-        $sparepartSave = $sparepart->save();
-        if ($sparepartSave) {
-            return redirect('/unit-global/' . $id)->with('message', 'data telah ditambahkan');
-        }
-    }
-    public function deleteSparepart($id)
-    {
-        $sparepart = Sparepart::find($id);
-        $delSparepart = $sparepart->delete();
-        if ($delSparepart) {
-            return 1;
-        } else {
-            return 0;
-        }
-
-    }
 }

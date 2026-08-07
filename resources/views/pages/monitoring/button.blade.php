@@ -31,7 +31,7 @@
     <!--  Layout wrapper  -->
     <div class="layout-wrapper layout-content-navbar">
         <div class="layout-container">
-            <div class="container-xxl flex-grow-1 container-p-y">
+            <div class="container-fluid flex-grow-1 container-p-y">
                 <div class="container">
                     <div class="card text-center">
                         <div class="card-header">Monitoring {{ $machine->unit->brand }} {{ $machine->unit->unit->sku }}

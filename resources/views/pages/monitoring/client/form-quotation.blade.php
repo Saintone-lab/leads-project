@@ -139,16 +139,18 @@
                                                             data-allow-clear="true" name="product[]"
                                                             data-id="{{ $id }}">
                                                             <option value="">---- Choose Part Number Here ----</option>
-                                                            @foreach ($product as $products)
-                                                                <option value="{{ $products->id }}"
-                                                                    data-replacement="{{ $products->id }}"
-                                                                    {{ $quote->id_equivalent == "{$products->id}" ? 'selected' : '' }}>
-                                                                    {{ $products->brand }} {{ $products->pn }}
-                                                                    ({{ $products->detail_desc }})
+                                                            @if (!empty($quote->id_equivalent) && !empty($quote->equivalent))
+                                                                <option value="{{ $quote->id_equivalent }}"
+                                                                    data-replacement="{{ $quote->id_equivalent }}"
+                                                                    data-commodity="{{ $quote->equivalent->id_product }}"
+                                                                    data-unit="{{ $quote->equivalent->product->unit ?? 'Pcs' }}"
+                                                                    selected>
+                                                                    {{ $quote->equivalent->brand }} {{ $quote->equivalent->pn }}
+                                                                    ({{ $quote->equivalent->product->detail_desc ?? '' }})
                                                                     ||
-                                                                    {{ $products->go }}
+                                                                    {{ $quote->equivalent->product->go ?? '' }}
                                                                 </option>
-                                                            @endforeach
+                                                            @endif
                                                         </select>
                                                         <label for="product-{{ $id }}">Product Part Number</label>
                                                     </div>
@@ -255,16 +257,7 @@
                                                         class="select2 form-select invoice-item-product"
                                                         data-allow-clear="true" name="product[]" data-id="1">
                                                         <option> ---- Choose Part Number Here ---- </option>
-                                                        @foreach ($product as $products)
-                                                            <option value="{{ $products->id }}"
-                                                                data-replacement="{{ $products->id }}"
-                                                                data-commodity="{{ $products->comId }}">
-                                                                {{ $products->brand }} {{ $products->pn }}
-                                                                ({{ $products->detail_desc }})
-                                                                ||
-                                                                {{ $products->go }}
-                                                            </option>
-                                                        @endforeach
+                                                        
                                                     </select>
                                                     <label for="product-{{ $id }}">Product Part Number</label>
                                                 </div>
@@ -557,10 +550,36 @@
                 });
 
                 function initializeSelect2Product() {
-                    $('.invoice-item-product').select2({
+                    $('.invoice-item-product').not('.select2-hidden-accessible').select2({
                         placeholder: ' ---- Choose Part Number Here ---- ',
                         allowClear: true,
                         width: '100%',
+                        ajax: {
+                            url: '{{ route('quotation.products.search') }}',
+                            dataType: 'json',
+                            delay: 250,
+                            data: function (params) {
+                                return {
+                                    q: params.term
+                                };
+                            },
+                            processResults: function (data) {
+                                return {
+                                    results: data
+                                };
+                            },
+                            cache: true
+                        }
+                    }).on('select2:select', function (e) {
+                        var data = e.params.data;
+                        $(this).find('option:selected')
+                            .attr('data-replacement', data.replacement)
+                            .data('replacement', data.replacement)
+                            .attr('data-commodity', data.commodity)
+                            .data('commodity', data.commodity)
+                            .attr('data-unit', data.unit)
+                            .data('unit', data.unit);
+                        $(this).trigger('change');
                     });
                 }
                 $(document).ready(function() {

@@ -33,7 +33,7 @@
             <div class="layout-page">
                 <!-- Content wrapper -->
                 <div class="content-wrapper">
-                    <div class="container-xxl flex-grow-1 container-p-y">
+                    <div class="container-fluid flex-grow-1 container-p-y">
 
                         <!--  Content  -->
                         <div class="misc-wrapper">

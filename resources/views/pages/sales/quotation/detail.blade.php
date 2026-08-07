@@ -379,6 +379,20 @@
                             href="{{ route('print.quotation', $quote->id) }}">
                             Download
                         </a>
+                        @php
+                            $pendingPo = \App\Models\PendingPO::where('id_quotation', $quote->id)->first();
+                        @endphp
+                        @if ($pendingPo)
+                            @if ($pendingPo->type === 'Project')
+                                <a href="{{ route('project-monitoring.show', $pendingPo->id) }}" class="btn btn-info d-grid w-100 waves-effect mb-3">
+                                    <i class="mdi mdi-eye-outline me-1"></i> View Order
+                                </a>
+                            @else
+                                <a href="{{ route('pending-po.show', $pendingPo->id) }}" class="btn btn-info d-grid w-100 waves-effect mb-3">
+                                    <i class="mdi mdi-eye-outline me-1"></i> View Order
+                                </a>
+                            @endif
+                        @endif
                         @if (Auth::user()->role == 'Sales')
                             @if ($quote->status != '100')
                                 <button type="button" class="btn btn-secondary d-grid w-100 waves-effect mb-3"
@@ -501,13 +515,14 @@
                                             PO</button>
                                     @else
                                         <button type="button" class="btn btn-whatsapp d-grid w-100 waves-effect mb-3 btn-upload-po"
-                                            data-npwp="{{ $quote->pic->client->npwp ?? '' }}">Upload PO</button>
+                                            data-npwp="{{ $quote->pic->client->npwp ?? '' }}"
+                                            data-client-url="{{ $quote->pic->client->role == 'Leads' ? route('detail.leads', $quote->pic->client->id) : route('existing.show', $quote->pic->client->id) }}">Upload PO</button>
                                     @endif
                                 @endif
                             @endif
                         </div>
                     </div>
-                    @if ($quote->status == 100 && isset($invoice))
+                    @if ($quote->status == 100 && $quote->po_file != null && isset($invoice))
                         <div class="card mb-3">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between mb-3">
@@ -526,10 +541,12 @@
                             </div>
                         </div>
                     @endif
-                @elseif(Auth::user()->role == 'Admin')
+                @elseif(Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
                     @if ($quote->po_file != null)
                         <div class="card mb-3">
-                            <div class="card-body">
+                            <div class="card-body d-flex gap-2">
+                                <a href="#" onclick="openPdfViewer('{{ url($quote->po_file) }}', 'File PO {{ $quote->no_quote ?? '' }}'); return false;"
+                                    class="btn btn-outline-primary d-grid w-100 waves-effect"> Lihat PO</a>
                                 <a href="{{ route('download-po.quotation', $quote->id) }}"
                                     class="btn btn-primary d-grid w-100 waves-effect"> Download PO</a>
                             </div>
@@ -629,6 +646,24 @@
                     </div>
                 @endif
 
+                @if (Auth::user()->role == 'Sales')
+                    <div class="card">
+                        <div class="card-body">
+                            @if ($quote->suo)
+                                <a class="btn btn-outline-info d-grid w-100 waves-effect"
+                                    href="{{ route('suo.show', $quote->suo->id) }}">
+                                    <i class="mdi mdi-eye-outline me-1"></i> Lihat SUO ({{ $quote->suo->no_suo }})
+                                </a>
+                            @else
+                                <a href="#" data-id="{{ $quote->id }}"
+                                    class="btn btn-outline-dark d-grid w-100 waves-effect ajukan-suo">
+                                    <i class="mdi mdi-truck-fast-outline me-1"></i> Ajukan SUO
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Cek apakah ada kontrak bertipe Selling -->
                 @if (Auth::user()->role == 'Admin')
                     <div class="card">
@@ -711,6 +746,7 @@
     @include('components.modal.quotation.add-payment')
     @include('components.modal.quotation.mentions')
     @include('components.modal.quotation.detail-payment')
+    @include('components.modal.viewer.pdf')
     </div>
 @endsection
 @push('after-style')
@@ -1160,6 +1196,60 @@
                         customClass: {
                             confirmButton: "btn btn-success waves-effect",
                         },
+                    });
+                }
+            });
+        });
+        $(document).on('click', '.ajukan-suo', function() {
+            var id = $(this).data('id');
+            Swal.fire({
+                title: "Ajukan SUO dari penawaran ini?",
+                text: "SUO baru akan dibuat otomatis berisi item dari penawaran ini.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Ya, Ajukan SUO",
+                customClass: {
+                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
+                    cancelButton: "btn btn-label-secondary waves-effect",
+                },
+                buttonsStyling: false,
+            }).then(function(result) {
+                if (result.value) {
+                    $.ajax({
+                        'url': '{{ url('suo/from-quotation') }}/' + id,
+                        'type': 'POST',
+                        'data': {
+                            '_token': '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    icon: "success",
+                                    title: "SUO dibuat!",
+                                    text: "SUO berhasil diajukan dari penawaran ini.",
+                                    customClass: {
+                                        confirmButton: "btn btn-success waves-effect",
+                                    },
+                                }).then(function() {
+                                    window.location.href = '/suo/' + response.suo_id;
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Oops...',
+                                    text: response.message || 'Gagal mengajukan SUO.'
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON
+                                .message : 'Gagal mengajukan SUO.';
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: msg
+                            });
+                        }
                     });
                 }
             });

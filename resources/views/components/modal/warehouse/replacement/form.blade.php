@@ -10,7 +10,7 @@
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="exampleModalLabel5"> Create Replacement
+                    <h4 class="modal-title" id="exampleModalLabel5-replacement-{{ $product->id }}"> Create Replacement
                     </h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -27,9 +27,9 @@
                     <div class="row g-2 mb-3">
                         <div class="col mb-2">
                             <div class="form-floating form-floating-outline">
-                                <input type="text" id="replacement" class="form-control" name="replacement"
+                                <input type="text" id="replacement-create-{{ $product->id }}" class="form-control" name="replacement"
                                     placeholder="W XXX" value="{{ old('replacement', @$product->replacement ?? '') }}">
-                                <label for="replacement">Replacement</label>
+                                <label for="replacement-create-{{ $product->id }}">Replacement</label>
                             </div>
                         </div>
                     </div>

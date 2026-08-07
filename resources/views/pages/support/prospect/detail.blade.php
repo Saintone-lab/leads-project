@@ -317,7 +317,7 @@
         </div>
         {{-- End: Invoice --}}
         {{-- Button Invocie --}}
-        @if (Auth::user()->role == 'Admin')
+        @if (in_array(Auth::user()->role, ['Admin', 'Support']))
             <div class="col-xl-3 col-md-4 col-12 invoice-actions">
                 <div class="card">
                     <form action="{{ route('add_sales.prospect', $prospect->id) }}" method="post"
@@ -377,17 +377,18 @@
                     </form>
                 </div>
             </div>
-        @elseif (Auth::user()->role == 'Support')
-            <div class="col-xl-3 col-md-4 col-12 invoice-actions">
-                <div class="card">
-                    <div class="card-body">
-                        <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-prospect"
-                            data-id="{{ $prospect->id }}">
-                            Delete
-                        </a>
+            @if (Auth::user()->role == 'Support')
+                <div class="col-xl-3 col-md-4 col-12 invoice-actions">
+                    <div class="card">
+                        <div class="card-body">
+                            <a href="#" class="btn btn-outline-danger d-grid w-100 waves-effect delete-prospect"
+                                data-id="{{ $prospect->id }}">
+                                Delete
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            @endif
         @elseif (Auth::user()->role == 'Sales')
             <div class="col-xl-3 col-md-4 col-12 invoice-actions">
                 @if ($prospect->level == null)

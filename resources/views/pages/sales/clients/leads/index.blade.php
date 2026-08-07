@@ -1,155 +1,136 @@
 @extends('layouts.sales.app')
-@section('title', 'My Leads')
+@section('title', 'My Leads & Customers')
 @section('content')
 
     @if (Session::has('message'))
         <div class="bs-toast toast toast-placement-ex m-2 fade top-0 end-0 hide" role="alert" aria-live="assertive"
             aria-atomic="true" data-bs-delay="2000">
             <div class="toast-header">
-                <i class="mdi mdi-home me-2 text-success"></i>
-                <div class="me-auto fw-semibold">Successfully</div>
+                <i class="mdi mdi-check-circle me-2 text-success"></i>
+                <div class="me-auto fw-semibold">Berhasil</div>
                 <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
             <div class="toast-body">{{ Session::get('message') }}</div>
         </div>
     @endif
 
-    <h4 class="fw-bold py-3 mb-4">
-        <span class="text-muted fw-light">Clients /</span> Leads
-    </h4>
+    <!-- Header Banner Card -->
+    <div class="card clean-card mb-4">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge bg-label-primary fs-6 px-3 py-2">
+                            <i class="mdi mdi-account-group-outline me-1"></i> Directory Client
+                        </span>
+                    </div>
+                    <h4 class="fw-bold mb-0 text-dark">Leads & Customer Management</h4>
+                    <small class="text-muted">
+                        Kelola data calon pelanggan (Leads) dan pelanggan aktif (Customer) secara efisien.
+                    </small>
+                </div>
+
+                @if (Auth::user()->role == 'Sales')
+                    <button type="button" class="btn btn-primary waves-effect waves-light rounded-pill px-4"
+                        data-bs-toggle="modal" data-bs-target="#createLeads">
+                        <i class="mdi mdi-plus me-1"></i> Tambah Leads
+                    </button>
+                @endif
+            </div>
+        </div>
+    </div>
 
     @if (Auth::user()->role == 'Sales')
-        <div class="d-flex justify-content-end">
-            <button class="btn btn-secondary btn-primary" tabindex="0" type="button" data-bs-target="#createLeads"
-                data-bs-toggle="modal">
-                <span>
-                    <i class="mdi mdi-plus me-sm-1"></i>
-                    <span class="d-none d-sm-inline-block">Add New
-                        Leads</span>
-                </span>
-            </button>
-        </div>
-        <div class="nav-align-top mb-4">
-            <ul class="nav nav-pills mb-3" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light active" role="tab"
-                        data-bs-toggle="tab" data-bs-target="#navs-pills-top-leads" aria-controls="navs-pills-top-leads"
-                        aria-selected="true">
-                        Leads
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button type="button" class="nav-link waves-effect waves-light" role="tab" data-bs-toggle="tab"
-                        data-bs-target="#navs-pills-top-cust" aria-controls="navs-pills-top-cust" aria-selected="true">
-                        customer
-                        {{-- @if (@$accCount >= 1)
-                            <div class="badge bg-danger rounded-pill ms-auto">{{ $accCount }}</div>
-                        @endif --}}
-                    </button>
-                </li>
-            </ul>
-            <div class="tab-content">
-                <div class="tab-pane fade active show" id="navs-pills-top-leads" role="tabpanel">
-                    <div class="card-datatable pt-0">
-                        <table class="datatable-leads-search table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Company</th>
-                                    <th>R/U</th>
-                                    <th>Status</th>
-                                    <th>Address</th>
-                                    <th>Lass Contact</th>
-                                    <th>Next FU</th>
-                                    <th>Flag</th>
-                                </tr>
-                            </thead>
-                        </table>
+        <!-- Tab Layout Concept like payment-index/invoice -->
+        <div class="card card-minimalist mb-4">
+            <div class="card-header card-minimalist-header py-2">
+                <ul class="nav nav-tabs card-header-tabs border-0 m-0 flex-nowrap overflow-auto" id="crm-tab-nav" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-semibold" data-bs-toggle="tab" data-bs-target="#navs-pills-top-leads" type="button" role="tab">
+                            <i class="mdi mdi-account-group-outline me-1 text-primary"></i> Leads
+                            <span class="badge rounded-pill bg-primary ms-1" id="badge-leads">-</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-semibold" data-bs-toggle="tab" data-bs-target="#navs-pills-top-cust" type="button" role="tab">
+                            <i class="mdi mdi-account-check-outline me-1 text-success"></i> Customer
+                            <span class="badge rounded-pill bg-success ms-1" id="badge-customers">-</span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="tab-content border-0 p-0 m-0">
+                    <div class="tab-pane fade show active p-3" id="navs-pills-top-leads" role="tabpanel">
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-leads-search table table-bordered" data-badge="badge-leads">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>R/U</th>
+                                        <th>Status</th>
+                                        <th>Address</th>
+                                        <th>Last Contact</th>
+                                        <th>Next FU</th>
+                                        <th>Flag</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
                     </div>
-                </div>
-                <div class="tab-pane fade" id="navs-pills-top-cust" role="tabpanel">
-                    <div class="card-datatable pt-0">
-                        <table class="datatable-customer-search table table-striped" id="dataTableCrm">
-                            <thead>
-                                <tr>
-                                    <th>Company</th>
-                                    <th>R/U</th>
-                                    <th>Status</th>
-                                    <th>Address</th>
-                                    <th>Note</th>
-                                    <th>Lass Contact</th>
-                                    <th>Next FU</th>
-                                    <th>Flag</th>
-                                </tr>
-                            </thead>
-                        </table>
+                    <div class="tab-pane fade p-3" id="navs-pills-top-cust" role="tabpanel">
+                        <div class="card-datatable table-responsive pt-0">
+                            <table class="datatable-customer-search table table-bordered" id="dataTableCrm" data-badge="badge-customers">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>R/U</th>
+                                        <th>Status</th>
+                                        <th>Address</th>
+                                        <th>Note</th>
+                                        <th>Last Contact</th>
+                                        <th>Next FU</th>
+                                        <th>Flag</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        {{-- @if (Auth::user()->id == '1' || Auth::user()->id == '16' || Auth::user()->id == '23')
-            <div class="card">
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-leads-info table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Company</th>
-                                <th>Address</th>
-                                <th>Status</th>
-                                <th>Last Contact</th>
-                                <th>Next Follow Up</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-        @else
-            <div class="card">
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="datatable-leads table table-striped">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th></th>
-                                <th>ID</th>
-                                <th>Company</th>
-                                <th>Address</th>
-                                <th>Status</th>
-                                <th>Last Contact</th>
-                                <th>Next Follow Up</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-            </div>
-        @endif --}}
     @elseif(Auth::user()->role == 'Admin' || Auth::user()->role == 'Technician')
-        <div class="card">
-            <div class="card-datatable table-responsive pt-0">
-                <table class="datatable-leads-admin table table-striped">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th></th>
-                            <th>ID</th>
-                            <th>Company</th>
-                            <th>Address</th>
-                            <th>Status</th>
-                            <th>Last Contact</th>
-                            <th>Next Follow Up</th>
-                            <th>Assigned</th>
-                        </tr>
-                    </thead>
-                </table>
+        <div class="card card-minimalist">
+            <div class="card-header card-minimalist-header py-3">
+                <h5 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2">
+                    <i class="mdi mdi-shield-account-outline text-primary"></i> Data Leads All Sales
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="tab-pane fade show active p-3">
+                    <div class="card-datatable table-responsive pt-0">
+                        <table class="datatable-leads-admin table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th></th>
+                                    <th></th>
+                                    <th>ID</th>
+                                    <th>Company</th>
+                                    <th>Address</th>
+                                    <th>Status</th>
+                                    <th>Last Contact</th>
+                                    <th>Next Follow Up</th>
+                                    <th>Assigned</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     @endif
     @include('pages.sales.clients.leads.form')
-    {{-- @foreach ($client as $clients)
-        @include('pages.sales.activities.form')
-    @endforeach --}}
 @endsection
 
 @push('after-style')
@@ -164,6 +145,28 @@
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/datatables-rowgroup-bs5/rowgroup.bootstrap5.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/formvalidation/dist/css/formValidation.min.css" />
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/sweetalert2/sweetalert2.css" />
+    <style>
+        .card-minimalist {
+            border: 1px solid #e0e2e8 !important;
+            box-shadow: none !important;
+            border-radius: 12px;
+        }
+        .card-minimalist-header {
+            border-bottom: 1px solid #e0e2e8 !important;
+            background-color: #fafbfe;
+            border-top-left-radius: 12px !important;
+            border-top-right-radius: 12px !important;
+        }
+        .nav-tabs .nav-link {
+            border-radius: 6px 6px 0 0;
+            font-weight: 500;
+        }
+        .nav-tabs .nav-link.active {
+            border-color: #e0e2e8 #e0e2e8 #fff !important;
+            background-color: #ffffff;
+            font-weight: 600;
+        }
+    </style>
 @endpush
 
 @push('after-script')

@@ -2,11 +2,11 @@
 use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
-$host = "localhost";
-$users = "u877155683_reftech_my";
-$pass = "REFtechjaya321!";
+$host = config('database.connections.mysql.host');
+$users = config('database.connections.mysql.username');
+$pass = config('database.connections.mysql.password');
 
-$databaseName = "u877155683_reftech_my";
+$databaseName = config('database.connections.mysql.database');
 $tableName = "product";
 
 // Periksa apakah pengguna terotentikasi
@@ -34,8 +34,8 @@ if (Auth::check()) {
             LEFT JOIN 
                 detail_product dp ON u.id = dp.id_product
             WHERE u.type = 'global' AND u.unit = 'REFRIGERANT AIR DRYER'
-            GROUP BY 
-                u.id";
+            GROUP BY u.id
+            ORDER BY u.id DESC";
 
         $stmt = $pdo->prepare($query);
         // $stmt->bindParam(':user_id', $user->id, PDO::PARAM_INT);

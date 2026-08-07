@@ -50,19 +50,11 @@ $(function () {
                     },
                 },
                 {
-                    // For Checkboxes
+                    // Checkbox column removed, kept hidden to avoid reindexing other targets
                     targets: 1,
+                    visible: false,
                     orderable: false,
                     searchable: false,
-                    responsivePriority: 3,
-                    checkboxes: true,
-                    render: function () {
-                        return '<input type="checkbox" class="dt-checkboxes form-check-input">';
-                    },
-                    checkboxes: {
-                        selectAllRender:
-                            '<input type="checkbox" class="form-check-input">',
-                    },
                 },
                 {
                     targets: 2,
@@ -78,6 +70,9 @@ $(function () {
                     render: function (data, type, full, row) {
                         var id = full["id"];
                         return (
+                            '<a href="#" data-id="' +
+                            id +
+                            '" class="btn btn-sm btn-label-danger delete-pic m-2"><i class="menu-icon tf-icons mdi mdi-14px mdi-delete-outline m-0"></i></a>' +
                             '<a type="button" href="#" data-bs-toggle="modal" data-bs-target="#updatePic-' +
                             id +
                             '" data-id="' +

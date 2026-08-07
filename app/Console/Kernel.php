@@ -16,6 +16,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        $schedule->command('tools:generate-audit-period')->daily();
+        $schedule->command('forecast:generate-next-year')->yearlyOn(12, 25, '00:00');
+        $schedule->command('unit-quotation:expire')->dailyAt('00:01');
     }
 
     /**

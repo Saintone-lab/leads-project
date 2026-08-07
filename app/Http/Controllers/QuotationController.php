@@ -18,6 +18,7 @@ use App\Models\MachineTemplate;
 use App\Models\Payment;
 use App\Models\PendingPO;
 use App\Models\Pic;
+use App\Models\PurchaseRequest;
 use App\Models\Product;
 use App\Models\Prospect;
 use App\Models\Quotation;
@@ -26,7 +27,9 @@ use App\Models\SubtitleQuotation;
 use App\Models\SubtitleTemplate;
 use App\Models\Termncon;
 use App\Models\Unit;
+use App\Models\Suo;
 use App\Models\User;
+use App\Services\DeletionGuardService;
 use Carbon\Carbon;
 use File;
 use Illuminate\Support\Facades\Auth;
@@ -44,17 +47,32 @@ class QuotationController extends Controller
      */
     public function index()
     {
-        $quotation = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->get();
-        $forecast = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->whereIn('status', ['20', '30', '40', '60', '80'])->where('type', 'Sparepart')->sum('nett');
-        $prospect = Quotation::where('id_sales', Auth::user()->id)->where('level', '1')->where('is_primary', '1')->where('status', '80')->where('type', 'Sparepart')->sum('nett');
-        $po = Quotation::where('id_sales', Auth::user()->id)->where('status', '100')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        $loss = Quotation::where('id_sales', Auth::user()->id)->where('status', '0')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        $quotationAdmin = Quotation::get();
-        $forecastAdmin = Quotation::whereIn('status', ['20', '30', '40', '60', '80'])->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        $prospectAdmin = Quotation::where('status', '80')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        $poAdmin = Quotation::where('status', '100')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        $lossAdmin = Quotation::where('status', '0')->where('level', '1')->where('is_primary', '1')->where('type', 'Sparepart')->sum('nett');
-        // dd();
+        $currentYear = now()->year;
+
+        // Sales card stats:
+        $salesStats = $this->calculateCardStats($currentYear, null);
+        $forecast = $salesStats['forecast_sum'];
+        $forecastCount = $salesStats['forecast_count'];
+        $prospect = $salesStats['prospect_sum'];
+        $prospectCount = $salesStats['prospect_count'];
+        $po = $salesStats['po_sum'];
+        $poCount = $salesStats['po_count'];
+        $loss = $salesStats['loss_sum'];
+        $lossCount = $salesStats['loss_count'];
+
+        // Admin card stats: sama persis dengan $salesStats di atas (currentYear, null) — reuse, jangan query ulang
+        $adminStats = $salesStats;
+        $forecastAdmin = $adminStats['forecast_sum'];
+        $forecastAdminCount = $adminStats['forecast_count'];
+        $prospectAdmin = $adminStats['prospect_sum'];
+        $prospectAdminCount = $adminStats['prospect_count'];
+        $poAdmin = $adminStats['po_sum'];
+        $poAdminCount = $adminStats['po_count'];
+        $lossAdmin = $adminStats['loss_sum'];
+        $lossAdminCount = $adminStats['loss_count'];
+
+        $quotation = collect([]);
+        $quotationAdmin = collect([]);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
         $machine = MachineTemplate::all();
@@ -122,7 +140,186 @@ class QuotationController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.sales.quotation.index', compact('machine', 'noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin'));
+        $salesList = User::where('role', 'Sales')->orderBy('name')->get(['id', 'name']);
+        return view('pages.sales.quotation.index', compact('machine', 'noSaleProspect', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'leveledProspect', 'quotation', 'forecast', 'prospect', 'po', 'loss', 'quotationAdmin', 'forecastAdmin', 'prospectAdmin', 'poAdmin', 'lossAdmin', 'salesList', 'forecastCount', 'prospectCount', 'poCount', 'lossCount', 'forecastAdminCount', 'prospectAdminCount', 'poAdminCount', 'lossAdminCount'));
+    }
+
+    public function cardStats(Request $request)
+    {
+        $year = $request->get('year', now()->year);
+        $salesId = $request->get('sales_id');
+
+        $stats = $this->calculateCardStats($year, $salesId);
+
+        return response()->json($stats);
+    }
+
+    private function calculateCardStats($year, $salesId = null)
+    {
+        $isAdmin = Auth::user()->role === 'Admin';
+
+        // 1. Forecast (Quotation)
+        $qForecast = \DB::table('quotation as q')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->whereIn('q.status', ['20', '30', '40', '60', '80'])
+            ->where('q.level', '1')
+            ->where('q.is_primary', '1')
+            ->where('q.type', '!=', 'Unit');
+
+        // 2. Hot Prospect
+        $qProspect = \DB::table('quotation as q')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('q.status', 80)
+            ->where('q.level', '1')
+            ->where('q.is_primary', '1')
+            ->where('q.type', '!=', 'Unit');
+
+        $uqProspect = \DB::table('unit_quotation as uq')
+            ->join('users as u2', 'u2.id', '=', 'uq.id_sales')
+            ->where('uq.status', 'hot_prospect')
+            ->where('uq.is_latest', 1);
+
+        // 3. Purchase Order
+        $qPo = \DB::table('quotation as q')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('q.status', '100')
+            ->where('q.level', '1')
+            ->where('q.is_primary', '1');
+
+        $uqPo = \DB::table('unit_quotation as uq')
+            ->join('users as u2', 'u2.id', '=', 'uq.id_sales')
+            ->where('uq.status', 'po_received')
+            ->where('uq.is_latest', 1);
+
+        // 4. Loss Order
+        $qLoss = \DB::table('quotation as q')
+            ->join('users as u', 'u.id', '=', 'q.id_sales')
+            ->where('q.status', '0')
+            ->where('q.level', '1');
+
+        // Apply sales filter
+        if ($isAdmin) {
+            if (!empty($salesId)) {
+                $qForecast->where('u.id', $salesId);
+                $qProspect->where('u.id', $salesId);
+                $uqProspect->where('u2.id', $salesId);
+                $qPo->where('u.id', $salesId);
+                $uqPo->where('u2.id', $salesId);
+                $qLoss->where('u.id', $salesId);
+            }
+        } else {
+            $qForecast->where('u.id', Auth::id());
+            $qProspect->where('u.id', Auth::id());
+            $uqProspect->where('uq.id_sales', Auth::id());
+            $qPo->where('u.id', Auth::id());
+            $uqPo->where('uq.id_sales', Auth::id());
+            $qLoss->where('u.id', Auth::id());
+        }
+
+        // Apply year filter
+        if ($year && $year !== 'all') {
+            $yearInt = intval($year);
+            $qForecast->whereYear('q.estimated_date', $yearInt);
+            $qProspect->whereYear('q.estimated_date', $yearInt);
+            $uqProspect->whereYear('uq.date', $yearInt);
+            $qPo->whereYear('q.po_date', $yearInt);
+
+            $uqPo->whereExists(function($query) use ($yearInt) {
+                $query->select(\DB::raw(1))
+                      ->from('unit_quotation_status_history as sh')
+                      ->whereColumn('sh.id_unit_quotation', 'uq.id')
+                      ->where('sh.status', 'po_received')
+                      ->whereYear('sh.created_at', $yearInt);
+            });
+
+            $qLoss->whereYear('q.estimated_date', $yearInt);
+        }
+
+        // 1. Calculate Forecast Stats
+        $forecastItems = $qForecast->select('q.primary_id', \DB::raw('MAX(q.subtotal) as subtotal'))->groupBy('q.primary_id')->get();
+        $forecastSum = $forecastItems->sum('subtotal') ?? 0;
+        $forecastCount = $forecastItems->count();
+
+        // 2. Calculate Hot Prospect Stats
+        $prospectItems = $qProspect->select('q.primary_id', \DB::raw('MAX(q.subtotal) as subtotal'))->groupBy('q.primary_id')->get();
+        $prospectSumQ = $prospectItems->sum('subtotal') ?? 0;
+        $prospectCountQ = $prospectItems->count();
+
+        $uqProspectItems = $uqProspect->select('uq.subtotal')->get();
+        $prospectSumUQ = $uqProspectItems->sum('subtotal') ?? 0;
+        $prospectCountUQ = $uqProspectItems->count();
+
+        $prospectSum = $prospectSumQ + $prospectSumUQ;
+        $prospectCount = $prospectCountQ + $prospectCountUQ;
+
+        // 3. Calculate PO Stats
+        $poItems = $qPo->select('q.nett')->get();
+        $poSumQ = $poItems->sum('nett') ?? 0;
+        $poCountQ = $poItems->count();
+
+        $uqPoItems = $uqPo->select(\DB::raw('(uq.total - uq.tax_amount) as nett'))->get();
+        $poSumUQ = $uqPoItems->sum('nett') ?? 0;
+        $poCountUQ = $uqPoItems->count();
+
+        $poSum = $poSumQ + $poSumUQ;
+        $poCount = $poCountQ + $poCountUQ;
+
+        // 4. Calculate Loss Stats
+        $lossItems = $qLoss->select('q.harga_total')->get();
+        $lossSum = $lossItems->sum('harga_total') ?? 0;
+        $lossCount = $lossItems->count();
+
+        return [
+            'forecast_sum' => $forecastSum,
+            'forecast_count' => $forecastCount,
+            'prospect_sum' => $prospectSum,
+            'prospect_count' => $prospectCount,
+            'po_sum' => $poSum,
+            'po_count' => $poCount,
+            'loss_sum' => $lossSum,
+            'loss_count' => $lossCount,
+        ];
+    }
+
+    public function searchProducts(Request $request)
+    {
+        $search = $request->input('q');
+
+        $query = \DB::table('product')
+            ->join('serial_product as s', 's.id_product', '=', 'product.id')
+            ->select([
+                's.id',
+                'product.id as comId',
+                's.pn',
+                's.brand',
+                'product.go',
+                'product.detail_desc',
+                'product.unit'
+            ]);
+
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('s.pn', 'like', "%{$search}%")
+                  ->orWhere('s.brand', 'like', "%{$search}%")
+                  ->orWhere('product.go', 'like', "%{$search}%")
+                  ->orWhere('product.detail_desc', 'like', "%{$search}%");
+            });
+        }
+
+        $products = $query->limit(30)->get();
+
+        $results = [];
+        foreach ($products as $p) {
+            $results[] = [
+                'id' => $p->id,
+                'text' => "{$p->brand} {$p->pn} ({$p->detail_desc}) || {$p->go}",
+                'replacement' => $p->id,
+                'commodity' => $p->comId,
+                'unit' => $p->unit
+            ];
+        }
+
+        return response()->json($results);
     }
 
     /**
@@ -133,81 +330,14 @@ class QuotationController extends Controller
     public function create()
     {
         $dateNow = Carbon::now();
-        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow->year)->where('id_sales', Auth::user()->id)->count();
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         // $pic = Pic::join('client as c', 'c.id', '=', 'pic.id_client')->where('c.id_sales', Auth::user()->id)->get('pic.*');
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         $sales = User::where('role', 'sales')->get();
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
-        // dd($product);
-
-
-        // Comment Buat Admin
-        $firstComments = Comment::where('id_user', Auth::id())
-            ->groupBy('id_status')
-            ->get();
-
-        $statusIds = $firstComments->pluck('id_status')->toArray();
-        $dates = $firstComments->pluck('created_at', 'id_status');
-
-        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
-            ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
-            ->join('users as u', 'u.id', '=', 'comment.id_user')
-            ->whereIn('comment.id_status', $statusIds)
-            ->where(function ($query) use ($dates) {
-                foreach ($dates as $statusId => $createdAt) {
-                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
-                        $subQuery->where('comment.id_status', $statusId)
-                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
-                    });
-                }
-            })
-            ->where('comment.id_user', '!=', Auth::id());
-
-        // Ambil semua komentar yang relevan
-        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
-            ->orderByDesc('comment.created_at')
-            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
-
-        // Filter untuk komentar dengan level '1'
-        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
-            ->orderBy('comment.id_status')
-            ->orderByDesc('comment.created_at')
-            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
-
-        // End Comment Admin
-        $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
-            ->join('comment as o', 'o.id_status', '=', 'c.id')
-            ->join('users as u', 'u.id', '=', 'o.id_user')
-            ->where('quotation.id_sales', Auth::id())
-            ->where('o.type', 'quotation')  // Pastikan filter type di sini
-            ->where('o.id_user', '!=', Auth::id())
-            ->orderBy('o.date', 'DESC')
-            ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
-
-        // Query untuk mengambil data dengan type "prospect"
-        $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
-            ->join('users as u', 'u.id', '=', 'comment.id_user')
-            ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
-            ->join('client as c', 'c.id', '=', 'pi.id_client')
-            ->where('p.id_sales', Auth::id())
-            ->where('comment.type', 'prospect')  // Pastikan filter type di sini
-            ->where('comment.id_user', '!=', Auth::id())
-            ->orderBy('comment.date', 'DESC')
-            ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
-
-        // Menggabungkan kedua query menggunakan union
-        $comment = $quotationComment->union($prospectComment)
-            ->orderBy('date', 'DESC')
-            ->take(5)
-            ->get();
-        $unreadComment = $quotationComment->union($prospectComment)
-            ->orderBy('date', 'DESC')
-            ->where('o.level', '1')
-            ->take(5)
-            ->get();
+        $product = collect([]);
         return view('pages.sales.quotation.form', compact('pic', 'sales', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
@@ -278,7 +408,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -328,6 +458,16 @@ class QuotationController extends Controller
                 $termncon->payment = $request->payment;
                 $termncon->note = $request->note;
                 $termnconSave = $termncon->save();
+
+                // Link ke SUO jika convert dari SUO
+                if (session('suo_convert')) {
+                    $suoData = session('suo_convert');
+                    Suo::where('id', $suoData['id_suo'])->update([
+                        'status'       => 'converted',
+                        'id_quotation' => $quotation->id,
+                    ]);
+                    session()->forget('suo_convert');
+                }
             }
         }
         if ($previousUrl == 'unit') {
@@ -350,6 +490,17 @@ class QuotationController extends Controller
      */
     public function show($id)
     {
+        $quote = Quotation::find($id);
+        if ($quote) {
+            if ($quote->type === 'Service') {
+                return redirect()->route('show-service.quotation', $id);
+            } elseif ($quote->type === 'Overhaul') {
+                return redirect()->route('show-overhaul.quotation', $id);
+            } elseif ($quote->type === 'Unit') {
+                return redirect()->route('detail.quote-unit', $id);
+            }
+        }
+
         $totalAmount = 0;
         $dateNow = Carbon::now();
         $numberSP = Contract::join('quotation as q', 'contract.id_quotation', '=', 'q.id')->whereYear('contract.date', $dateNow)->where('q.tax', '11')->where('contract.type', 'Selling')->groupBy('contract.id')->get('contract.id');
@@ -531,7 +682,7 @@ class QuotationController extends Controller
         $quotation->expired_date = $request->expired_date;
         $quotation->estimated_date = $request->estimated_date;
         $quotation->tax = $request->tax;
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -695,7 +846,8 @@ class QuotationController extends Controller
     {
         // dd($request->all());
         // $lastQuote = Quotation::where('primary_id', $quote->primary_id)->orderByDesc('num_rev')->first();
-        $pic = Pic::find($request->id_pic);
+        $picId = $request->pic ?? $request->id_pic;
+        $pic = Pic::find($picId);
         $client = Client::find($pic->id_client);
         $rule = [
             'no_quote' => 'required',
@@ -722,7 +874,7 @@ class QuotationController extends Controller
         // Masukan Data ke Tabel Quotataion
         // $quotation = new Quotation();
         $quotation = Quotation::find($id);
-        $quotation->id_pic = $request->id_pic;
+        $quotation->id_pic = $picId;
         $quotation->id_sales = $request->id_sales;
         $quotation->id_support = $client->id_support;
         $quotation->status_date = Carbon::today();
@@ -736,7 +888,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -812,6 +964,20 @@ class QuotationController extends Controller
     public function destroy($id)
     {
         $quotation = Quotation::find($id);
+
+        if (!$quotation) {
+            return response()->json(['error' => 'Quotation not found.'], 404);
+        }
+
+        $guard = app(DeletionGuardService::class);
+        $check = $guard->checkQuotationDeletion($quotation);
+
+        if (!$check['allowed']) {
+            return response()->json([
+                'error' => 'Quotation tidak dapat dihapus karena masih memiliki relasi aktif: ' . implode(', ', $check['reasons']),
+            ], 422);
+        }
+
         $quote = Quotation::where('primary_id', $quotation->primary_id)->where('num_rev', $quotation->num_rev - 1)->first();
         $quotes = Quotation::where('primary_id', $quotation->primary_id)->where('level', '1')->get();
 
@@ -859,14 +1025,14 @@ class QuotationController extends Controller
         $dquotation = DetailQuotation::where('id_quotation', $id)->get();
         $client = Client::all();
         $dateNow = Carbon::now();
-        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow->year)->where('id_sales', Auth::user()->id)->count();
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         // $pic = Pic::all();
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         // dd($pic);
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = collect([]);
         $sales = User::where('role', 'sales')->get();
         // dd($dquotation);
         return view('pages.sales.quotation.form', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
@@ -877,14 +1043,14 @@ class QuotationController extends Controller
         $dquotation = DetailQuotation::where('id_quotation', $id)->get();
         $client = Client::all();
         $dateNow = Carbon::now();
-        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow->year)->where('id_sales', Auth::user()->id)->count();
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         // $pic = Pic::all();
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
         // dd($pic);
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['s.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = collect([]);
         $sales = User::where('role', 'sales')->get();
         // dd($dquotation);
         return view('pages.sales.quotation.edit', compact('quotation', 'dquotation', 'sales', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
@@ -894,80 +1060,15 @@ class QuotationController extends Controller
         $quotation = Quotation::find($id);
         $subtitle = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
         $dateNow = Carbon::now();
-        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow->year)->where('id_sales', Auth::user()->id)->count();
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
         $pic = client::where('client.id_sales', Auth::user()->id)->get();
+        $pics = Pic::where('id_client', $quotation->pic->id_client)->get();
         // $pic = Pic::join('client', 'client.id', '=', 'id_client')->where('client.id_sales', Auth::user()->id)->get('pic.*');
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
-        // dd($subtitle);
-
-        // Comment Buat Admin
-        $firstComments = Comment::where('id_user', Auth::id())
-            ->groupBy('id_status')
-            ->get();
-
-        $statusIds = $firstComments->pluck('id_status')->toArray();
-        $dates = $firstComments->pluck('created_at', 'id_status');
-
-        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
-            ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
-            ->join('users as u', 'u.id', '=', 'comment.id_user')
-            ->whereIn('comment.id_status', $statusIds)
-            ->where(function ($query) use ($dates) {
-                foreach ($dates as $statusId => $createdAt) {
-                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
-                        $subQuery->where('comment.id_status', $statusId)
-                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
-                    });
-                }
-            })
-            ->where('comment.id_user', '!=', Auth::id());
-
-        // Ambil semua komentar yang relevan
-        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
-            ->orderByDesc('comment.created_at')
-            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
-
-        // Filter untuk komentar dengan level '1'
-        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
-            ->orderBy('comment.id_status')
-            ->orderByDesc('comment.created_at')
-            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
-
-        // End Comment Admin
-        $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
-            ->join('comment as o', 'o.id_status', '=', 'c.id')
-            ->join('users as u', 'u.id', '=', 'o.id_user')
-            ->where('quotation.id_sales', Auth::id())
-            ->where('o.type', 'quotation')  // Pastikan filter type di sini
-            ->where('o.id_user', '!=', Auth::id())
-            ->orderBy('o.date', 'DESC')
-            ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
-
-        // Query untuk mengambil data dengan type "prospect"
-        $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
-            ->join('users as u', 'u.id', '=', 'comment.id_user')
-            ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
-            ->join('client as c', 'c.id', '=', 'pi.id_client')
-            ->where('p.id_sales', Auth::id())
-            ->where('comment.type', 'prospect')  // Pastikan filter type di sini
-            ->where('comment.id_user', '!=', Auth::id())
-            ->orderBy('comment.date', 'DESC')
-            ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
-
-        // Menggabungkan kedua query menggunakan union
-        $comment = $quotationComment->union($prospectComment)
-            ->orderBy('date', 'DESC')
-            ->take(5)
-            ->get();
-        $unreadComment = $quotationComment->union($prospectComment)
-            ->orderBy('date', 'DESC')
-            ->where('o.level', '1')
-            ->take(5)
-            ->get();
-        return view('pages.sales.quotation.service.edit', compact('quotation', 'subtitle', 'pic', 'formattedNumberQ', 'formattedMonthNow', 'product'));
+        $product = collect([]);
+        return view('pages.sales.quotation.service.edit', compact('quotation', 'subtitle', 'pic', 'pics', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }
 
     public function change_status($id, Request $request)
@@ -1032,15 +1133,104 @@ class QuotationController extends Controller
             $pending = new PendingPO;
             $pending->status = 0;
 
-            if ($quotation->type == 'Sparepart') {
-                $pending->type = "Non Project";
-            } else {
-                $pending->type = "Project";
+            $pending->type = $request->input('type', ($quotation->type == 'Sparepart' ? 'Non Project' : 'Project'));
+            if ($pending->type === 'Project') {
+                $pending->project_category = $request->input('project_category', 'Service PM');
+                $pending->project_status_step = 1;
             }
             $pending->id_quotation = $quotation->primary_id;
             $pending->no_pending = $request->no_pending;
+            $pending->delivery = $request->ekspidisi;
+            $combine = $request->has('combine_shipping_and_parts') || $request->combine_shipping_and_parts == 1;
+            $pending->combine_shipping_and_parts = $combine;
+
+            $ship_type = $request->input('shipping_address_type', 'customer');
+            $ship_manual = $ship_type === 'manual' ? $request->input('shipping_address_manual') : ($ship_type !== 'customer' ? $ship_type : null);
+
+            $pending->shipping_address_type = ($ship_type === 'customer') ? 'customer' : 'manual';
+            $pending->shipping_address_manual = $ship_manual;
+
+            if ($combine) {
+                $pending->doc_address_type = $pending->shipping_address_type;
+                $pending->doc_address_manual = $pending->shipping_address_manual;
+                $pending->charged = $request->input('charged');
+                $pending->doc_charged = null;
+                $pending->shipping_charged = null;
+                $pending->doc_recipient_id = $request->input('shipping_recipient_id');
+                $pending->shipping_recipient_id = $request->input('shipping_recipient_id');
+            } else {
+                $doc_type = $request->input('doc_address_type', 'customer');
+                $doc_manual = $doc_type === 'manual' ? $request->input('doc_address_manual') : ($doc_type !== 'customer' ? $doc_type : null);
+
+                $pending->doc_address_type = ($doc_type === 'customer') ? 'customer' : 'manual';
+                $pending->doc_address_manual = $doc_manual;
+                $pending->charged = null;
+                $pending->doc_charged = $request->input('doc_charged');
+                $pending->shipping_charged = $request->input('shipping_charged');
+                $pending->doc_recipient_id = $request->input('doc_recipient_id');
+                $pending->shipping_recipient_id = $request->input('shipping_recipient_id');
+            }
             $pending->date = Carbon::now();
             $pending->save();
+
+            if ($quotation->type == 'Sparepart') {
+                foreach ($detQuote as $item) {
+                    if ($item->id_equivalent != '0') {
+                        $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')
+                            ->where('sp.id', $item->id_equivalent)
+                            ->select('product.*')
+                            ->first();
+
+                        if ($product) {
+                            $bdgStock = $product->stock ?? 0;
+                            $bksStock = $product->warehouse_stock ?? 0;
+                            $totalStock = $bdgStock + $bksStock;
+
+                            $bdgAlloc = 0;
+                            $bksAlloc = 0;
+
+                            if ($totalStock >= $item->qty) {
+                                $item->status = 2; // Ready Stock
+                                if ($bdgStock >= $item->qty) {
+                                    $bdgAlloc = $item->qty;
+                                    $bksAlloc = 0;
+                                } else {
+                                    $bdgAlloc = $bdgStock;
+                                    $bksAlloc = $item->qty - $bdgStock;
+                                }
+                                $item->note = 'Auto Allocated & Reserved (Ready Stock)';
+                            } else {
+                                $item->status = 3; // Kurang
+                                $bdgAlloc = $bdgStock;
+                                $bksAlloc = $bksStock;
+                                $item->note = 'Auto Allocated & Reserved (Kurang). Kept available stock: BDG ' . $bdgAlloc . ', BKS ' . $bksAlloc;
+
+                                // Auto Create Purchase Request for the missing quantity
+                                $missingQty = $item->qty - $totalStock;
+                                $pr = new PurchaseRequest();
+                                $pr->no_pr = $this->generateNoPr();
+                                $pr->id_pending = $pending->id;
+                                $pr->id_user = Auth::id() ?? $quotation->id_sales;
+                                $pr->id_equivalent = $item->id_equivalent;
+                                $pr->qty = $missingQty;
+                                $pr->status = '0';
+                                $pr->date = Carbon::now();
+                                $pr->note = 'Otomatis dibuat oleh sistem karena stok kurang (Butuh: ' . $item->qty . ', Tersedia: ' . $totalStock . ')';
+                                $pr->save();
+                            }
+
+                            $product->stock -= $bdgAlloc;
+                            $product->warehouse_stock -= $bksAlloc;
+                            $product->pending_stock += ($bdgAlloc + $bksAlloc);
+                            $product->save();
+
+                            $item->bdg = $bdgAlloc;
+                            $item->bks = $bksAlloc;
+                            $item->save();
+                        }
+                    }
+                }
+            }
 
             if ($quotation->type != 'Sparepart') {
                 foreach ($subQuote as $subtitle) {
@@ -1295,17 +1485,104 @@ class QuotationController extends Controller
         $pending = new PendingPO;
         $pending->status = 0;
         $pending->id_quotation = $id;
-        if ($quotation->type == 'Sparepart') {
-            $pending->type = "Non Project";
-        } else {
-            $pending->type = "Project";
+        $pending->type = $request->input('type', ($quotation->type == 'Sparepart' ? 'Non Project' : 'Project'));
+        if ($pending->type === 'Project') {
+            $pending->project_category = $request->input('project_category', 'Service PM');
+            $pending->project_status_step = 1;
         }
-        $pending->charged = $request->charged;
         $pending->title = $request->title;
         $pending->no_pending = $request->no_pending;
         $pending->delivery = $request->ekspidisi;
+        $combine = $request->has('combine_shipping_and_parts') || $request->combine_shipping_and_parts == 1;
+        $pending->combine_shipping_and_parts = $combine;
+
+        $ship_type = $request->input('shipping_address_type', 'customer');
+        $ship_manual = $ship_type === 'manual' ? $request->input('shipping_address_manual') : ($ship_type !== 'customer' ? $ship_type : null);
+
+        $pending->shipping_address_type = ($ship_type === 'customer') ? 'customer' : 'manual';
+        $pending->shipping_address_manual = $ship_manual;
+
+        if ($combine) {
+            $pending->doc_address_type = $pending->shipping_address_type;
+            $pending->doc_address_manual = $pending->shipping_address_manual;
+            $pending->charged = $request->input('charged');
+            $pending->doc_charged = null;
+            $pending->shipping_charged = null;
+            $pending->doc_recipient_id = $request->input('shipping_recipient_id');
+            $pending->shipping_recipient_id = $request->input('shipping_recipient_id');
+        } else {
+            $doc_type = $request->input('doc_address_type', 'customer');
+            $doc_manual = $doc_type === 'manual' ? $request->input('doc_address_manual') : ($doc_type !== 'customer' ? $doc_type : null);
+
+            $pending->doc_address_type = ($doc_type === 'customer') ? 'customer' : 'manual';
+            $pending->doc_address_manual = $doc_manual;
+            $pending->charged = null;
+            $pending->doc_charged = $request->input('doc_charged');
+            $pending->shipping_charged = $request->input('shipping_charged');
+            $pending->doc_recipient_id = $request->input('doc_recipient_id');
+            $pending->shipping_recipient_id = $request->input('shipping_recipient_id');
+        }
         $pending->date = Carbon::now();
         $pending->save();
+
+        if ($quotation->type == 'Sparepart') {
+            foreach ($detQuote as $item) {
+                if ($item->id_equivalent != '0') {
+                    $product = Product::join('serial_product as sp', 'sp.id_product', '=', 'product.id')
+                        ->where('sp.id', $item->id_equivalent)
+                        ->select('product.*')
+                        ->first();
+
+                    if ($product) {
+                        $bdgStock = $product->stock ?? 0;
+                        $bksStock = $product->warehouse_stock ?? 0;
+                        $totalStock = $bdgStock + $bksStock;
+
+                        $bdgAlloc = 0;
+                        $bksAlloc = 0;
+
+                        if ($totalStock >= $item->qty) {
+                            $item->status = 2; // Ready Stock
+                            if ($bdgStock >= $item->qty) {
+                                $bdgAlloc = $item->qty;
+                                $bksAlloc = 0;
+                            } else {
+                                $bdgAlloc = $bdgStock;
+                                $bksAlloc = $item->qty - $bdgStock;
+                            }
+                            $item->note = 'Auto Allocated & Reserved (Ready Stock)';
+                        } else {
+                            $item->status = 3; // Kurang
+                            $bdgAlloc = $bdgStock;
+                            $bksAlloc = $bksStock;
+                            $item->note = 'Auto Allocated & Reserved (Kurang). Kept available stock: BDG ' . $bdgAlloc . ', BKS ' . $bksAlloc;
+
+                            // Auto Create Purchase Request for the missing quantity
+                            $missingQty = $item->qty - $totalStock;
+                            $pr = new PurchaseRequest();
+                            $pr->no_pr = $this->generateNoPr();
+                            $pr->id_pending = $pending->id;
+                            $pr->id_user = Auth::id() ?? $quotation->id_sales;
+                            $pr->id_equivalent = $item->id_equivalent;
+                            $pr->qty = $missingQty;
+                            $pr->status = '0';
+                            $pr->date = Carbon::now();
+                            $pr->note = 'Otomatis dibuat oleh sistem karena stok kurang (Butuh: ' . $item->qty . ', Tersedia: ' . $totalStock . ')';
+                            $pr->save();
+                        }
+
+                        $product->stock -= $bdgAlloc;
+                        $product->warehouse_stock -= $bksAlloc;
+                        $product->pending_stock += ($bdgAlloc + $bksAlloc);
+                        $product->save();
+
+                        $item->bdg = $bdgAlloc;
+                        $item->bks = $bksAlloc;
+                        $item->save();
+                    }
+                }
+            }
+        }
 
         if ($quotation->type != 'Sparepart') {
             foreach ($subQuote as $subtitle) {
@@ -1498,6 +1775,21 @@ class QuotationController extends Controller
             return response()->json(['error' => 'Quotation not found.'], 404);
         }
 
+        $client = $quote->pic?->client;
+        if (!$client) {
+            return redirect()->back()->with('error', 'Data client tidak ditemukan.');
+        }
+
+        $npwpClean = preg_replace('/[^a-zA-Z0-9]/', '', $client->npwp ?? '');
+        if ($quote->tax != 0 && strlen($npwpClean) < 14) {
+            $errorMsg = 'NPWP client belum diisi atau kurang dari 14 karakter. Pengajuan PO tidak dapat diproses.';
+            if ($quote->type == 'Sparepart') {
+                return redirect('/quotation/' . $id)->with('error', $errorMsg);
+            } else {
+                return redirect('/quote/service-show/' . $id)->with('error', $errorMsg);
+            }
+        }
+
         // dd($request->file('uploadPO'));
         if ($request->hasFile('uploadPO')) {
             $foto = $request->file('uploadPO');
@@ -1533,7 +1825,14 @@ class QuotationController extends Controller
             $invoice->id_quotation = $id;
             $invoice->no_po = $request->po;
             $invoice->flag = $quote->pic->client->info;
-            if (Auth::user()->id == 16 || Auth::user()->id == 23) {
+
+            // Jika quotation berasal dari SUO, gunakan no_invoice_booking langsung
+            $suo = Suo::where('id_quotation', $id)->whereNotNull('no_invoice_booking')->first();
+            if ($suo) {
+                $invoice->no_invoice = $suo->no_invoice_booking;
+                $invoice->term = 'Cash Before Delivery';
+                $invoice->invoiceTo = $quote->destination;
+            } elseif (Auth::user()->id == 16 || Auth::user()->id == 23) {
                 $invoice->no_invoice = $quote->no_quote;
                 $invoice->term = 'Cash Before Delivery';
                 $invoice->invoiceTo = $quote->destination;
@@ -1542,7 +1841,18 @@ class QuotationController extends Controller
                 $invoice->term = NULL;
                 $invoice->invoiceTo = NULL;
             }
-            $invoice->type = 'CT';
+            $firstPayment = Payment::where('id_quotation', $id)->first();
+            if ($firstPayment) {
+                if ($firstPayment->type == 'CBD' || $firstPayment->type == 'COD' || $firstPayment->percent == 100) {
+                    $invoice->type = 'CT';
+                } elseif ($firstPayment->type != 'Tempo') {
+                    $invoice->type = $firstPayment->type;
+                } else {
+                    $invoice->type = 'BP';
+                }
+            } else {
+                $invoice->type = 'CT';
+            }
             $invoice->date = Carbon::today();
             $invoice->sign = NULL;
             $invoice->pph = 0;
@@ -1581,6 +1891,22 @@ class QuotationController extends Controller
 
             if (!$quote) {
                 return response()->json(['error' => 'Quotation not found.'], 404);
+            }
+
+            $guard = app(DeletionGuardService::class);
+            $check = $guard->checkQuotationDeletion($quote);
+            if (!$check['allowed']) {
+                return response()->json([
+                    'error' => 'PO tidak dapat dihapus karena quotation memiliki relasi aktif: ' . implode(', ', $check['reasons']),
+                ], 422);
+            }
+
+            $guard = app(DeletionGuardService::class);
+            $check = $guard->checkQuotationDeletion($quote);
+            if (!$check['allowed']) {
+                return response()->json([
+                    'error' => 'PO tidak dapat dihapus karena quotation memiliki relasi aktif: ' . implode(', ', $check['reasons']),
+                ], 422);
             }
 
             $file_path = public_path($quote->po_file);
@@ -1640,17 +1966,19 @@ class QuotationController extends Controller
         $invoice = Invoice::where('id_quotation', $id)->get();
         // dd($request->type);
         $targetInvoice = $invoice[$paymentCount] ?? null;
-        if ($paymentCount != 0 || $request->type == "DP") {
-            if ($targetInvoice != null) {
-                if ($request->type == 'CBD' || $request->type == 'COD') {
+        if ($targetInvoice != null) {
+            if ($request->type == 'CBD' || $request->type == 'COD') {
+                $targetInvoice->type = 'CT';
+            } elseif ($request->type != 'Tempo') {
+                $targetInvoice->type = $request->type;
+            } else {
+                if ($request->percent == 100) {
                     $targetInvoice->type = 'CT';
-                } elseif ($request->type != 'Tempo') {
-                    $targetInvoice->type = $request->type;
                 } else {
                     $targetInvoice->type = 'BP';
                 }
-                $targetInvoice->save();
             }
+            $targetInvoice->save();
         }
 
         $activity = new ChangeStatus();
@@ -1744,9 +2072,20 @@ class QuotationController extends Controller
         if (!$payment) {
             return response()->json(['error' => 'Quotation not found.'], 404);
         }
+
+        $guard = app(DeletionGuardService::class);
+        $check = $guard->checkPaymentDeletion($payment);
+        if (!$check['allowed']) {
+            return response()->json([
+                'error' => 'Payment tidak dapat dihapus karena ' . implode(', ', $check['reasons']),
+            ], 422);
+        }
+
         $paymentDel = $payment->delete();
-        $invoice->type = 'CT';
-        $invoice->save();
+        if ($invoice) {
+            $invoice->type = 'CT';
+            $invoice->save();
+        }
 
         // $file_path = public_path($payment->file);
 
@@ -1814,8 +2153,19 @@ class QuotationController extends Controller
             $invoice->delete();
         }
 
-        // Hapus Pending
+        // Hapus Pending & KanbanTask terkait
         foreach ($pendings as $pending) {
+            $tasks = \App\Models\KanbanTask::where('pending_po_id', $pending->id)->get();
+            foreach ($tasks as $task) {
+                // Hapus file attachment dari disk jika ada
+                foreach ($task->attachments as $attachment) {
+                    $fullPath = public_path($attachment->file_path);
+                    if (file_exists($fullPath)) {
+                        @unlink($fullPath);
+                    }
+                }
+                $task->delete();
+            }
             $pending->delete();
         }
 
@@ -2213,7 +2563,11 @@ class QuotationController extends Controller
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
         $quotation->week = $request->week;
-        $quotation->no_pr = NULL;
+        if ($request->no_pr != NULL) {
+            $quotation->no_pr = $request->no_pr;
+        } else {
+            $quotation->no_pr = NULL;
+        }
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
@@ -2229,7 +2583,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -2336,7 +2690,11 @@ class QuotationController extends Controller
         $quotation->is_primary = '1';
         $quotation->num_rev = $lastQuote->num_rev + 1;
         $quotation->destination = $quote->destination;
-        $quotation->no_pr = NULL;
+        if ($request->no_pr != NULL) {
+            $quotation->no_pr = $request->no_pr;
+        } else {
+            $quotation->no_pr = NULL;
+        }
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
@@ -2352,7 +2710,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -2820,7 +3178,11 @@ class QuotationController extends Controller
         $quotation->num_rev = 0;
         $quotation->destination = $request->destination;
         $quotation->week = $request->week;
-        $quotation->no_pr = NULL;
+        if ($request->no_pr != NULL) {
+            $quotation->no_pr = $request->no_pr;
+        } else {
+            $quotation->no_pr = NULL;
+        }
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
@@ -2836,7 +3198,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -3175,7 +3537,11 @@ class QuotationController extends Controller
         $quotation->is_primary = '1';
         $quotation->num_rev = $lastQuote->num_rev + 1;
         $quotation->destination = $quote->destination;
-        $quotation->no_pr = NULL;
+        if ($request->no_pr != NULL) {
+            $quotation->no_pr = $request->no_pr;
+        } else {
+            $quotation->no_pr = NULL;
+        }
         $quotation->status = "20";
         $quotation->status_date = Carbon::today();
         $quotation->note = "-";
@@ -3191,7 +3557,7 @@ class QuotationController extends Controller
         } else {
             $quotation->tax = 0;
         }
-        $quotation->shipping = $request->shipping;
+        $quotation->shipping = $request->shipping ?? 0;
         $quotation->no_quote = $request->no_quote;
         $quotation->title = $request->title;
         $quotation->subtotal = $request->subtotal;
@@ -3256,6 +3622,189 @@ class QuotationController extends Controller
         }
     }
 
+    public function editOverhaul($id)
+    {
+        $quotation = Quotation::find($id);
+        $subtitle = SubtitleQuotation::with('detail')->where('id_quotation', $id)->get();
+        $dateNow = Carbon::now();
+        $numberQ = Quotation::whereYear('estimated_date', $dateNow)->where('id_sales', Auth::user()->id)->count();
+        $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
+        $monthNow = $dateNow->month;
+        $formattedMonthNow = $this->convertToRoman($monthNow);
+        $pic = client::where('client.id_sales', Auth::user()->id)->get();
+        $pics = Pic::where('id_client', $quotation->pic->id_client)->get();
+        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+
+        // Comment Buat Admin
+        $firstComments = Comment::where('id_user', Auth::id())
+            ->groupBy('id_status')
+            ->get();
+
+        $statusIds = $firstComments->pluck('id_status')->toArray();
+        $dates = $firstComments->pluck('created_at', 'id_status');
+
+        $commentsQuery = Comment::join('change_status as c', 'c.id', '=', 'comment.id_status')
+            ->join('quotation as q', 'q.id', '=', 'c.id_quotation')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->whereIn('comment.id_status', $statusIds)
+            ->where(function ($query) use ($dates) {
+                foreach ($dates as $statusId => $createdAt) {
+                    $query->orWhere(function ($subQuery) use ($statusId, $createdAt) {
+                        $subQuery->where('comment.id_status', $statusId)
+                            ->whereRaw('TIMESTAMPDIFF(SECOND, ?, comment.created_at) > 0', [$createdAt]);
+                    });
+                }
+            })
+            ->where('comment.id_user', '!=', Auth::id());
+
+        // Ambil semua komentar yang relevan
+        $commentAdmin = $commentsQuery->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        // Filter untuk komentar dengan level '1'
+        $unreadCommentAdmin = $commentsQuery->where('comment.level', '1')
+            ->orderBy('comment.id_status')
+            ->orderByDesc('comment.created_at')
+            ->get(['q.id as idQ', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'q.no_quote', 'u.name', 'u.image']);
+
+        // End Comment Admin
+        $quotationComment = Quotation::join('change_status as c', 'c.id_quotation', '=', 'quotation.id')
+            ->join('comment as o', 'o.id_status', '=', 'c.id')
+            ->join('users as u', 'u.id', '=', 'o.id_user')
+            ->where('quotation.id_sales', Auth::id())
+            ->where('o.type', 'quotation')  // Pastikan filter type di sini
+            ->where('o.id_user', '!=', Auth::id())
+            ->orderBy('o.date', 'DESC')
+            ->select(['quotation.id as idQ', 'o.id as idC', 'o.id_user', 'o.level', 'o.comment', 'o.date', 'o.type', 'quotation.no_quote', 'u.name', 'u.image']);
+
+        // Query untuk mengambil data dengan type "prospect"
+        $prospectComment = Comment::join('prospect as p', 'comment.id_prospect', '=', 'p.id')
+            ->join('users as u', 'u.id', '=', 'comment.id_user')
+            ->join('pic as pi', 'pi.id', '=', 'p.id_pic')
+            ->join('client as c', 'c.id', '=', 'pi.id_client')
+            ->where('p.id_sales', Auth::id())
+            ->where('comment.type', 'prospect')  // Pastikan filter type di sini
+            ->where('comment.id_user', '!=', Auth::id())
+            ->orderBy('comment.date', 'DESC')
+            ->select(['p.id as idP', 'comment.id as idC', 'comment.id_user', 'comment.level', 'comment.comment', 'comment.date', 'comment.type', 'c.company', 'u.name', 'u.image']);
+
+        // Menggabungkan kedua query menggunakan union
+        $comment = $quotationComment->union($prospectComment)
+            ->orderBy('date', 'DESC')
+            ->take(5)
+            ->get();
+        $unreadComment = $quotationComment->union($prospectComment)
+            ->orderBy('date', 'DESC')
+            ->where('o.level', '1')
+            ->take(5)
+            ->get();
+        return view('pages.sales.quotation.overhaul.edit', compact('quotation', 'subtitle', 'pic', 'pics', 'formattedNumberQ', 'formattedMonthNow', 'product'));
+    }
+
+    public function updateOverhaulDirect(Request $request, $id)
+    {
+        $picId = $request->pic ?? $request->id_pic;
+        $pic = Pic::find($picId);
+        $client = Client::find($pic->id_client);
+        $rule = [
+            'no_quote' => 'required',
+            'title' => 'required',
+            'product' => 'required',
+            'detail_product' => 'required',
+            'expired_date' => 'required',
+            'validity' => 'required',
+            'pricing' => 'required',
+            'delivery_process' => 'required',
+            'payment' => 'required',
+        ];
+        $message = [
+            'no_quote.required' => 'Field No Quote Wajib Diisi',
+            'title.required' => 'Field Title Wajib Diisi',
+            'product.required' => 'Field Product Wajib Diisi',
+            'detail_product.required' => 'Field Detail Product Wajib Diisi',
+            'expired_date.required' => 'Wajib isi Expired Date',
+            'termcon.required' => 'Field Term and Conditions Wajib Diisi',
+        ];
+
+        $this->validate($request, $rule, $message);
+        $quotation = Quotation::find($id);
+        $quotation->id_pic = $picId;
+        $quotation->id_sales = $request->id_sales;
+        $quotation->id_support = $client->id_support;
+        $quotation->status_date = Carbon::today();
+        $quotation->note = "-";
+        $quotation->expired_date = $request->expired_date;
+        $quotation->quote_for = $request->type;
+        $quotation->level = '1';
+        $quotation->estimated_date = $request->estimated_date;
+        if ($request->tax != NULL) {
+            $quotation->tax = $request->tax;
+        } else {
+            $quotation->tax = 0;
+        }
+        $quotation->shipping = $request->shipping ?? 0;
+        $quotation->no_quote = $request->no_quote;
+        $quotation->title = $request->title;
+        $quotation->subtotal = $request->subtotal;
+        if ($request->diskon != NULL) {
+            $quotation->diskon = $request->diskon;
+        } else {
+            $quotation->diskon = 0;
+        }
+        $quotation->fee = 0;
+        $quotation->nett = $request->subtotal - $request->diskon;
+        $quotation->total_no_tax = $request->total_no_tax;
+        $quotation->harga_total = $request->harga_total;
+        $quoteSave = $quotation->save();
+        if ($quoteSave) {
+            $row = 0;
+            $subtitleQ = SubtitleQuotation::where('id_quotation', $id)->get();
+            foreach ($subtitleQ as $sub) {
+                $sub->delete();
+            }
+            foreach ($request->subTitle as $item => $subtitleValue) {
+                $row++;
+                $subtitle = new SubtitleQuotation();
+                $subtitle->id_quotation = $id;
+                $subtitle->subtitle = $subtitleValue;
+                $subtitleSave = $subtitle->save();
+
+                if (!empty($request->product[$row])) {
+                    foreach ($request->product[$row] as $key => $productValue) {
+                        $detService = new DetailServiceQuotation();
+                        $detService->id_subtitle = $subtitle->id;
+                        $detService->product = $productValue;
+                        $detService->detail = $request->detail_product[$row][$key] ?? null;
+                        $detService->disc = $request->disc[$row][$key] ?? 0;
+                        $detService->qty = $request->qty[$row][$key] ?? 0;
+                        $detService->price = $request->price[$row][$key] ?? 0;
+                        $detService->info_qty = $request->info_qty[$row][$key] ?? null;
+                        $detService->amount = $request->amount[$row][$key] ?? 0;
+                        $detService->save();
+                    }
+                }
+            }
+            if ($subtitleSave) {
+                $termncon = Termncon::where('id_quotation', $id)->first();
+                if (!$termncon) {
+                    $termncon = new Termncon();
+                    $termncon->id_quotation = $id;
+                }
+                $termncon->validity = $request->validity;
+                $termncon->pricing = $request->pricing;
+                $termncon->warranty = $request->warranty;
+                $termncon->delivery_process = $request->delivery_process;
+                $termncon->payment = $request->payment;
+                $termncon->note = $request->note;
+                $termnconSave = $termncon->save();
+            }
+        }
+        if ($termnconSave) {
+            return redirect('/quote/overhaul-show/' . $id)->with("success", "Data Quotation Telah Diubah");
+        }
+    }
+
     protected function convertToRoman($month)
     {
         $romanMonth = [
@@ -3274,5 +3823,21 @@ class QuotationController extends Controller
         ];
 
         return $romanMonth[$month];
+    }
+
+    private function generateNoPr(): string
+    {
+        $year = now()->format('Y');
+        $month = now()->format('m');
+        $prefix = "PR/{$year}/{$month}/";
+
+        $last = PurchaseRequest::where('no_pr', 'like', $prefix . '%')
+            ->orderByDesc('no_pr')
+            ->value('no_pr');
+
+        $lastSeq = $last ? (int) substr($last, -3) : 0;
+        $nextSeq = str_pad($lastSeq + 1, 3, '0', STR_PAD_LEFT);
+
+        return $prefix . $nextSeq;
     }
 }

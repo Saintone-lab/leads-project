@@ -1,30 +1,177 @@
 @extends('layouts.sales.app')
-@section('title', 'expense')
+@section('title', 'Fixed Asset')
 @section('content')
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-end">
-                <a href="{{ route('fixed.create') }}" class="btn btn-primary waves-effect mb-3">
-                    New Fixed Asset
-                </a>
+    <h4 class="fw-bold py-3 mb-0">
+        <span class="text-muted fw-light">Finance /</span> Fixed Asset
+    </h4>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{{ route('fixed.create') }}" class="btn btn-primary btn-sm">
+            <i class="mdi mdi-plus"></i> New Fixed Asset
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-header py-2">
+            <ul class="nav nav-tabs card-header-tabs border-0 m-0" id="fixed-asset-tab-nav" role="tablist">
+                <li class="nav-item">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-tanah" type="button">
+                        <i class="mdi mdi-terrain me-1"></i>Tanah
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-tanah">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-bangunan" type="button">
+                        <i class="mdi mdi-office-building me-1"></i>Bangunan
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-bangunan">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-kendaraan" type="button">
+                        <i class="mdi mdi-car me-1"></i>Kendaraan
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-kendaraan">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-mesin" type="button">
+                        <i class="mdi mdi-cog-outline me-1"></i>Mesin
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-mesin">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-peralatan" type="button">
+                        <i class="mdi mdi-desktop-classic me-1"></i>Peralatan Kantor
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-peralatan">-</span>
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tools" type="button">
+                        <i class="mdi mdi-toolbox-outline me-1"></i>Tools
+                        <span class="badge rounded-pill bg-primary ms-1" id="badge-tools">-</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="tab-content">
+                {{-- Tanah --}}
+                <div class="tab-pane fade show active" id="tab-tanah">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-generic table table-bordered" data-type="Tanah"
+                            data-badge="badge-tanah">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Keterangan</th>
+                                    <th>Qty</th>
+                                    <th>Harga</th>
+                                    <th>Tgl Beli</th>
+                                    <th>Tgl Pakai</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Bangunan --}}
+                <div class="tab-pane fade" id="tab-bangunan">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-generic table table-bordered" data-type="Bangunan"
+                            data-badge="badge-bangunan">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Keterangan</th>
+                                    <th>Qty</th>
+                                    <th>Harga</th>
+                                    <th>Tgl Beli</th>
+                                    <th>Tgl Pakai</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Kendaraan --}}
+                <div class="tab-pane fade" id="tab-kendaraan">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-kendaraan table table-bordered" data-badge="badge-kendaraan">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Jenis Kendaraan</th>
+                                    <th>Merk/Model</th>
+                                    <th>Plat Nomor</th>
+                                    <th>Atas Nama</th>
+                                    <th>Tgl Beli</th>
+                                    <th>Harga</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Mesin --}}
+                <div class="tab-pane fade" id="tab-mesin">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-mesin table table-bordered" data-badge="badge-mesin">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Brand</th>
+                                    <th>Type</th>
+                                    <th>SN</th>
+                                    <th>Kondisi</th>
+                                    <th>Tgl Beli</th>
+                                    <th>Harga</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Peralatan Kantor --}}
+                <div class="tab-pane fade" id="tab-peralatan">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-generic table table-bordered" data-type="Peralatan Kantor"
+                            data-badge="badge-peralatan">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Keterangan</th>
+                                    <th>Qty</th>
+                                    <th>Harga</th>
+                                    <th>Tgl Beli</th>
+                                    <th>Tgl Pakai</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Tools --}}
+                <div class="tab-pane fade" id="tab-tools">
+                    <div class="table-responsive">
+                        <table class="datatable-fixed-tools table table-bordered" data-badge="badge-tools">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Nama Tools</th>
+                                    <th>Teknisi</th>
+                                    <th>Qty</th>
+                                    <th>Tgl Serah Terima</th>
+                                    <th>Status Finance</th>
+                                    <th>Harga</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-fixed-asset table table-striped">
-                <thead>
-                    <tr>
-                        <th>Code</th>
-                        <th>Keterangan</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                        <th>Umur Aktiva</th>
-                        <th>Tgl Beli</th>
-                        <th>Tgl Pakai</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
     </div>
+
     @include('components.modal.finance.income')
 @endsection()
 
@@ -110,6 +257,26 @@
         // Initialize Bootstrap tooltips using jQuery
         $(document).ready(function() {
             $('[data-bs-toggle="tooltip"]').tooltip();
+
+            // Activate tab based on URL query parameter 'type'
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabType = urlParams.get('type');
+            if (tabType) {
+                let targetTabId = '';
+                if (tabType === 'Tanah') targetTabId = '#tab-tanah';
+                else if (tabType === 'Bangunan') targetTabId = '#tab-bangunan';
+                else if (tabType === 'Kendaraan') targetTabId = '#tab-kendaraan';
+                else if (tabType === 'Mesin') targetTabId = '#tab-mesin';
+                else if (tabType === 'Peralatan Kantor') targetTabId = '#tab-peralatan';
+                else if (tabType === 'Tools') targetTabId = '#tab-tools';
+
+                if (targetTabId) {
+                    const tabButton = $(`#fixed-asset-tab-nav button[data-bs-target="${targetTabId}"]`);
+                    if (tabButton.length) {
+                        tabButton.click();
+                    }
+                }
+            }
         });
 
         $(document).on('click', '.delete-expense', function() {

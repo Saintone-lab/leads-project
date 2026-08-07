@@ -1,18 +1,34 @@
 @extends('layouts.sales.app')
-@section('title', 'expense')
+@section('title', 'Equity Statement')
 @section('content')
-    <h3 class="text-center">
-        Pilih Bulan / Tahun nya Untuk Masuk Detail Equity
-    </h3>
-    <div class="btn-group d-flex justify-content-center align-items-center">
-        <div class="form-floating form-floating-outline mb-4 mx-3">
-            <input class="form-control" type="month" id="html5-month-input">
-            <label for="html5-month-input">Month</label>
-        </div>
+    <div class="py-3 mb-3">
+        <h4 class="fw-bold mb-1">
+            <span class="text-muted fw-light">Finance / Statement /</span> Equity Statement
+        </h4>
+        <p class="text-muted mb-0 small"><i class="mdi mdi-chart-donut me-1"></i> Laporan perubahan ekuitas</p>
+    </div>
 
-        <div class="form-floating form-floating-outline mb-4" style="width: 15%">
-            <select id="yearSelect" class="form-control"></select>
-            <label for="html5-year-input">Year</label>
+    <div class="card border-0 shadow-sm mx-auto" style="max-width: 560px;">
+        <div class="card-body text-center py-5">
+            <div class="avatar avatar-lg bg-label-primary rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:64px; height:64px;">
+                <i class="mdi mdi-chart-donut fs-3 text-primary"></i>
+            </div>
+            <h5 class="fw-bold mb-1">Pilih Periode Equity Statement</h5>
+            <p class="text-muted small mb-4">Laporan akan tampil di halaman detail, tombol Print tersedia di sana</p>
+            <div class="row g-3 justify-content-center">
+                <div class="col-6">
+                    <div class="form-floating form-floating-outline">
+                        <input class="form-control" type="month" id="html5-month-input">
+                        <label for="html5-month-input">Per Bulan</label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-floating form-floating-outline">
+                        <select id="yearSelect" class="form-control"></select>
+                        <label for="html5-year-input">Per Tahun</label>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 @endsection()
@@ -61,7 +77,7 @@
         yearSelect.addEventListener('change', function() {
             if (!this.value) return;
 
-            window.open(`/equity-print/${this.value}`, '_blank');
+            window.location.href = `/equity-detail/${this.value}`;
         });
 
         document.getElementById('html5-month-input').addEventListener('change', function() {
@@ -69,7 +85,7 @@
 
             const [year, month] = this.value.split('-');
 
-            window.open(`/equity-print/${year}/${month}`, '_blank');
+            window.location.href = `/equity-detail/${year}/${month}`;
         });
 
         function formatNumber(n) {

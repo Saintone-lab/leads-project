@@ -47,22 +47,31 @@ class ProspectController extends Controller
         $cursor = $startOfMonth->copy();
         $wNum = 1;
         while ($cursor->lte($endOfMonth)) {
-            $wEnd = $cursor->copy()->addDays(6);
+            $wStart = $cursor->copy()->startOfDay();
+            $wEnd = $cursor->copy()->endOfWeek(Carbon::SUNDAY)->endOfDay();
             if ($wEnd->gt($endOfMonth)) {
-                $wEnd = $endOfMonth->copy();
+                $wEnd = $endOfMonth->copy()->endOfDay();
             }
+
             $availableWeeks[] = [
                 'week' => $wNum,
-                'start' => $cursor->copy(),
-                'end' => $wEnd->copy(),
-                'label' => 'Week '.$wNum.' ('.$cursor->format('d').'–'.$wEnd->format('d').' '.$cursor->format('M Y').')',
+                'start' => $wStart,
+                'end' => $wEnd,
+                'label' => 'Week '.$wNum.' ('.$wStart->format('d').'–'.$wEnd->format('d').' '.$wStart->format('M Y').')',
             ];
-            $cursor->addDays(7);
+
+            $cursor = $wEnd->copy()->startOfDay()->addDay();
             $wNum++;
         }
 
-        $defaultWeek = (int) ceil($now->day / 7);
-        $defaultWeek = min($defaultWeek, count($availableWeeks));
+        $defaultWeek = 1;
+        foreach ($availableWeeks as $index => $w) {
+            if ($now->gte($w['start']) && $now->lte($w['end'])) {
+                $defaultWeek = $index + 1;
+                break;
+            }
+        }
+
         $selectedWeekNum = max(1, min((int) request('week', $defaultWeek), count($availableWeeks)));
         $selectedWeek = $availableWeeks[$selectedWeekNum - 1];
 
@@ -134,14 +143,36 @@ class ProspectController extends Controller
             ->take(5)
             ->get();
 
-        // Hitung jumlah prospek yang dibuat oleh setiap sales dalam minggu ini
+        // Hitung jumlah prospek yang dibuat oleh setiap sales dalam minggu ini dan bulan berjalan
         $salesLeads = User::where('role', 'Sales')
             ->where('active', '1')
-            ->wherein('id', ['1', '4', '2', '32'])
+            ->wherein('id', ['1', '4', '2', '32', '41'])
             ->withCount(['prospects as weekly_leads' => function ($query) use ($startOfWeek, $endOfWeek) {
                 $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
             }])
+            ->withCount(['prospects as monthly_leads' => function ($query) use ($startOfMonth, $endOfMonth) {
+                $query->whereBetween('created_at', [$startOfMonth, $endOfMonth]);
+            }])
             ->get();
+
+        $domainList = Client::where('source', 'Website')
+            ->whereNotNull('source_detail')
+            ->where('source_detail', '!=', '')
+            ->distinct()
+            ->orderBy('source_detail')
+            ->pluck('source_detail');
+
+        $salesList = User::where('role', 'Sales')->orderBy('name')->get(['id', 'name']);
+
+        $availableYears = Prospect::selectRaw('YEAR(date) as year')
+            ->whereNotNull('date')
+            ->where('date', '!=', '0000-00-00')
+            ->distinct()
+            ->orderByDesc('year')
+            ->pluck('year');
+        if (!$availableYears->contains($now->year)) {
+            $availableYears->prepend($now->year);
+        }
 
         return view('pages.support.prospect.index', compact(
             'prospects',
@@ -163,8 +194,48 @@ class ProspectController extends Controller
             'lossAdmin',
             'salesLeads',
             'availableWeeks',
-            'selectedWeekNum'
+            'selectedWeekNum',
+            'domainList',
+            'salesList',
+            'availableYears'
         ));
+    }
+
+    /**
+     * List of prospects created by a given sales in the current month,
+     * used by the "Monthly Leads Distribution" modal on prospect index.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function monthlyLeads($sales)
+    {
+        $now = Carbon::now();
+        $startOfMonth = $now->copy()->startOfMonth();
+        $endOfMonth = $now->copy()->endOfMonth();
+
+        $salesUser = User::findOrFail($sales);
+
+        $prospects = Prospect::with(['pic.client', 'quotation'])
+            ->where('id_sales', $sales)
+            ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($p) {
+                return [
+                    'id' => $p->id,
+                    'company' => $p->pic->client->company ?? '-',
+                    'category' => $p->category,
+                    'kebutuhan' => $p->kebutuhan,
+                    'date' => $p->date ? Carbon::parse($p->date)->format('d-m-Y') : '-',
+                    'status' => $p->quotation->status ?? null,
+                    'nett' => $p->quotation->nett ?? null,
+                ];
+            });
+
+        return response()->json([
+            'name' => $salesUser->name,
+            'data' => $prospects,
+        ]);
     }
 
     /**
@@ -205,6 +276,8 @@ class ProspectController extends Controller
 
             'area' => 'required',
 
+            'source_detail' => 'nullable|string|max:100',
+
             // 'namePic' =>
             //     'required',
 
@@ -229,6 +302,7 @@ class ProspectController extends Controller
             'subAddress.required' => 'Field Sub Address Wajib Diisi',
             'unit.required' => 'Field Unit Wajib Diisi',
             'area.required' => 'Field Area Wajib Diisi',
+            'source_detail.max' => 'Domain maksimal 100 karakter',
             // 'namePic.required'=> 'Field Nama PIC Wajib Diisi',
             // 'emailPic.required'=> 'Field Email PIC Wajib Diisi',
             // 'phonePic.required'=> 'Field Nomor PIC Wajib Diisi',
@@ -247,6 +321,7 @@ class ProspectController extends Controller
         $client->phone = $request->phone;
         $client->ru = $request->ru;
         $client->web = '-';
+        $client->source_detail = $request->filled('source_detail') ? strtolower(trim($request->source_detail)) : null;
         $client->unit = $request->unit; // Menyimpan Unit
         $client->image = 'profile.jpg';
         $client->source = $request->source;
@@ -514,7 +589,7 @@ class ProspectController extends Controller
         $formattedNumberQ = str_pad($numberQ + 1, 3, '0', STR_PAD_LEFT);
         $monthNow = $dateNow->month;
         $formattedMonthNow = $this->convertToRoman($monthNow);
-        $product = Product::join('serial_product as s', 's.id_product', '=', 'product.id')->get(['product.id as comId', 's.id', 'product.go', 's.pn', 's.brand', 'product.detail_desc']);
+        $product = collect([]);
 
         return view('pages.support.prospect.quotation', compact('prospect', 'numberQ', 'formattedNumberQ', 'formattedMonthNow', 'product'));
     }

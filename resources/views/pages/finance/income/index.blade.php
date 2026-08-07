@@ -1,31 +1,33 @@
 @extends('layouts.sales.app')
-@section('title', 'expense')
+@section('title', 'Income Statement')
 @section('content')
-    <div class="btn-group d-flex justify-content-end">
-        <div class="form-floating form-floating-outline mb-4 mx-3">
-            <input class="form-control" type="month" id="html5-month-input">
-            <label for="html5-month-input">Month</label>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center py-3 mb-3 gap-3">
+        <div>
+            <h4 class="fw-bold mb-1">
+                <span class="text-muted fw-light">Finance / Statement /</span> Income Statement
+            </h4>
+            <p class="text-muted mb-0 small"><i class="mdi mdi-book-open-outline me-1"></i> Laba rugi &amp; pendapatan/beban lain-lain</p>
         </div>
-        <div class="form-floating form-floating-outline mb-4" style="width: 15%">
-            <select id="yearSelect" class="form-control">
-            </select>
-            <label for="html5-year-input">Year</label>
-        </div>
-
-        {{-- <button type="button" class="btn btn-outline-secondary dropdown-toggle waves-effect" data-bs-toggle="dropdown"
-            aria-expanded="false">
-            Choose Semester
-        </button>
-        <ul class="dropdown-menu">
-            @foreach ($months as $m)
-                <li><a class="dropdown-item waves-effect" href="{{ route('report.semester', $semesters->id) }}">Semester
-                        {{ $semesters->semester }} {{ $semesters->year }}</a></li>
-            @endforeach
-        </ul> --}}
     </div>
-    <div class="card mb-3">
+
+    <div class="card mb-3 border-0 shadow-sm">
+        <div class="card-header bg-transparent border-bottom py-3 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+            <h6 class="card-title mb-0 fw-bold text-dark">
+                <i class="mdi mdi-book-open-outline me-2 text-primary fs-5"></i> Daftar Pendapatan / Beban Lain-Lain
+            </h6>
+            <div class="d-flex flex-wrap gap-2">
+                <div class="form-floating form-floating-outline" style="width: 170px;">
+                    <input class="form-control" type="month" id="html5-month-input">
+                    <label for="html5-month-input">Print Bulanan</label>
+                </div>
+                <div class="form-floating form-floating-outline" style="width: 120px;">
+                    <select id="yearSelect" class="form-control"></select>
+                    <label for="html5-year-input">Print Tahunan</label>
+                </div>
+            </div>
+        </div>
         <div class="card-datatable table-responsive pt-0">
-            <table class="datatable-income-stat table table-striped">
+            <table class="datatable-income-stat table table-bordered">
                 <thead>
                     <tr>
                         <th>Date</th>

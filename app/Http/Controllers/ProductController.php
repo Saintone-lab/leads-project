@@ -9,6 +9,7 @@ use App\Models\Prospect;
 use App\Models\Quotation;
 use App\Models\SerialProduct;
 use App\Models\Unit;
+use App\Services\DeletionGuardService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,14 +27,9 @@ class ProductController extends Controller
         $commodity = Product::count();
         $dproduct = DetailProduct::count();
         $sproduct = SerialProduct::count();
-        $replace = DetailProduct::all();
-        $asset = $replace->sum(function ($replacement) {
-            return $replacement->modal * $replacement->stock;
-        });
-        $equiv = SerialProduct::join('product', 'product.id', '=', 'serial_product.id_product')->groupBy('product.id')->get();
-        $revenue = $equiv->sum(function ($equivalent) {
-            return $equivalent->price * $equivalent->stock;
-        });
+        $asset = DetailProduct::sum(DB::raw('modal * stock'));
+        $revenue = DB::table(DB::raw('(SELECT p.stock * s.price AS val FROM serial_product s JOIN product p ON p.id = s.id_product GROUP BY p.id) as sub'))
+            ->sum('val');
         // dd($revenue);
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
@@ -189,6 +185,10 @@ class ProductController extends Controller
         $allStock = $product->stock + $product->warehouse_stock;
         $details = DetailProduct::where('id_product', $id)->get();
         $serials = SerialProduct::where('id_product', $id)->get();
+        $partInquiries = SerialProduct::with(['sparePartVendorPrices.supplier'])
+            ->where('id_product', $id)
+            ->whereHas('sparePartVendorPrices')
+            ->get();
         $noSaleProspect = Prospect::whereNULL('id_sales')->whereNull('provide')->count();
         $leveledProspect = Prospect::whereNULL('level')->where('id_sales', Auth::id())->count();
 
@@ -257,7 +257,7 @@ class ProductController extends Controller
             ->where('o.level', '1')
             ->take(5)
             ->get();
-        return view('pages.warehouse.product.detail', compact('product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock'));
+        return view('pages.warehouse.product.detail', compact('product', 'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'details', 'leveledProspect', 'noSaleProspect', 'serials', 'allStock', 'partInquiries'));
     }
 
     /**
@@ -330,8 +330,11 @@ class ProductController extends Controller
             return redirect('/product/' . $id)->with('error', 'Produk tidak ditemukan');
         }
 
-        // $replacement = DetailProduct::where('id_product', $id)->get();
-        // $equivalents = SerialProduct::where('id_product', $id)->get();
+        $guard = app(DeletionGuardService::class);
+        $check = $guard->checkProductDeletion($product);
+        if (!$check['allowed']) {
+            return redirect('/product/' . $id)->with('error', 'Produk tidak dapat dihapus karena ' . implode(', ', $check['reasons']));
+        }
 
         $delProduct = $product->delete();
 
@@ -525,6 +528,19 @@ class ProductController extends Controller
     public function destroyEquivalent($id)
     {
         $equivalent = SerialProduct::find($id);
+
+        if (!$equivalent) {
+            return response()->json(['error' => 'Equivalent not found.'], 404);
+        }
+
+        $guard = app(DeletionGuardService::class);
+        $check = $guard->checkEquivalentDeletion($equivalent);
+        if (!$check['allowed']) {
+            return response()->json([
+                'error' => 'Equivalent tidak dapat dihapus karena ' . implode(', ', $check['reasons']),
+            ], 422);
+        }
+
         $delEqui = $equivalent->delete();
 
         if ($delEqui) {
