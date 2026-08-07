@@ -124,16 +124,10 @@ class Machine extends Model
             $servicePrices = \App\Models\PowerServicePrice::where('power', $normalizedPower)->first();
         }
 
-        // Get spareparts
+        // Get Template Penawaran PM items (manually-curated per unit + level)
         $spareparts = collect();
         if ($this->unit && $this->unit->unit) {
-            $spareparts = \App\Models\Sparepart::join('serial_product as sp', 'sp.id', '=', 'sparepart.id_equivalent')
-                ->join('product as p', 'p.id', '=', 'sp.id_product')
-                ->where('p.category', 'Consumable Part')
-                ->where('sparepart.id_unit', $this->unit->unit->id)
-                ->select('sparepart.*')
-                ->with('equivalent')
-                ->get();
+            $spareparts = \App\Models\UnitPmTemplateItem::where('id_unit', $this->unit->unit->id)->get();
         }
 
         $visits = [
@@ -155,16 +149,11 @@ class Machine extends Model
 
             $pmLevel = $v['type'];
 
-            // 1. Parts
+            // 1. Parts — sourced from the manually-curated PM template for this unit + level
             $partsTotal = 0;
             foreach ($spareparts as $sp) {
-                $isApplicable = false;
-                $spPm = $sp->pm_level ?? 'PM1';
-                if ($pmLevel == 'PM1' && $spPm == 'PM1') $isApplicable = true;
-                if ($pmLevel == 'PM2' && in_array($spPm, ['PM1', 'PM2'])) $isApplicable = true;
-
-                if ($isApplicable && $sp->equivalent) {
-                    $partsTotal += ($sp->qty * ($sp->equivalent->price ?? 0));
+                if ($sp->level == $pmLevel) {
+                    $partsTotal += ($sp->qty * $sp->price);
                 }
             }
 

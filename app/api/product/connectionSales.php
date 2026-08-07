@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 use Illuminate\Support\Facades\Auth;
 
 header('Content-Type: application/json');
@@ -20,7 +20,7 @@ if (Auth::check()) {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Query database for data
-        $query = "SELECT p.*,
+        $query = "SELECT p.*, p.go as go,
                     CONCAT(' (', 
                         CASE 
                             WHEN p.go = 'Replacement' THEN 'R'
