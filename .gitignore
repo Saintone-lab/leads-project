@@ -23,3 +23,11 @@ leads-project.zip
 public/asset/po/
 public/asset/facilities/
 public/asset/machines/
+.agent.md
+
+# Auto-generated PDF font cache (dompdf)
+/storage/fonts/
+public/asset/profile/2jf8WyA1.jpg
+resources/views/components/modal/warehouse/unit/sparepart.blade.php
+resources/views/components/modal/warehouse/unit/sparepart.blade.php
+resources/views/components/modal/warehouse/unit/sparepart.blade.php
