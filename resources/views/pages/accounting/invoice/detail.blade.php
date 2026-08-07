@@ -46,7 +46,7 @@
                                                     <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022
                                                     54417653
                                                     {{ '   ' }}<i
-                                                        class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>info@reftech.id
+                                                        class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>accounting@reftech.id
                                                 </p>
                                                 <p class="mb-1">
                                                 </p>
