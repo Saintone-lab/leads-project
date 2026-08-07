@@ -27,6 +27,7 @@ $(function () {
             columnDefs: [
                 {
                     targets: 9,
+                    className: "text-end",
                     render: $.fn.dataTable.render.number(".", "", 0, "Rp."),
                 },
                 {
@@ -78,12 +79,25 @@ $(function () {
                     },
                 },
                 {
-                    targets: 5, // description
+                    targets: 5, // description with G/R badge in front
                     render: function (data, type, full, row) {
-                        if (!data) return "-";
+                        var badge = '';
+                        var goVal = full.go ? String(full.go).trim() : '';
+
+                        if (goVal === 'Genuine' || goVal === 'G') {
+                            badge = '<span class="badge bg-label-success me-1" data-bs-toggle="tooltip" title="Genuine">G</span>';
+                        } else if (goVal === 'Replacement' || goVal === 'R') {
+                            badge = '<span class="badge bg-label-warning me-1" data-bs-toggle="tooltip" title="Replacement">R</span>';
+                        } else if (goVal) {
+                            badge = '<span class="badge bg-label-info me-1">' + goVal + '</span>';
+                        }
+
+                        if (!data) return badge ? badge + '-' : '-';
+
                         if (type === "display") {
                             var truncated = data.length > 35 ? data.substr(0, 32) + '...' : data;
-                            return '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' + data.replace(/"/g, '&quot;') + '">' + truncated + '</span>';
+                            var textSpan = '<span data-toggle="tooltip" data-container="body" data-bs-placement="top" data-bs-custom-class="tooltip-primary" title="' + data.replace(/"/g, '&quot;') + '">' + truncated + '</span>';
+                            return badge + textSpan;
                         }
                         return data;
                     }
@@ -116,7 +130,6 @@ $(function () {
                             className: "dropdown-item",
                             exportOptions: {
                                 columns: [2, 3, 4, 5, 6, 7, 8, 9],
-                                // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
                                         if (inner.length <= 0) return inner;
@@ -147,7 +160,6 @@ $(function () {
                                 },
                             },
                             customize: function (win) {
-                                //customize print view for dark
                                 $(win.document.body)
                                     .css("color", config.colors.headingColor)
                                     .css(
@@ -172,7 +184,6 @@ $(function () {
                             className: "dropdown-item",
                             exportOptions: {
                                 columns: [2, 3, 4, 5, 6, 7, 8, 9],
-                                // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
                                         if (inner.length <= 0) return inner;
@@ -209,7 +220,6 @@ $(function () {
                             className: "dropdown-item",
                             exportOptions: {
                                 columns: [2, 3, 4, 5, 6, 7, 8, 9],
-                                // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
                                         if (inner.length <= 0) return inner;
@@ -246,7 +256,6 @@ $(function () {
                             className: "dropdown-item",
                             exportOptions: {
                                 columns: [2, 3, 4, 5, 6, 7, 8, 9],
-                                // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
                                         if (inner.length <= 0) return inner;
@@ -283,7 +292,6 @@ $(function () {
                             className: "dropdown-item",
                             exportOptions: {
                                 columns: [2, 3, 4, 5, 6, 7, 8, 9],
-                                // prevent avatar to be display
                                 format: {
                                     body: function (inner, coldex, rowdex) {
                                         if (inner.length <= 0) return inner;
@@ -316,14 +324,6 @@ $(function () {
                         },
                     ],
                 },
-                // {
-                //     text: '<i class="mdi mdi-plus me-sm-1"></i> <span class="d-none d-sm-inline-block">Add New Product</span>',
-                //     className: "btn btn-primary",
-                //     attr: {
-                //         "data-bs-target": "#createProduct",
-                //         "data-bs-toggle": "modal",
-                //     },
-                // },
             ],
             drawCallback: function (settings) {
                 $('[data-toggle="tooltip"]').tooltip();
@@ -339,7 +339,7 @@ $(function () {
                     type: "column",
                     renderer: function (api, rowIdx, columns) {
                         var data = $.map(columns, function (col, i) {
-                            return col.title !== "" // ? Do not show row in modal popup if title is blank (for check box)
+                            return col.title !== ""
                                 ? '<tr data-dt-row="' +
                                       col.rowIndex +
                                       '" data-dt-column="' +
@@ -356,18 +356,10 @@ $(function () {
                                 : "";
                         }).join("");
 
-                        return data
-                            ? $('<table class="table"/><tbody />').append(data)
-                            : false;
+                        return data ? $('<table class="table"/><tbody />').append(data) : false;
                     },
                 },
             },
         });
-        $("div.head-label").html(
-            '<h5 class="card-title mb-0">Table Product</h5>'
-        );
     }
-    dt_table_product_sales.on("draw", function () {
-        $('[data-toggle="tooltip"]').tooltip();
-    });
 });
