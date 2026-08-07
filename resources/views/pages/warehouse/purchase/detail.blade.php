@@ -72,7 +72,9 @@
                                         <span class="meta-label">No Quotation</span>
                                         <div class="meta-value">
                                             @php
-                                                if ($quotation->type == 'Sparepart') {
+                                                if ($isUnitQuotation) {
+                                                    $link = 'unit-quotation.show';
+                                                } elseif ($quotation->type == 'Sparepart') {
                                                     $link = 'quotation.show';
                                                 } elseif ($quotation->type == 'Overhaul') {
                                                     $link = 'show-overhaul.quotation';

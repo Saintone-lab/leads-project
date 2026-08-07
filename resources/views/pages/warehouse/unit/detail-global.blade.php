@@ -96,18 +96,6 @@
                         <i class="mdi mdi-information-outline me-1.5 fs-5"></i>Detail Specifications
                     </button>
                 </li>
-                <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-unit-consumable" type="button">
-                        <i class="mdi mdi-toolbox-outline me-1.5 fs-5"></i>Consumable Part
-                        <span class="badge bg-label-primary rounded-pill ms-2">{{ $consumable->count() }}</span>
-                    </button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-unit-nonconsumable" type="button">
-                        <i class="mdi mdi-tools me-1.5 fs-5"></i>Non Consumable Part
-                        <span class="badge bg-label-secondary rounded-pill ms-2">{{ $nonconsumable->count() }}</span>
-                    </button>
-                </li>
                 @if ($isPriv)
                     <li class="nav-item">
                         <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-unit-pm-template" type="button">
@@ -275,205 +263,20 @@
                     </div>
                 </div>
 
-                {{-- ==================== TAB: CONSUMABLE PART ==================== --}}
-                <div class="tab-pane fade" id="tab-unit-consumable" role="tabpanel">
-                    @if ($isPriv)
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h6 class="mb-0 fw-bold text-dark">Daftar Consumable Part</h6>
-                            <button type="button" class="btn btn-primary btn-sm shadow-sm" data-bs-toggle="modal" data-bs-target="#createSparepart">
-                                <i class="mdi mdi-plus me-1"></i> New Sparepart
-                            </button>
-                        </div>
-                        <div class="table-responsive text-nowrap rounded border">
-                            <table class="table table-hover table-modern mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Part Number (PN)</th>
-                                        <th>Description</th>
-                                        <th class="text-center">Quantity</th>
-                                        <th class="text-center">PM Level</th>
-                                        <th class="text-center">Total Stock</th>
-                                        <th class="text-end">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($consumable as $part)
-                                        @php
-                                            $allStock = $part->warehouse_stock + $part->stock;
-                                        @endphp
-                                        <tr>
-                                            <td>
-                                                <span class="fw-bold text-dark">{{ $part->pn }}</span>
-                                            </td>
-                                            <td>
-                                                <span class="text-secondary">{{ $part->description }}</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-label-secondary text-dark px-2.5 py-1 fw-semibold">
-                                                    {{ $part->qty }} {{ $part->equivalent->product->unit ?? 'Pcs' }}
-                                                </span>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-label-info px-2.5 py-1 fw-semibold">{{ $part->pm_level ?? 'PM1' }}</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-label-success px-2.5 py-1 fw-semibold">{{ $allStock }}</span>
-                                            </td>
-                                            <td class="text-end">
-                                                <button type="button" data-bs-toggle="modal" data-bs-target="#editSparepart-{{ $part->id }}"
-                                                    class="btn btn-icon btn-sm btn-label-warning me-1" title="Edit Sparepart">
-                                                    <i class="mdi mdi-pencil-outline"></i>
-                                                </button>
-                                                <button type="button" data-id="{{ $part->id }}"
-                                                    class="btn btn-icon btn-sm btn-label-danger delete-sparepart" title="Delete Sparepart">
-                                                    <i class="mdi mdi-delete-outline"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="text-center py-4">
-                                                <div class="text-muted">
-                                                    <i class="mdi mdi-toolbox-outline fs-1 d-block mb-2 text-secondary opacity-50"></i>
-                                                    Belum ada Consumable Part untuk unit ini.
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="table-responsive text-nowrap rounded border">
-                            <table class="table table-hover table-modern mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Part Number (PN)</th>
-                                        <th>Description</th>
-                                        <th class="text-center">Quantity</th>
-                                        <th class="text-center">Stock</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($consumable as $part)
-                                        @php
-                                            $allStock = $part->warehouse_stock + $part->stock;
-                                        @endphp
-                                        <tr>
-                                            <td><span class="fw-bold text-dark">{{ $part->pn }}</span></td>
-                                            <td><span class="text-secondary">{{ $part->description }}</span></td>
-                                            <td class="text-center">{{ $part->qty }} {{ $part->info_qty }}</td>
-                                            <td class="text-center"><span class="badge bg-label-success">{{ $allStock }}</span></td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center py-4">
-                                                <div class="text-muted">Belum ada Consumable Part.</div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
-
-                {{-- ==================== TAB: NON CONSUMABLE PART ==================== --}}
-                <div class="tab-pane fade" id="tab-unit-nonconsumable" role="tabpanel">
-                    @if ($isPriv)
-                        <div class="table-responsive text-nowrap rounded border">
-                            <table class="table table-hover table-modern mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Part Number (PN)</th>
-                                        <th>Description</th>
-                                        <th class="text-center">Quantity</th>
-                                        <th class="text-center">Total Stock</th>
-                                        <th class="text-end">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($nonconsumable as $part)
-                                        @php
-                                            $allStock = $part->warehouse_stock + $part->stock;
-                                        @endphp
-                                        <tr>
-                                            <td><span class="fw-bold text-dark">{{ $part->pn }}</span></td>
-                                            <td><span class="text-secondary">{{ $part->description }}</span></td>
-                                            <td class="text-center">
-                                                <span class="badge bg-label-secondary text-dark px-2.5 py-1 fw-semibold">
-                                                    {{ $part->qty }} {{ $part->equivalent->product->unit ?? 'Pcs' }}
-                                                </span>
-                                            </td>
-                                            <td class="text-center"><span class="badge bg-label-success px-2.5 py-1 fw-semibold">{{ $allStock }}</span></td>
-                                            <td class="text-end">
-                                                <button type="button" data-id="{{ $part->id }}"
-                                                    class="btn btn-icon btn-sm btn-label-danger delete-sparepart" title="Delete Sparepart">
-                                                    <i class="mdi mdi-delete-outline"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="5" class="text-center py-4">
-                                                <div class="text-muted">
-                                                    <i class="mdi mdi-tools fs-1 d-block mb-2 text-secondary opacity-50"></i>
-                                                    Belum ada Non Consumable Part untuk unit ini.
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="table-responsive text-nowrap rounded border">
-                            <table class="table table-hover table-modern mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Part Number (PN)</th>
-                                        <th>Description</th>
-                                        <th class="text-center">Quantity</th>
-                                        <th class="text-center">Stock</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($nonconsumable as $part)
-                                        @php
-                                            $allStock = $part->warehouse_stock + $part->stock;
-                                        @endphp
-                                        <tr>
-                                            <td><span class="fw-bold text-dark">{{ $part->pn }}</span></td>
-                                            <td><span class="text-secondary">{{ $part->description }}</span></td>
-                                            <td class="text-center">{{ $part->qty }} {{ $part->info_qty }}</td>
-                                            <td class="text-center"><span class="badge bg-label-success">{{ $allStock }}</span></td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="text-center py-4">
-                                                <div class="text-muted">Belum ada Non Consumable Part.</div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
-                </div>
-
                 @if ($isPriv)
                     {{-- ==================== TAB: TEMPLATE PENAWARAN PM ==================== --}}
                     <div class="tab-pane fade" id="tab-unit-pm-template" role="tabpanel">
                         <div id="pm-template-card"
                             data-endpoint="{{ route('unit-global.pm-template', $product->id) }}"
-                            data-quotation-create-url="{{ route('unit-quotation.create') }}">
+                            data-save-endpoint="{{ route('unit-global.pm-template.save', $product->id) }}">
 
                             <div class="alert alert-info border-0 shadow-xs d-flex align-items-center mb-4 rounded-3">
                                 <i class="mdi mdi-information-outline fs-4 me-3 text-info"></i>
                                 <div class="small">
-                                    Draft item dirakit otomatis dari sparepart unit ini (per Level PM) dan tarif jasa
-                                    <a href="{{ route('forecast.prices') }}" target="_blank" class="fw-bold text-decoration-underline">pricelist Forecast</a>
-                                    berdasarkan Motor Power unit ini.
+                                    Susun manual item apa saja yang masuk penawaran PM per level untuk unit ini. Daftar item tersimpan
+                                    permanen per unit + level, dan jadi sumber data <a href="{{ route('forecast.index') }}" target="_blank" class="fw-bold text-decoration-underline">Forecast Sales</a> juga.
+                                    Biaya jasa tetap otomatis dari <a href="{{ route('forecast.prices') }}" target="_blank" class="fw-bold text-decoration-underline">pricelist Forecast</a> berdasarkan Motor Power unit ini.
+                                    Untuk memakai template ini di penawaran, buka halaman <strong>Create Unit Quotation</strong> lalu pakai tombol "Load Template PM".
                                 </div>
                             </div>
 
@@ -512,51 +315,64 @@
                                     </div>
                                 </div>
 
-                                {{-- Kolom kanan: hasil generate --}}
+                                {{-- Kolom kanan: builder --}}
                                 <div class="col-lg-9">
                                     <div id="pm-template-empty" class="card spec-card">
                                         <div class="card-body text-center text-muted py-5">
                                             <i class="mdi mdi-arrow-left-bold-circle-outline fs-1 d-block mb-2 text-primary opacity-50"></i>
-                                            Pilih level PM di sebelah kiri untuk melihat draft item dari sparepart &amp; tarif jasa unit ini.
+                                            Pilih level PM di sebelah kiri untuk menyusun / melihat template item unit ini.
                                         </div>
                                     </div>
 
                                     <div id="pm-template-result" style="display:none;">
-                                        <div class="row g-3">
-                                            <div class="col-lg-7">
-                                                <div class="card spec-card h-100">
-                                                    <div class="card-body p-3">
-                                                        <div class="d-flex justify-content-between align-items-center mb-3">
-                                                            <h6 class="mb-0 fw-bold text-dark">Parts dari Sparepart</h6>
-                                                            <span class="badge bg-label-primary rounded-pill px-2.5" id="pm-template-level-badge">-</span>
-                                                        </div>
-                                                        <div class="table-responsive">
-                                                            <table class="table table-sm table-hover mb-0">
-                                                                <thead>
-                                                                    <tr>
-                                                                        <th class="text-uppercase small text-muted">Part</th>
-                                                                        <th class="text-end text-uppercase small text-muted">Qty</th>
-                                                                        <th class="text-end text-uppercase small text-muted">Harga</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody id="pm-template-rows"></tbody>
-                                                            </table>
-                                                        </div>
-                                                        <div id="pm-template-noparts-warning" class="alert alert-warning py-2 px-3 small mt-2 mb-0 rounded" style="display:none;">
-                                                            Belum ada sparepart dengan Level PM ini untuk unit tersebut.
-                                                        </div>
-                                                    </div>
+                                        <div class="card spec-card">
+                                            <div class="card-body p-3">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <h6 class="mb-0 fw-bold text-dark">Item Template</h6>
+                                                    <span class="badge bg-label-primary rounded-pill px-2.5" id="pm-template-level-badge">-</span>
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-5">
-                                                <div class="card spec-card h-100">
-                                                    <div class="card-body p-3">
-                                                        <h6 class="mb-3 fw-bold text-dark">Biaya Jasa</h6>
-                                                        <div id="pm-template-service-rows"></div>
-                                                        <div id="pm-template-power-warning" class="alert alert-warning py-2 px-3 small mb-0 rounded" style="display:none;">
-                                                            Tarif jasa untuk power unit ini belum ada di pricelist Forecast. Baris jasa tidak ditambahkan otomatis — isi manual di quotation nanti.
-                                                        </div>
-                                                    </div>
+                                                <p class="text-muted small mb-3"><i class="mdi mdi-drag-vertical me-1"></i>Geser ikon di kiri tiap baris untuk mengurutkan item.</p>
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-hover mb-0">
+                                                        <thead>
+                                                            <tr>
+                                                                <th style="width:30px;"></th>
+                                                                <th class="text-uppercase small text-muted">Item</th>
+                                                                <th class="text-end text-uppercase small text-muted" style="width:70px;">Qty</th>
+                                                                <th class="text-end text-uppercase small text-muted" style="width:140px;">Harga</th>
+                                                                <th style="width:40px;"></th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="pm-template-rows"></tbody>
+                                                    </table>
+                                                </div>
+                                                <div id="pm-template-noparts-warning" class="alert alert-warning py-2 px-3 small mt-2 mb-0 rounded" style="display:none;">
+                                                    Belum ada item di template level ini. Susun mulai dari Head Title, lalu tambahkan part / jasa / item custom.
+                                                </div>
+                                                <div id="pm-template-power-warning" class="alert alert-warning py-2 px-3 small mt-2 mb-0 rounded" style="display:none;">
+                                                    Tarif jasa untuk power unit ini belum ada di pricelist Forecast. Isi dulu di halaman <a href="{{ route('forecast.prices') }}" target="_blank" class="fw-bold text-decoration-underline">Master Harga Jasa PM</a>.
+                                                </div>
+                                                <div class="d-flex flex-wrap gap-2 mt-3">
+                                                    <button type="button" class="btn btn-sm btn-outline-info" id="btn-pm-add-header">
+                                                        <i class="mdi mdi-format-header-1 me-1"></i> Tambah Head Title
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" id="btn-pm-add-part">
+                                                        <i class="mdi mdi-plus me-1"></i> Tambah dari Product Equivalent
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-success" id="btn-pm-add-service">
+                                                        <i class="mdi mdi-account-hard-hat-outline me-1"></i> Tambah Jasa Service
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btn-pm-add-custom">
+                                                        <i class="mdi mdi-plus me-1"></i> Tambah Item Custom
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-warning ms-md-auto" id="btn-pm-copy-level">
+                                                        <i class="mdi mdi-content-copy me-1"></i> Salin dari Level Lain
+                                                    </button>
+                                                </div>
+                                                <div id="pm-add-part-picker" class="mt-3" style="display:none;">
+                                                    <select class="form-select form-select-sm" id="pm-part-select" style="width:100%">
+                                                        <option value="">Cari part (PN / Brand / Deskripsi)...</option>
+                                                    </select>
                                                 </div>
                                             </div>
                                         </div>
@@ -567,12 +383,11 @@
                                                     <div class="text-muted small">Total Estimated Price</div>
                                                     <div class="fw-bold fs-4 text-primary" id="pm-template-total">Rp 0</div>
                                                 </div>
-                                                <button type="button" class="btn btn-primary btn-md shadow-sm" id="btn-generate-quotation" disabled>
-                                                    <i class="mdi mdi-file-plus-outline me-1"></i> Generate ke Quotation
-                                                    <small class="d-block fw-normal" style="font-size:.68rem; opacity:.85;">
-                                                        menambah baris ke unit_quotation_detail
-                                                    </small>
-                                                </button>
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-primary btn-md shadow-sm" id="btn-save-template">
+                                                        <i class="mdi mdi-content-save-outline me-1"></i> Simpan Template
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -611,45 +426,6 @@
     </div>
 
     @include('components.modal.warehouse.unit.form-global')
-    @include('components.modal.warehouse.unit.sparepart')
-    @if ($isPriv)
-        @foreach ($consumable as $part)
-            <!-- Edit Sparepart Modal -->
-            <div class="modal fade" id="editSparepart-{{ $part->id }}" tabindex="-1" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <form action="{{ route('unit-sparepart.update', $part->id) }}" method="POST">
-                            @csrf
-                            @method('PATCH')
-                            <div class="modal-header">
-                                <h5 class="modal-title fw-bold">Edit Sparepart — {{ $part->pn }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <div class="form-floating form-floating-outline mb-3">
-                                    <input type="number" class="form-control" name="qty" id="qty-{{ $part->id }}" min="1" value="{{ $part->qty }}" required>
-                                    <label for="qty-{{ $part->id }}">Quantity</label>
-                                </div>
-                                <div class="form-floating form-floating-outline mb-3">
-                                    <select class="form-select" name="pm_level" id="pm-{{ $part->id }}">
-                                        <option value="PM1" {{ $part->pm_level == 'PM2' || $part->pm_level == 'PM3' || $part->pm_level == 'PM4' ? '' : 'selected' }}>PM1 (Minor)</option>
-                                        <option value="PM2" {{ $part->pm_level == 'PM2' ? 'selected' : '' }}>PM2 (Major)</option>
-                                        <option value="PM3" {{ $part->pm_level == 'PM3' ? 'selected' : '' }}>PM3</option>
-                                        <option value="PM4" {{ $part->pm_level == 'PM4' ? 'selected' : '' }}>PM4</option>
-                                    </select>
-                                    <label for="pm-{{ $part->id }}">PM Level</label>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Save changes</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        @endforeach
-    @endif
     @include('components.modal.warehouse.replacement.form')
     @include('components.modal.warehouse.equivalent.form-global')
     @php
@@ -809,6 +585,7 @@
     <script src="{{ asset('assets') }}/vendor/libs/tagify/tagify.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
     <script src="{{ asset('assets') }}/vendor/libs/bloodhound/bloodhound.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/sortablejs/sortable.js"></script>
 @endpush
 
 @push('page-script')
@@ -1009,63 +786,6 @@
             });
         });
 
-        $(document).on('click', '.delete-sparepart', function() {
-            var id = $(this).data('id');
-            Swal.fire({
-                title: "Are you sure?",
-                text: "You won't be able to revert this!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Yes, delete it!",
-                customClass: {
-                    confirmButton: "btn btn-primary me-3 waves-effect waves-light",
-                    cancelButton: "btn btn-label-secondary waves-effect",
-                },
-                buttonsStyling: false,
-            }).then(function(result) {
-                if (result.value) {
-                    $.ajax({
-                        'url': '{{ url('delete') }}/sparepart/' + id,
-                        'type': 'POST',
-                        'data': {
-                            '_method': 'DELETE',
-                            '_token': '{{ csrf_token() }}'
-                        },
-                        success: function(response) {
-                            if (response == 1) {
-                                Swal.fire({
-                                    icon: "success",
-                                    title: "Deleted!",
-                                    text: "Your file has been deleted.",
-                                    customClass: {
-                                        confirmButton: "btn btn-success waves-effect",
-                                    },
-                                })
-                                window.setTimeout(function() {
-                                    location.reload();
-                                }, 2000);
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Oops...',
-                                    text: 'Data Failed to Delete!'
-                                });
-                            }
-                        }
-                    });
-                } else if (result.dismiss === Swal.DismissReason.cancel) {
-                    Swal.fire({
-                        title: "Cancelled",
-                        text: "Your imaginary file is safe :)",
-                        icon: "error",
-                        customClass: {
-                            confirmButton: "btn btn-success waves-effect",
-                        },
-                    });
-                }
-            });
-        });
-
         $(() => {
             function formatNumber(n) {
                 return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".")
@@ -1091,77 +811,132 @@
                 $(`#modal-${id}`).val(nomorInt);
             });
 
-            // ── Template Penawaran PM (Unit Global) ─────────────────────────
+            // ── Template Penawaran PM (Unit Global) — builder manual per level ──
             var $pmCard = $('#pm-template-card');
             if ($pmCard.length) {
                 var pmEndpoint = $pmCard.data('endpoint');
-                var pmQuotationCreateUrl = $pmCard.data('quotation-create-url');
-                var pmCurrentData = null;
+                var pmSaveEndpoint = $pmCard.data('save-endpoint');
+                var pmCurrentLevel = null;
+                var pmCurrentUnit = null;
+                var pmServiceSuggestion = null;
+                var pmUidCounter = 0;
+                var pmSortable = null;
+                var pmItems = []; // {_uid, type: 'header'|'part'|'custom', id_equivalent, label, description, qty, info_qty, price}
+
+                function pmNextUid() {
+                    pmUidCounter++;
+                    return 'u' + pmUidCounter;
+                }
 
                 function pmFormatRupiah(n) {
                     n = Math.round(n || 0);
                     return 'Rp ' + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
                 }
 
+                // Format angka jadi "000.000" (titik ribuan, tanpa "Rp") — dipakai di input yang bisa diedit
+                function pmFormatThousand(n) {
+                    n = Math.round(parseFloat(n) || 0);
+                    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+                }
+
+                function pmParseThousand(str) {
+                    return parseFloat(String(str).replace(/\D/g, '')) || 0;
+                }
+
                 function pmEscapeHtml(str) {
                     return $('<div>').text(str == null ? '' : str).html();
                 }
 
-                function renderPmTemplate(data) {
-                    pmCurrentData = data;
-                    var $rows = $('#pm-template-rows').empty();
-                    var $serviceRows = $('#pm-template-service-rows').empty();
+                function pmTotal() {
                     var total = 0;
-
-                    $('#pm-template-level-badge').text(data.level);
-
-                    $.each(data.parts, function(i, part) {
-                        var amount = part.qty * part.price;
-                        total += amount;
-                        $rows.append(
-                            '<tr>' +
-                                '<td><span class="fw-semibold text-dark">' + pmEscapeHtml(part.pn || 'Spare Part') + '</span>' +
-                                    (part.description ? '<span class="text-muted small d-block">' + pmEscapeHtml(part.description) + '</span>' : '') +
-                                '</td>' +
-                                '<td class="text-end">' + part.qty + ' ' + pmEscapeHtml(part.info_qty || 'Pcs') + '</td>' +
-                                '<td class="text-end fw-semibold">' + pmFormatRupiah(part.price) + '</td>' +
-                            '</tr>'
-                        );
+                    $.each(pmItems, function(i, it) {
+                        if (it.type !== 'header') {
+                            total += (parseFloat(it.qty) || 0) * (parseFloat(it.price) || 0);
+                        }
                     });
-
-                    $('#pm-template-noparts-warning').toggle(data.parts.length === 0);
-
-                    if (data.service.matched && data.service.amount !== null) {
-                        total += data.service.amount;
-                        $serviceRows.append(
-                            '<div class="d-flex justify-content-between align-items-baseline py-2 border-bottom">' +
-                                '<span class="fw-semibold text-dark">' + pmEscapeHtml(data.service.label) + '</span>' +
-                                '<span class="fw-bold text-primary">' + pmFormatRupiah(data.service.amount) + '</span>' +
-                            '</div>' +
-                            '<span class="pm-source-note">power_service_prices.power = "' + pmEscapeHtml(data.service.power_normalized) + '"</span>'
-                        );
-                        $('#pm-template-power-warning').hide();
-                    } else {
-                        $('#pm-template-power-warning').show();
-                    }
-
-                    $('#pm-template-total').text(pmFormatRupiah(total));
-                    $('#pm-template-empty').hide();
-                    $('#pm-template-result').show();
-                    $('#btn-generate-quotation').prop('disabled', data.parts.length === 0 && !data.service.matched);
+                    return total;
                 }
 
-                $(document).on('click', '.pm-level-btn', function() {
-                    var level = $(this).data('level');
-                    $('.pm-level-btn').removeClass('active');
-                    $(this).addClass('active');
+                function renderPmItems() {
+                    var $rows = $('#pm-template-rows').empty();
+                    var dragHandle = '<td class="text-muted pm-drag-handle" style="cursor:grab;"><i class="mdi mdi-drag-vertical fs-5"></i></td>';
 
+                    $.each(pmItems, function(i, it) {
+                        if (!it._uid) it._uid = pmNextUid();
+                        var $tr;
+                        if (it.type === 'header') {
+                            $tr = $(
+                                '<tr class="table-light">' +
+                                    dragHandle +
+                                    '<td colspan="3"><span class="fw-bold text-dark text-uppercase" style="letter-spacing:.03em;">' + pmEscapeHtml(it.label) + '</span></td>' +
+                                    '<td class="text-end"><button type="button" class="btn btn-icon btn-sm btn-label-danger pm-item-remove"><i class="mdi mdi-delete-outline"></i></button></td>' +
+                                '</tr>'
+                            );
+                        } else {
+                            $tr = $(
+                                '<tr>' +
+                                    dragHandle +
+                                    '<td><span class="fw-semibold text-dark">' + pmEscapeHtml(it.label) + '</span>' +
+                                        (it.description ? '<span class="text-muted small d-block" style="white-space:pre-line;">' + pmEscapeHtml(it.description) + '</span>' : '') +
+                                    '</td>' +
+                                    '<td class="text-end"><input type="number" min="0" step="1" class="form-control form-control-sm text-end pm-item-qty" value="' + it.qty + '"></td>' +
+                                    '<td class="text-end"><input type="text" class="form-control form-control-sm text-end pm-item-price" value="' + pmFormatThousand(it.price) + '"></td>' +
+                                    '<td class="text-end"><button type="button" class="btn btn-icon btn-sm btn-label-danger pm-item-remove"><i class="mdi mdi-delete-outline"></i></button></td>' +
+                                '</tr>'
+                            );
+                        }
+                        $tr.data('index', i);
+                        $tr.attr('data-uid', it._uid);
+                        $rows.append($tr);
+                    });
+
+                    $('#pm-template-noparts-warning').toggle(pmItems.length === 0);
+                    $('#pm-template-total').text(pmFormatRupiah(pmTotal()));
+
+                    if (!pmSortable) {
+                        pmSortable = Sortable.create(document.getElementById('pm-template-rows'), {
+                            animation: 150,
+                            handle: '.pm-drag-handle',
+                            onEnd: function() {
+                                var newOrder = $('#pm-template-rows tr').map(function() {
+                                    return $(this).attr('data-uid');
+                                }).get();
+                                pmItems.sort(function(a, b) {
+                                    return newOrder.indexOf(a._uid) - newOrder.indexOf(b._uid);
+                                });
+                                renderPmItems();
+                            }
+                        });
+                    }
+                }
+
+                function loadPmLevel(level) {
                     $.ajax({
                         url: pmEndpoint,
                         method: 'GET',
                         data: { level: level },
                         success: function(data) {
-                            renderPmTemplate(data);
+                            pmCurrentLevel = data.level;
+                            pmCurrentUnit = data.unit;
+                            pmServiceSuggestion = data.service_suggestion;
+                            pmItems = $.map(data.items, function(p) {
+                                return {
+                                    type: p.type || 'part',
+                                    id_equivalent: p.id_equivalent || null,
+                                    label: p.label || 'Item',
+                                    description: p.description || '',
+                                    qty: p.qty,
+                                    info_qty: p.info_qty || 'Pcs',
+                                    price: p.price
+                                };
+                            });
+
+                            $('#pm-template-level-badge').text(data.level);
+                            renderPmItems();
+                            $('#pm-template-power-warning').toggle(!pmServiceSuggestion.matched);
+                            $('#pm-add-part-picker').hide();
+                            $('#pm-template-empty').hide();
+                            $('#pm-template-result').show();
                         },
                         error: function() {
                             Swal.fire({
@@ -1171,46 +946,313 @@
                             });
                         }
                     });
+                }
+
+                function savePmTemplate() {
+                    return $.ajax({
+                        url: pmSaveEndpoint,
+                        method: 'POST',
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr('content'),
+                            level: pmCurrentLevel,
+                            items: pmItems
+                        }
+                    });
+                }
+
+                $(document).on('click', '.pm-level-btn', function() {
+                    var level = $(this).data('level');
+                    $('.pm-level-btn').removeClass('active');
+                    $(this).addClass('active');
+                    loadPmLevel(level);
                 });
 
-                $(document).on('click', '#btn-generate-quotation', function() {
-                    if (!pmCurrentData) return;
+                // ── Edit qty/price inline ──
+                $(document).on('input', '.pm-item-qty', function() {
+                    var i = $(this).closest('tr').data('index');
+                    pmItems[i].qty = parseFloat($(this).val()) || 0;
+                    $('#pm-template-total').text(pmFormatRupiah(pmTotal()));
+                });
+                $(document).on('input', '.pm-item-price', function() {
+                    var raw = pmParseThousand($(this).val());
+                    $(this).val(pmFormatThousand(raw));
+                    var i = $(this).closest('tr').data('index');
+                    pmItems[i].price = raw;
+                    $('#pm-template-total').text(pmFormatRupiah(pmTotal()));
+                });
+                // Format ribuan real-time buat input harga di modal SweetAlert2 (Custom Item & Jasa Service)
+                $(document).on('input', '#pm-custom-price, #pm-service-price', function() {
+                    $(this).val(pmFormatThousand(pmParseThousand($(this).val())));
+                });
 
-                    var unit = pmCurrentData.unit;
-                    var unitLabel = (unit.brand || '') + ' ' + (unit.model || unit.sku || '');
-                    var items = [];
+                $(document).on('click', '.pm-item-remove', function() {
+                    var i = $(this).closest('tr').data('index');
+                    pmItems.splice(i, 1);
+                    renderPmItems();
+                });
 
-                    items.push({
-                        type: 'header',
-                        label: 'Preventive Maintenance ' + pmCurrentData.level + ' — ' + unitLabel.trim()
-                    });
-
-                    $.each(pmCurrentData.parts, function(i, part) {
-                        items.push({
-                            type: 'custom',
-                            label: part.pn || 'Spare Part',
-                            description: part.description || '',
-                            qty: part.qty,
-                            info_qty: part.info_qty || 'Pcs',
-                            price: part.price,
-                            disc: 0
-                        });
-                    });
-
-                    if (pmCurrentData.service.matched && pmCurrentData.service.amount !== null) {
-                        items.push({
-                            type: 'custom',
-                            label: pmCurrentData.service.label,
-                            description: 'Jasa preventive maintenance untuk ' + unitLabel.trim(),
-                            qty: 1,
-                            info_qty: 'Lot',
-                            price: pmCurrentData.service.amount,
-                            disc: 0
+                // ── Tambah item dari master Product/Equivalent (search real-time) ──
+                $(document).on('click', '#btn-pm-add-part', function() {
+                    var $picker = $('#pm-add-part-picker');
+                    if ($picker.is(':visible')) {
+                        $picker.hide();
+                        return;
+                    }
+                    var $select = $('#pm-part-select');
+                    if (!$select.data('select2')) {
+                        $select.select2({
+                            width: '100%',
+                            placeholder: 'Cari part (PN / Brand / Deskripsi)...',
+                            minimumInputLength: 1,
+                            ajax: {
+                                url: '/db/equivalent/search',
+                                dataType: 'json',
+                                delay: 300,
+                                data: function(params) { return { q: params.term }; },
+                                processResults: function(data) {
+                                    return {
+                                        results: $.map(data, function(p) {
+                                            return {
+                                                id: p.id_equivalent,
+                                                text: (p.brand || '-') + ' — ' + (p.pn || '') + (p.product_desc ? ' (' + p.product_desc + ')' : ''),
+                                                part: p
+                                            };
+                                        })
+                                    };
+                                }
+                            }
                         });
                     }
+                    $picker.show();
+                    $select.val(null).trigger('change');
+                    $select.select2('open');
+                });
 
-                    sessionStorage.setItem('pm_template_items', JSON.stringify(items));
-                    window.location.href = pmQuotationCreateUrl;
+                $(document).on('select2:select', '#pm-part-select', function(e) {
+                    var part = e.params.data.part;
+                    if (!part) return;
+                    var partLabel = part.brand ? (part.brand + ' ' + (part.pn || '')) : (part.pn || part.product_name || 'Item');
+                    pmItems.push({
+                        type: 'part',
+                        id_equivalent: part.id_equivalent,
+                        label: partLabel.trim(),
+                        description: part.product_desc || '',
+                        qty: 1,
+                        info_qty: part.product_unit || 'Pcs',
+                        price: parseFloat(part.price) || 0
+                    });
+                    renderPmItems();
+                    $('#pm-add-part-picker').hide();
+                });
+
+                // ── Tambah item custom ──
+                $(document).on('click', '#btn-pm-add-custom', function() {
+                    Swal.fire({
+                        title: 'Tambah Item Custom',
+                        html:
+                            '<input id="pm-custom-label" class="swal2-input" placeholder="Nama Item">' +
+                            '<input id="pm-custom-qty" type="number" min="1" value="1" class="swal2-input" placeholder="Qty">' +
+                            '<input id="pm-custom-price" type="text" class="swal2-input" placeholder="Harga">',
+                        confirmButtonText: 'Tambah',
+                        showCancelButton: true,
+                        preConfirm: function() {
+                            var label = document.getElementById('pm-custom-label').value.trim();
+                            var qty = parseFloat(document.getElementById('pm-custom-qty').value) || 1;
+                            var price = pmParseThousand(document.getElementById('pm-custom-price').value);
+                            if (!label) {
+                                Swal.showValidationMessage('Nama item wajib diisi');
+                                return false;
+                            }
+                            return { label: label, qty: qty, price: price };
+                        }
+                    }).then(function(result) {
+                        if (!result.isConfirmed) return;
+                        pmItems.push({
+                            type: 'custom',
+                            id_equivalent: null,
+                            label: result.value.label,
+                            description: '',
+                            qty: result.value.qty,
+                            info_qty: 'Pcs',
+                            price: result.value.price
+                        });
+                        renderPmItems();
+                    });
+                });
+
+                // ── Salin item dari level lain (mis. PM1 sudah diisi, PM2 tinggal salin lalu edit) ──
+                $(document).on('click', '#btn-pm-copy-level', function() {
+                    if (!pmCurrentLevel) return;
+                    var otherLevels = $.grep(['PM1', 'PM2', 'PM3', 'PM4'], function(l) { return l !== pmCurrentLevel; });
+                    var options = {};
+                    $.each(otherLevels, function(i, l) { options[l] = l; });
+
+                    Swal.fire({
+                        title: 'Salin dari Level Mana?',
+                        input: 'select',
+                        inputOptions: options,
+                        inputPlaceholder: '-- Pilih Level --',
+                        confirmButtonText: 'Salin',
+                        showCancelButton: true,
+                        inputValidator: function(value) {
+                            if (!value) return 'Pilih salah satu level';
+                        }
+                    }).then(function(result) {
+                        if (!result.isConfirmed) return;
+                        var sourceLevel = result.value;
+
+                        $.ajax({
+                            url: pmEndpoint,
+                            method: 'GET',
+                            data: { level: sourceLevel },
+                            success: function(data) {
+                                if (!data.items.length) {
+                                    Swal.fire({ icon: 'warning', title: 'Level ' + sourceLevel + ' masih kosong', text: 'Belum ada item yang bisa disalin dari level ini.' });
+                                    return;
+                                }
+
+                                function doCopy() {
+                                    $.each(data.items, function(i, it) {
+                                        pmItems.push({
+                                            type: it.type || 'part',
+                                            id_equivalent: it.id_equivalent || null,
+                                            label: it.label || 'Item',
+                                            description: it.description || '',
+                                            qty: it.qty,
+                                            info_qty: it.info_qty || 'Pcs',
+                                            price: it.price
+                                        });
+                                    });
+                                    renderPmItems();
+                                    Swal.fire({ icon: 'success', title: 'Tersalin', text: data.items.length + ' item dari ' + sourceLevel + ' ditambahkan. Silakan sesuaikan lalu Simpan Template.', timer: 2500, showConfirmButton: false });
+                                }
+
+                                if (pmItems.length > 0) {
+                                    Swal.fire({
+                                        icon: 'question',
+                                        title: 'Tambahkan ke item yang sudah ada?',
+                                        text: 'Level ' + pmCurrentLevel + ' sudah punya ' + pmItems.length + ' item. ' + data.items.length + ' item dari ' + sourceLevel + ' akan ditambahkan di bawahnya (bukan menggantikan).',
+                                        showCancelButton: true,
+                                        confirmButtonText: 'Ya, tambahkan',
+                                        cancelButtonText: 'Batal'
+                                    }).then(function(confirmResult) {
+                                        if (confirmResult.isConfirmed) doCopy();
+                                    });
+                                } else {
+                                    doCopy();
+                                }
+                            },
+                            error: function() {
+                                Swal.fire({ icon: 'error', title: 'Gagal memuat level ' + sourceLevel });
+                            }
+                        });
+                    });
+                });
+
+                // ── Tambah Head Title (preset selection, beda per level) ──
+                var PM_HEADER_PRESETS = {
+                    'PM1': ['A. CONSUMABLE PART', 'B. SERVICE COST'],
+                    'PM2': ['A. CONSUMABLE PART', 'B. SERVICE COST'],
+                    'PM3': ['A. CONSUMABLE PART', 'B. NON-CONSUMABLE PART', 'C. SERVICE COST'],
+                    'PM4': ['A. CONSUMABLE PART', 'B. NON-CONSUMABLE PART', 'C. SERVICE COST']
+                };
+                var PM_HEADER_CUSTOM = '__custom__';
+
+                function pmAddHeader(label) {
+                    pmItems.push({
+                        type: 'header',
+                        id_equivalent: null,
+                        label: label,
+                        description: '',
+                        qty: 0,
+                        info_qty: '',
+                        price: 0
+                    });
+                    renderPmItems();
+                }
+
+                $(document).on('click', '#btn-pm-add-header', function() {
+                    var presets = PM_HEADER_PRESETS[pmCurrentLevel] || PM_HEADER_PRESETS['PM1'];
+                    var options = {};
+                    $.each(presets, function(i, p) { options[p] = p; });
+                    options[PM_HEADER_CUSTOM] = 'Lainnya (tulis manual)';
+
+                    Swal.fire({
+                        title: 'Tambah Head Title',
+                        input: 'select',
+                        inputOptions: options,
+                        inputPlaceholder: '-- Pilih Head Title --',
+                        confirmButtonText: 'Tambah',
+                        showCancelButton: true,
+                        inputValidator: function(value) {
+                            if (!value) return 'Pilih salah satu head title';
+                        }
+                    }).then(function(result) {
+                        if (!result.isConfirmed) return;
+                        if (result.value === PM_HEADER_CUSTOM) {
+                            Swal.fire({
+                                title: 'Tulis Head Title',
+                                input: 'text',
+                                inputPlaceholder: 'Contoh: D. CATATAN TAMBAHAN',
+                                confirmButtonText: 'Tambah',
+                                showCancelButton: true,
+                                inputValidator: function(value) {
+                                    if (!value || !value.trim()) return 'Judul wajib diisi';
+                                }
+                            }).then(function(customResult) {
+                                if (!customResult.isConfirmed) return;
+                                pmAddHeader(customResult.value.trim());
+                            });
+                            return;
+                        }
+                        pmAddHeader(result.value);
+                    });
+                });
+
+                // ── Tambah Jasa Service (prefill dari pricelist Forecast, tetap bisa diedit) ──
+                $(document).on('click', '#btn-pm-add-service', function() {
+                    if (!pmServiceSuggestion) return;
+                    Swal.fire({
+                        title: 'Tambah Jasa Service',
+                        html:
+                            '<input id="pm-service-label" class="swal2-input" placeholder="Nama Item" value="' + pmEscapeHtml(pmServiceSuggestion.label) + '">' +
+                            '<textarea id="pm-service-desc" class="swal2-textarea" placeholder="Deskripsi scope kerja">' + pmEscapeHtml(pmServiceSuggestion.description || '') + '</textarea>' +
+                            '<input id="pm-service-price" type="text" class="swal2-input" placeholder="Harga" value="' + pmFormatThousand(pmServiceSuggestion.amount || 0) + '">' +
+                            (!pmServiceSuggestion.matched ? '<div class="swal2-validation-message" style="display:block;">Belum ada harga jasa untuk power unit ini di pricelist Forecast — isi manual.</div>' : ''),
+                        confirmButtonText: 'Tambah',
+                        showCancelButton: true,
+                        preConfirm: function() {
+                            var label = document.getElementById('pm-service-label').value.trim();
+                            var description = document.getElementById('pm-service-desc').value.trim();
+                            var price = pmParseThousand(document.getElementById('pm-service-price').value);
+                            if (!label) {
+                                Swal.showValidationMessage('Nama item wajib diisi');
+                                return false;
+                            }
+                            return { label: label, description: description, price: price };
+                        }
+                    }).then(function(result) {
+                        if (!result.isConfirmed) return;
+                        pmItems.push({
+                            type: 'custom',
+                            id_equivalent: null,
+                            label: result.value.label,
+                            description: result.value.description,
+                            qty: 1,
+                            info_qty: 'Lot',
+                            price: result.value.price
+                        });
+                        renderPmItems();
+                    });
+                });
+
+                $(document).on('click', '#btn-save-template', function() {
+                    if (!pmCurrentLevel) return;
+                    savePmTemplate().done(function(res) {
+                        Swal.fire({ icon: 'success', title: 'Tersimpan', text: res.message, timer: 1500, showConfirmButton: false });
+                    }).fail(function() {
+                        Swal.fire({ icon: 'error', title: 'Gagal menyimpan template' });
+                    });
                 });
             }
         });

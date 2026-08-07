@@ -79,7 +79,7 @@
         <div class="card-datatable table-responsive pt-0">
             @if (Auth::user()->role == 'Sales')
                 <table class="datatable-product-sales table table-bordered">
-                    <thead class="table-light">
+                    <thead class="table-light text-center align-middle">
                         <tr>
                             <th rowspan="2"></th>
                             <th rowspan="2">ID</th>
@@ -87,7 +87,7 @@
                             <th rowspan="2">Brand</th>
                             <th rowspan="2">PN</th>
                             <th rowspan="2">Desc</th>
-                            <th colspan="3" class="text-center border-bottom">Stock</th>
+                            <th colspan="3" class="border-bottom">Stock</th>
                             <th rowspan="2">Price</th>
                         </tr>
                         <tr>
@@ -99,7 +99,7 @@
                 </table>
             @else
                 <table class="datatable-product table table-bordered">
-                    <thead class="table-light">
+                    <thead class="table-light text-center align-middle">
                         <tr>
                             <th rowspan="2"></th>
                             <th rowspan="2">ID</th>
@@ -107,13 +107,13 @@
                             <th rowspan="2">Brand</th>
                             <th rowspan="2">Part Number</th>
                             <th rowspan="2">Desc</th>
-                            <th colspan="3" class="text-center border-bottom">Stock</th>
-                            <th rowspan="2" class="text-end">Price</th>
+                            <th colspan="3" class="border-bottom">Stock</th>
+                            <th rowspan="2">Price</th>
                         </tr>
                         <tr>
-                            <th class="text-center">BDG</th>
-                            <th class="text-center">BKS</th>
-                            <th class="text-center">Pend</th>
+                            <th>BDG</th>
+                            <th>BKS</th>
+                            <th>Pend</th>
                         </tr>
                     </thead>
                 </table>
