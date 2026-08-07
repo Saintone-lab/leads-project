@@ -19,6 +19,7 @@ use App\Models\Quotation;
 use App\Models\SerialProduct;
 use App\Models\SubtitleQuotation;
 use App\Models\Supplier;
+use App\Models\UnitQuotation;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -109,12 +110,25 @@ class PurchaseController extends Controller
     public function show($id)
     {
         $pending = PendingPO::find($id);
-        $quotation = Quotation::find($pending->id_quotation);
-        $detQuotation = DetailQuotation::where('id_quotation', $pending->id_quotation)->get();
-        $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $pending->id_quotation)->get();
-        $invoice = Invoice::where('id_quotation', $quotation->id)->first();
+        $isUnitQuotation = (bool) $pending->id_unit_quotation;
+
+        if ($isUnitQuotation) {
+            // Unit Quotation punya field/relasi setara buat semua yang dibutuhkan view ini
+            // (pic.client, sales, type) — cukup di-alias di titik yang beda nama kolomnya,
+            // sisanya kompatibel langsung tanpa perlu view terpisah.
+            $quotation = UnitQuotation::with(['sales', 'pic.client'])->findOrFail($pending->id_unit_quotation);
+            $quotation->po_date = $quotation->po_received;
+            $detQuotation = $quotation->details; // UnitQuotationDetail: sudah punya id_equivalent + price
+            $subQuote = collect();
+            $invoice = Invoice::where('id_unit_quotation', $quotation->id)->first();
+        } else {
+            $quotation = Quotation::find($pending->id_quotation);
+            $detQuotation = DetailQuotation::where('id_quotation', $pending->id_quotation)->get();
+            $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $pending->id_quotation)->get();
+            $invoice = Invoice::where('id_quotation', $quotation->id)->first();
+        }
+
         $activity = ChangeStatus::where('id_pending', $id)->with('comment')->get();
-        $serial = SerialProduct::all();
         $purchase = PurchaseRequest::where('id_pending', $id)->get();
 
         // Data diskusi PR
@@ -182,7 +196,7 @@ class PurchaseController extends Controller
         $leveledProspect = Prospect::whereNull('level')->where('id_sales', Auth::id())->count();
 
         return view('pages.warehouse.purchase.detail', compact(
-            'purchase', 'serial', 'activity', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation',
+            'purchase', 'activity', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'isUnitQuotation',
             'discussions', 'allUsers',
             'comment', 'unreadComment', 'commentAdmin', 'unreadCommentAdmin', 'noSaleProspect', 'leveledProspect'
         ));

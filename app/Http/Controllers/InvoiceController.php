@@ -1121,7 +1121,7 @@ class InvoiceController extends Controller
     public function show_unit($id)
     {
         $invoice = Invoice::findOrFail($id);
-        $quote   = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit', 'details.equivalent.product', 'deliveries'])->findOrFail($invoice->id_unit_quotation);
+        $quote   = UnitQuotation::with(['client', 'pic', 'sales', 'details.unit', 'details.equivalent.product', 'deliveries.detail'])->findOrFail($invoice->id_unit_quotation);
 
         $allInvoices = Invoice::where('id_unit_quotation', $quote->id)
             ->orderByRaw("FIELD(type,'DP','BP','CT')")
@@ -1150,11 +1150,24 @@ class InvoiceController extends Controller
             ->whereNotNull('quotation.po_file')->whereNull('invoice.no_invoice')->count()
             + Invoice::pendingUnitRequest()->count();
         $noSaleProspect = Prospect::whereNull('id_sales')->whereNull('provide')->count();
+        $pendingPO = \App\Models\PendingPO::with(['doc_recipient', 'shipping_recipient'])->where('id_unit_quotation', $quote->id)->first();
+        $monitoringTask = null;
+        $bast = null;
+        if ($pendingPO) {
+            $monitoringTask = \App\Models\KanbanTask::where('pending_po_id', $pendingPO->id)->first();
+        }
+        if ($monitoringTask) {
+            $bast = \App\Models\Bast::where('id_kanban_task', $monitoringTask->id)->with('units')->first();
+        }
+        if (!$bast && isset($quote->id)) {
+            $bast = \App\Models\Bast::where('id_quotation', $quote->id)->with('units')->first();
+        }
 
         return view('pages.accounting.invoice.detail-unit', compact(
             'invoice', 'quote', 'allInvoices', 'payments', 'afterDiskon', 'terbilang', 'terbilangEn',
             'totalPph', 'totalAfterPph', 'invoiceAmount',
-            'requestContract', 'requestInvoice', 'noSaleProspect'
+            'requestContract', 'requestInvoice', 'noSaleProspect',
+            'pendingPO', 'monitoringTask', 'bast'
         ));
     }
 

@@ -135,8 +135,7 @@ class PendingController extends Controller
             $invoices = Invoice::where('id_unit_quotation', $quote->id)->orderByRaw("FIELD(type,'DP','BP','CT')")->get();
             $activity = ChangeStatus::where('id_pending', $id)->with('comment')->get();
             $resis = Expanse::where('id_pending', $id)->where('type', 'Resi')->get();
-            $dPending = DetailPendingPO::where('id_pending', $id)->get();
-            $serial = SerialProduct::all();
+            $dPending = DetailPendingPO::with('equivalent.product')->where('id_pending', $id)->get();
             $purchase = PurchaseRequest::where('id_pending', $id)->get();
             $return = Retur::where('id_pending', $id)->get();
             $allproductOut = ProductOut::leftJoin('pending_po', 'product_out.id', '=', 'pending_po.id_product_out')
@@ -149,7 +148,7 @@ class PendingController extends Controller
 
             return view('pages.pending.detail-unit', compact(
                 'pending', 'quote', 'invoices', 'activity', 'resis',
-                'dPending', 'serial', 'purchase', 'return', 'allproductOut', 'product', 'detProduct'
+                'dPending', 'purchase', 'return', 'allproductOut', 'product', 'detProduct'
             ));
         }
 
@@ -158,7 +157,6 @@ class PendingController extends Controller
         $subQuote = SubtitleQuotation::with('detail')->where('id_quotation', $pending->id_quotation)->get();
         $invoice = Invoice::where('id_quotation', $quotation->id)->first();
         $activity = ChangeStatus::where('id_pending', $id)->with('comment')->get();
-        $serial = SerialProduct::all();
         $resi = Expanse::where('id_pending', $id)->where('type', 'Resi')->first();
         $resis = Expanse::where('id_pending', $id)->where('type', 'Resi')->get();
         $product = ProductOut::find($pending->id_product_out);
@@ -175,7 +173,7 @@ class PendingController extends Controller
 
         // dd($detail);
         // dd($status->count());
-        return view('pages.pending.detail', compact('purchase', 'serial', 'return', 'detProduct', 'activity', 'allproductOut', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi', 'product', 'resis'));
+        return view('pages.pending.detail', compact('purchase', 'return', 'detProduct', 'activity', 'allproductOut', 'subQuote', 'pending', 'quotation', 'invoice', 'detQuotation', 'resi', 'product', 'resis'));
     }
 
     /**
@@ -768,7 +766,7 @@ class PendingController extends Controller
             $project->revenue = $project->unitQuotation ? ($project->unitQuotation->total ?? 0) : ($project->quote?->nett ?? 0);
             $project->no_po = $project->unitQuotation ? ($project->unitQuotation->po_number ?? '-') : ($project->quote?->invoice->first()?->no_po ?? '-');
             $project->detail_route = $project->id_unit_quotation
-                ? route('unit-quotation.show', $project->id_unit_quotation)
+                ? route('pending-po.show', $project->id)
                 : route('project-monitoring.show', $project->id);
             $project->material_cost = (float) $materialCostByProject->get($project->id, 0);
             $project->general_cost = (float) $generalCostByProject->get($project->id, 0);

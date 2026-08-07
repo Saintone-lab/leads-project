@@ -1112,13 +1112,28 @@ class KanbanController extends Controller
 
         $activePos = \App\Models\PendingPO::where('status', '<', 6)
             ->where('created_at', '>=', '2026-07-17 00:00:00')
-            ->whereHas('quote.invoice', function($q) {
-                $q->whereNotNull('no_invoice')->where('no_invoice', '!=', '');
+            ->where(function ($outer) {
+                $outer->where(function ($sub) {
+                    // Quotation lama (id_quotation)
+                    $sub->whereNotNull('id_quotation')
+                        ->whereHas('quote.invoice', function ($q) {
+                            $q->whereNotNull('no_invoice')->where('no_invoice', '!=', '');
+                        })
+                        ->whereHas('quote.payment', function ($q) {
+                            $q->where('method', '!=', 'Escrow');
+                        });
+                })->orWhere(function ($sub) {
+                    // Unit Quotation (id_unit_quotation)
+                    $sub->whereNotNull('id_unit_quotation')
+                        ->whereHas('unitQuotation.invoices', function ($q) {
+                            $q->whereNotNull('no_invoice')->where('no_invoice', '!=', '');
+                        })
+                        ->whereHas('unitQuotation.payments', function ($q) {
+                            $q->where('method', '!=', 'Escrow');
+                        });
+                });
             })
-            ->whereHas('quote.payment', function($q) {
-                $q->where('method', '!=', 'Escrow');
-            })
-            ->with('quote.pic.client')
+            ->with('quote.pic.client', 'unitQuotation.client')
             ->get();
 
         // Auto-update existing tasks titles to match new PO format if needed
@@ -1133,7 +1148,8 @@ class KanbanController extends Controller
             ->filter()
             ->unique();
 
-        $unitQuotationIds = $existingTasks->pluck('pendingPo.id_unit_quotation')
+        $unitQuotationIds = $activePos->pluck('id_unit_quotation')
+            ->merge($existingTasks->pluck('pendingPo.id_unit_quotation'))
             ->filter()
             ->unique();
 
@@ -1162,15 +1178,22 @@ class KanbanController extends Controller
 
         foreach ($activePos as $po) {
             if (!$existingTaskPoIds->has($po->id)) {
-                $idSales = $po->quote ? $po->quote->id_sales : null;
+                $isUnitNew = (bool) $po->id_unit_quotation;
+                $idSales = $isUnitNew
+                    ? ($po->unitQuotation ? $po->unitQuotation->id_sales : null)
+                    : ($po->quote ? $po->quote->id_sales : null);
                 $targetColTitle = ($idSales == 16) ? 'PO E-COMMERCE' : 'PO REFTECH';
 
                 $column = $columnsByTitle->get($targetColTitle);
 
                 if ($column) {
-                    $poNumber = $invoicePoByQuotation->get($po->id_quotation) ?: ($po->no_pending ?? 'No PO');
+                    $poNumber = $isUnitNew
+                        ? ($invoicePoByUnitQuotation->get($po->id_unit_quotation) ?: ($po->no_pending ?? 'No PO'))
+                        : ($invoicePoByQuotation->get($po->id_quotation) ?: ($po->no_pending ?? 'No PO'));
                     $companyName = 'Unknown Client';
-                    if ($po->quote && $po->quote->pic && $po->quote->pic->client) {
+                    if ($isUnitNew && $po->unitQuotation && $po->unitQuotation->client) {
+                        $companyName = $po->unitQuotation->client->company;
+                    } elseif (!$isUnitNew && $po->quote && $po->quote->pic && $po->quote->pic->client) {
                         $companyName = $po->quote->pic->client->company;
                     }
 

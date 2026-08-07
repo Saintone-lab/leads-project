@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Machine;
 use App\Models\Unit;
-use App\Models\Sparepart;
+use App\Models\UnitPmTemplateItem;
 use App\Models\PowerServicePrice;
 use App\Models\Contract;
 use App\Models\ContractVisitSchedule;
@@ -96,16 +96,13 @@ class ForecastController extends Controller
                 return self::normalizePower($item->power);
             });
 
-            // 2. Bulk load all spare parts for unique units in one query
+            // 2. Bulk load Template Penawaran PM items (unit_pm_template_items) for unique units in one query.
+            // Parts cost is driven by the manually-curated PM template per unit+level, not a static
+            // sparepart.pm_level attribute.
             $unitIds = $machines->pluck('unit.unit.id')->filter()->unique();
             $sparepartsGrouped = collect();
             if ($unitIds->isNotEmpty()) {
-                $sparepartsGrouped = Sparepart::join('serial_product as sp', 'sp.id', '=', 'sparepart.id_equivalent')
-                    ->join('product as p', 'p.id', '=', 'sp.id_product')
-                    ->where('p.category', 'Consumable Part')
-                    ->whereIn('sparepart.id_unit', $unitIds)
-                    ->select('sparepart.*')
-                    ->with('equivalent')
+                $sparepartsGrouped = UnitPmTemplateItem::whereIn('id_unit', $unitIds)
                     ->get()
                     ->groupBy('id_unit');
             }
@@ -246,14 +243,8 @@ class ForecastController extends Controller
                         $pmLevel = $v['type'];
                         $partsTotal = 0;
                         foreach ($spareparts as $sp) {
-                            $isApplicable = false;
-                            $spPm = $sp->pm_level ?? 'PM1';
-
-                            if ($pmLevel == 'PM1' && $spPm == 'PM1') $isApplicable = true;
-                            if ($pmLevel == 'PM2' && in_array($spPm, ['PM1', 'PM2'])) $isApplicable = true;
-
-                            if ($isApplicable && $sp->equivalent) {
-                                $partsTotal += ($sp->qty * ($sp->equivalent->price ?? 0));
+                            if ($sp->level == $pmLevel) {
+                                $partsTotal += ($sp->qty * $sp->price);
                             }
                         }
 
@@ -438,18 +429,12 @@ class ForecastController extends Controller
 
             $pmLevel = $visit['type']; // 'PM1' or 'PM2'
 
-            // 1. Calculate Spareparts Cost
+            // 1. Calculate Spareparts Cost — sourced from the manually-curated PM template
+            // for this unit + level (unit_pm_template_items), exact match per level (no cumulation).
             $partsTotal = 0;
             foreach ($spareparts as $sp) {
-                $isApplicable = false;
-                $spPm = $sp->pm_level ?? 'PM1';
-
-                // Check PM level accumulation
-                if ($pmLevel == 'PM1' && $spPm == 'PM1') $isApplicable = true;
-                if ($pmLevel == 'PM2' && in_array($spPm, ['PM1', 'PM2'])) $isApplicable = true;
-
-                if ($isApplicable && $sp->equivalent) {
-                    $partsTotal += ($sp->qty * ($sp->equivalent->price ?? 0));
+                if ($sp->level == $pmLevel) {
+                    $partsTotal += ($sp->qty * $sp->price);
                 }
             }
 
@@ -636,8 +621,12 @@ class ForecastController extends Controller
      */
     public function managePrices()
     {
-        // Get all pricing rules
-        $prices = PowerServicePrice::orderBy('power')->get();
+        // Get all pricing rules (exclude system standard template row)
+        $prices = PowerServicePrice::where('power', '!=', 'STANDARD_TEMPLATE')->orderBy('power')->get();
+
+        // Get standard template (record with power 'STANDARD_TEMPLATE' or fallback)
+        $defaultTemplate = PowerServicePrice::where('power', 'STANDARD_TEMPLATE')->first()
+            ?? PowerServicePrice::whereNotNull('desc_pm1')->latest()->first();
 
         // Get unique powers currently available in unit table (AIR COMPRESSOR SCREW only) to make adding simple
         $rawPowers = Unit::where('unit', 'AIR COMPRESSOR SCREW')
@@ -652,14 +641,25 @@ class ForecastController extends Controller
             return floatval(str_replace(',', '.', $p));
         })->values();
 
-        return view('pages.sales.forecast.prices', compact('prices', 'availablePowers'));
+        return view('pages.sales.forecast.prices', compact('prices', 'availablePowers', 'defaultTemplate'));
     }
 
     /**
-     * Update/Store Jasa PM Pricing
+     * Update/Store Jasa PM Pricing (Prices only)
      */
     public function updatePrices(Request $request)
     {
+        // Clean currency inputs if formatted with dots/commas
+        $request->merge([
+            'price_pm1' => intval(str_replace(['.', ','], '', $request->input('price_pm1', 0))),
+            'price_pm2' => intval(str_replace(['.', ','], '', $request->input('price_pm2', 0))),
+            'price_pm3' => intval(str_replace(['.', ','], '', $request->input('price_pm3', 0))),
+            'price_pm4' => intval(str_replace(['.', ','], '', $request->input('price_pm4', 0))),
+        ]);
+
+        $powerInput = $request->filled('custom_power') ? $request->input('custom_power') : $request->input('power');
+        $request->merge(['power' => self::normalizePower($powerInput)]);
+
         $rules = [
             'power' => 'required|string',
             'price_pm1' => 'required|integer|min:0',
@@ -680,7 +680,73 @@ class ForecastController extends Controller
             ]
         );
 
-        return redirect()->route('forecast.prices')->with('message', 'Harga Jasa Servis PM berhasil diperbarui.');
+        self::clearForecastCache();
+
+        return redirect()->route('forecast.prices')->with('message', 'Master harga jasa PM berhasil disimpan.');
+    }
+
+    /**
+     * Update Global Standard Template for Scope & Remarks
+     */
+    public function updateStandardTemplate(Request $request)
+    {
+        $rules = [
+            'desc_pm1' => 'nullable|string',
+            'desc_pm2' => 'nullable|string',
+            'desc_pm3' => 'nullable|string',
+            'desc_pm4' => 'nullable|string',
+            'note_pm1' => 'nullable|string',
+            'note_pm2' => 'nullable|string',
+            'note_pm3' => 'nullable|string',
+            'note_pm4' => 'nullable|string',
+        ];
+
+        $this->validate($request, $rules);
+
+        PowerServicePrice::updateOrCreate(
+            ['power' => 'STANDARD_TEMPLATE'],
+            [
+                'price_pm1' => 0,
+                'price_pm2' => 0,
+                'price_pm3' => 0,
+                'price_pm4' => 0,
+                'desc_pm1' => $request->desc_pm1,
+                'desc_pm2' => $request->desc_pm2,
+                'desc_pm3' => $request->desc_pm3,
+                'desc_pm4' => $request->desc_pm4,
+                'note_pm1' => $request->note_pm1,
+                'note_pm2' => $request->note_pm2,
+                'note_pm3' => $request->note_pm3,
+                'note_pm4' => $request->note_pm4,
+            ]
+        );
+
+        // Sync global template scope & notes to all power records in database
+        PowerServicePrice::where('power', '!=', 'STANDARD_TEMPLATE')->update([
+            'desc_pm1' => $request->desc_pm1,
+            'desc_pm2' => $request->desc_pm2,
+            'desc_pm3' => $request->desc_pm3,
+            'desc_pm4' => $request->desc_pm4,
+            'note_pm1' => $request->note_pm1,
+            'note_pm2' => $request->note_pm2,
+            'note_pm3' => $request->note_pm3,
+            'note_pm4' => $request->note_pm4,
+        ]);
+
+        return redirect()->route('forecast.prices')->with('message', 'Template standar scope & remarks quotation berhasil diperbarui.');
+    }
+
+    /**
+     * Delete Jasa PM Pricing record
+     */
+    public function deletePrices($id)
+    {
+        $price = PowerServicePrice::findOrFail($id);
+        $price->delete();
+
+        self::clearForecastCache();
+
+        return redirect()->route('forecast.prices')->with('message', 'Data harga jasa servis PM berhasil dihapus.');
     }
 
     /**

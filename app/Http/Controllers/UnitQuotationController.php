@@ -28,16 +28,16 @@ class UnitQuotationController extends Controller
 
     public function create()
     {
-        $dateNow          = Carbon::now();
-        $monthNow         = $dateNow->month;
-        $formattedMonth   = $this->convertToRoman($monthNow);
-        $userCode         = Auth::user()->code ?? Auth::user()->name;
-        $counter          = UnitQuotation::whereYear('created_at', $dateNow)->where('id_sales', Auth::id())->count();
-        $formattedCounter = str_pad($counter + 1, 3, '0', STR_PAD_LEFT);
-        $defaultNoQuote   = $formattedCounter . '-PU/BDG/RJO-' . $userCode . '/' . $formattedMonth . '/' . $dateNow->year;
+        $defaultNoQuote = $this->generateNoQuote();
 
         $clients = Client::where('id_sales', Auth::id())->orderBy('company')->get();
-        return view('pages.unit-quotation.create', compact('clients', 'defaultNoQuote'));
+        $paymentTemplates = \App\Models\SalesPaymentTemplate::with('client')
+            ->where('id_sales', Auth::id())
+            ->orderBy('is_default', 'desc')
+            ->orderBy('name')
+            ->get();
+
+        return view('pages.unit-quotation.create', compact('clients', 'defaultNoQuote', 'paymentTemplates'));
     }
 
     public function getPics($clientId)
@@ -45,11 +45,25 @@ class UnitQuotationController extends Controller
         $pics   = Pic::where('id_client', $clientId)->get(['id', 'name_pic', 'position']);
         $client = Client::with('plants')->find($clientId);
 
+        $clientTemplate = \App\Models\SalesPaymentTemplate::where('id_sales', Auth::id())
+            ->where(function ($q) use ($clientId) {
+                $q->where('id_client', $clientId)
+                  ->orWhereJsonContains('client_ids', (int) $clientId)
+                  ->orWhereRaw('JSON_CONTAINS(client_ids, ?)', [json_encode((int) $clientId)]);
+            })
+            ->first();
+
+        $defaultTemplate = \App\Models\SalesPaymentTemplate::where('id_sales', Auth::id())
+            ->where('is_default', true)
+            ->first();
+
         return response()->json([
-            'pics'       => $pics,
-            'address'    => $client->address ?? '',
-            'subAddress' => $client->subAddress ?? '',
-            'plants'     => $client->plants ?? [],
+            'pics'           => $pics,
+            'address'        => $client->address ?? '',
+            'subAddress'     => $client->subAddress ?? '',
+            'plants'         => $client->plants ?? [],
+            'clientPayment'  => $clientTemplate ? $clientTemplate->payment_term : null,
+            'defaultPayment' => $defaultTemplate ? $defaultTemplate->payment_term : null,
         ]);
     }
 
@@ -85,7 +99,7 @@ class UnitQuotationController extends Controller
             'address'          => $request->address ?: null,
             'id_sales'         => Auth::id(),
             'id_support'       => $client->id_support ?? null,
-            'no_quote'         => $request->no_quote ?: $this->generateNoQuote(),
+            'no_quote'         => $request->no_quote ?: $this->generateNoQuote($request->type),
             'attn'             => $request->attn,
             'no_pr'            => $request->no_pr ?: null,
             'date'             => $request->date,
@@ -409,8 +423,12 @@ class UnitQuotationController extends Controller
             }
 
             if ($item->equivalent) {
-                $brandPn = trim(($item->equivalent->brand ?? '') . ($item->equivalent->pn ? ' ' . $item->equivalent->pn : ''));
-                $desc    = trim($brandPn . ' ' . ($item->label ?: optional($item->equivalent->product)->description));
+                $spParts = array_filter([
+                    $item->equivalent->brand ?? '',
+                    $item->equivalent->pn ?? '',
+                    $item->label ?: optional($item->equivalent->product)->description ?: $item->description
+                ]);
+                $desc = implode(' — ', $spParts);
             } elseif ($item->unit) {
                 $desc = $item->label ?: trim($item->unit->brand . ' ' . $item->unit->sku . ($item->unit->model ? ' — ' . $item->unit->model : ''));
             } else {
@@ -434,7 +452,12 @@ class UnitQuotationController extends Controller
             return redirect()->back()->with('error', 'Pilih minimal 1 item dengan qty > 0 untuk dikirim.');
         }
 
-        return redirect()->route('delivery.show', $delivery->id)
+        if ($request->id_invoice) {
+            return redirect()->to(route('invoice.show_unit', $request->id_invoice) . '#tab-delivery')
+                ->with('success', 'Surat Jalan berhasil dibuat.');
+        }
+
+        return redirect()->to(route('unit-quotation.show', $quote->id) . '#tab-delivery')
             ->with('success', 'Surat Jalan berhasil dibuat.');
     }
 
@@ -1046,13 +1069,62 @@ class UnitQuotationController extends Controller
         return $prefix . $nextSeq;
     }
 
-    private function generateNoQuote(): string
+    private function getTypePrefix(?string $type): string
+    {
+        return match ($type) {
+            'Unit'      => 'U',
+            'Rental'    => 'R',
+            'Project'   => 'PR',
+            'Parts'     => 'P',
+            'Service'   => 'S',
+            'Piping'    => 'PIP',
+            'Air Audit' => 'AA',
+            default     => 'PU',
+        };
+    }
+
+    private function getNextSequenceNumber(): int
+    {
+        $dateNow = Carbon::now();
+        $salesId = Auth::id();
+
+        $legacyQuotes = \App\Models\Quotation::whereYear('created_at', $dateNow)
+            ->where('id_sales', $salesId)
+            ->pluck('no_quote');
+
+        $unitQuotes = UnitQuotation::whereYear('created_at', $dateNow)
+            ->where('id_sales', $salesId)
+            ->pluck('no_quote');
+
+        $maxSeq = 0;
+
+        foreach ($legacyQuotes->concat($unitQuotes) as $noQuote) {
+            if ($noQuote && preg_match('/^(\d+)-/i', $noQuote, $matches)) {
+                $seq = (int) $matches[1];
+                if ($seq > $maxSeq) {
+                    $maxSeq = $seq;
+                }
+            }
+        }
+
+        if ($maxSeq === 0) {
+            $totalCount = \App\Models\Quotation::whereYear('created_at', $dateNow)->where('id_sales', $salesId)->count()
+                + UnitQuotation::whereYear('created_at', $dateNow)->where('id_sales', $salesId)->count();
+            $maxSeq = $totalCount;
+        }
+
+        return $maxSeq + 1;
+    }
+
+    private function generateNoQuote(?string $type = null): string
     {
         $dateNow  = Carbon::now();
         $month    = $this->convertToRoman($dateNow->month);
         $userCode = Auth::user()->code ?? Auth::user()->name;
-        $counter  = UnitQuotation::whereYear('created_at', $dateNow)->where('id_sales', Auth::id())->count() + 1;
-        return str_pad($counter, 3, '0', STR_PAD_LEFT) . '-PU/BDG/RJO-' . $userCode . '/' . $month . '/' . $dateNow->year;
+        $nextSeq  = $this->getNextSequenceNumber();
+        $counter  = str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+        $prefix   = $this->getTypePrefix($type);
+        return $counter . '-' . $prefix . '/BDG/RJO-' . $userCode . '/' . $month . '/' . $dateNow->year;
     }
 
     private function convertToRoman(int $month): string
