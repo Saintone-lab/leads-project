@@ -2,22 +2,101 @@
 @extends('layouts.sales.app')
 @section('title', 'Invoice ' . ($invoice->no_invoice ?? '#' . $invoice->id))
 @section('content')
-    <h4 class="fw-bold py-3 mb-4">
-        <span class="text-muted fw-light">
-            <a href="{{ route('invoice.index') }}" class="text-muted">Accounting / Invoice</a> /
-        </span>
-        {{ $invoice->no_invoice ?? '#' . $invoice->id }}
-    </h4>
+    <div class="d-flex align-items-center justify-content-between py-3 mb-4">
+        <h4 class="fw-bold m-0">
+            <span class="text-muted fw-light">
+                <a href="{{ route('invoice.index') }}" class="text-muted">Accounting / Invoice</a> /
+            </span>
+            {{ $invoice->no_invoice ?? '#' . $invoice->id }}
+        </h4>
+        <div class="d-flex align-items-center gap-2">
+            @if (isset($pendingPO) && $pendingPO)
+                <a href="{{ route('pending-po.show', $pendingPO->id) }}"
+                   target="_blank"
+                   class="btn btn-outline-info shadow-sm waves-effect"
+                   title="Buka Halaman Sales Order untuk PO ini">
+                    <i class="mdi mdi-clipboard-text-outline me-1"></i> Sales Order
+                </a>
+            @else
+                <a href="{{ route('pending-po.sales-order') }}"
+                   target="_blank"
+                   class="btn btn-outline-secondary shadow-sm waves-effect"
+                   title="Buka Daftar Sales Order">
+                    <i class="mdi mdi-clipboard-text-outline me-1"></i> Sales Order
+                </a>
+            @endif
 
-    <div class="row invoice-preview">
-        {{-- Invoice Card --}}
-        <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
-            <div class="d-flex justify-content-end mb-2">
-                <div class="btn-group btn-group-sm" role="group" aria-label="Invoice language toggle">
-                    <button type="button" class="btn btn-primary invoice-lang-btn active" data-lang="id">ID</button>
-                    <button type="button" class="btn btn-outline-primary invoice-lang-btn" data-lang="en">EN</button>
-                </div>
-            </div>
+            @if (in_array(Auth::user()->role, ['Admin', 'Accounting', 'Finance Manager', 'Finance']))
+                @if (isset($monitoringTask) && $monitoringTask)
+                    <a href="{{ route('kanban.monitoring-document') }}?task_id={{ $monitoringTask->id }}"
+                       target="_blank"
+                       class="btn btn-outline-primary shadow-sm waves-effect"
+                       title="Buka Papan Monitoring Document & Otomatis Buka Card Detail">
+                        <i class="mdi mdi-text-box-search-outline me-1"></i> Monitoring Document
+                    </a>
+                @else
+                    <a href="{{ route('kanban.monitoring-document') }}"
+                       target="_blank"
+                       class="btn btn-outline-secondary shadow-sm waves-effect"
+                       title="Buka Papan Monitoring Document">
+                        <i class="mdi mdi-view-dashboard-outline me-1"></i> Monitoring Document
+                    </a>
+                @endif
+
+                @if (isset($bast) && $bast)
+                    <button type="button" class="btn btn-outline-success shadow-sm waves-effect" onclick="switchToBastTab()" title="Lihat Berita Acara Serah Terima">
+                        <i class="mdi mdi-certificate-outline me-1"></i> BAST ({{ $bast->no_bast }})
+                    </button>
+                @else
+                    <button type="button" class="btn btn-success shadow-sm waves-effect" data-bs-toggle="modal" data-bs-target="#modalCreateBast" title="Buat Berita Acara Serah Terima Baru">
+                        <i class="mdi mdi-plus me-1"></i> BAST
+                    </button>
+                @endif
+            @endif
+        </div>
+    </div>
+
+    {{-- NAV TABS: INVOICE & DELIVERY ORDER --}}
+    <div class="nav-align-top mb-4">
+        <ul class="nav nav-tabs nav-fill shadow-sm rounded border-0 mb-4" role="tablist" style="background:#fff; padding: 5px;">
+            <li class="nav-item">
+                <button type="button" class="nav-link active fw-bold py-2.5 fs-6" role="tab" data-bs-toggle="tab" data-bs-target="#tab-invoice" aria-controls="tab-invoice" aria-selected="true">
+                    <i class="mdi mdi-receipt-text-outline me-2 fs-5 text-primary"></i> Faktur Penjualan (Invoice)
+                </button>
+            </li>
+            <li class="nav-item">
+                <button type="button" class="nav-link fw-bold py-2.5 fs-6" role="tab" data-bs-toggle="tab" data-bs-target="#tab-delivery" aria-controls="tab-delivery" aria-selected="false">
+                    <i class="mdi mdi-truck-delivery-outline me-2 fs-5 text-primary"></i> Delivery Order (Surat Jalan)
+                    @php
+                        $delCount = $quote->deliveries ? $quote->deliveries->count() : 0;
+                    @endphp
+                    @if ($delCount > 0)
+                        <span class="badge rounded-pill bg-primary ms-1" style="font-size:11px;">{{ $delCount }}</span>
+                    @endif
+                </button>
+            </li>
+            @if (isset($bast) && $bast)
+                <li class="nav-item">
+                    <button type="button" class="nav-link fw-bold py-2.5 fs-6" id="btn-tab-bast" role="tab" data-bs-toggle="tab" data-bs-target="#tab-bast" aria-controls="tab-bast" aria-selected="false">
+                        <i class="mdi mdi-certificate-outline me-2 fs-5 text-success"></i> Berita Acara (BAST)
+                        <span class="badge bg-success ms-1" style="font-size:10px;">{{ $bast->no_bast }}</span>
+                    </button>
+                </li>
+            @endif
+        </ul>
+
+        <div class="tab-content p-0 bg-transparent border-0 shadow-none">
+            {{-- TAB 1: INVOICE DETAIL --}}
+            <div class="tab-pane fade show active" id="tab-invoice" role="tabpanel">
+                <div class="row invoice-preview">
+                    {{-- Invoice Card --}}
+                    <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
+                        <div class="d-flex justify-content-end mb-2">
+                            <div class="btn-group btn-group-sm" role="group" aria-label="Invoice language toggle">
+                                <button type="button" class="btn btn-primary invoice-lang-btn active" data-lang="id">ID</button>
+                                <button type="button" class="btn btn-outline-primary invoice-lang-btn" data-lang="en">EN</button>
+                            </div>
+                        </div>
             <div class="card invoice-preview-card" style="position: relative; overflow: hidden;">
 
                 {{-- Watermark --}}
@@ -48,7 +127,7 @@
                                         </p>
                                         <p class="mb-1 text-muted" style="line-height: 1.4;">Taman Kopo Indah V, Soho Sommerville No. 31, Bandung – Jawa Barat 40218</p>
                                         <p class="mb-0 text-muted">
-                                            <i class="mdi mdi-phone-outline me-1 text-primary"></i>022 54417653 &nbsp;|&nbsp; <i class="mdi mdi-email-outline me-1 text-primary"></i>info@reftech.id
+                                            <i class="mdi mdi-phone-outline me-1 text-primary"></i>022 54417653 &nbsp;|&nbsp; <i class="mdi mdi-email-outline me-1 text-primary"></i>accounting@reftech.id
                                         </p>
                                     </div>
                                     <div class="npwp_add" style="max-width: 280px;">
@@ -766,37 +845,500 @@
                 </div>
             </div>
 
-            {{-- 6. Delivery Order --}}
-            @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
-                <div class="card mb-3">
-                    <div class="card-header py-2 px-3">
-                        <small class="text-uppercase text-muted fw-semibold">Delivery Order</small>
+
+        </div>
+    </div>
+    </div> {{-- End Tab 1 (#tab-invoice) --}}
+
+    {{-- TAB 2: DELIVERY ORDER / SURAT JALAN --}}
+    <div class="tab-pane fade" id="tab-delivery" role="tabpanel">
+        <div class="row">
+            <div class="col-xl-9 col-md-8 col-12 mb-md-0 mb-4">
+
+                {{-- Sales Order Delivery & Address Instructions Card (Ultra-Clean & Modern Minimalist) --}}
+                @if (isset($pendingPO) && $pendingPO)
+                    <div class="card border-0 shadow-sm mb-4" style="border: 1px solid #e2e8f0 !important; border-radius: 12px; background: #ffffff;">
+                        <div class="card-body p-4">
+                            {{-- Header Title & Badges --}}
+                            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3 pb-3 border-bottom" style="border-color: #f1f5f9 !important;">
+                                <div class="d-flex align-items-center gap-2.5">
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center" style="background: #f1f5f9; color: #475569; width: 38px; height: 38px;">
+                                        <i class="mdi mdi-truck-fast-outline fs-5"></i>
+                                    </div>
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2 mb-0.5">
+                                            <h6 class="fw-bold mb-0 text-dark" style="font-size: 14.5px;">Instruksi Pengiriman & Alamat</h6>
+                                            <span class="badge bg-label-primary font-monospace" style="font-size: 10.5px; padding: 2px 7px;">{{ $pendingPO->no_pending ?: '#' . $pendingPO->id }}</span>
+                                        </div>
+                                        <small class="text-muted" style="font-size: 11.5px;">Instruksi pengiriman dari Sales Order</small>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                    @if ($pendingPO->combine_shipping_and_parts)
+                                        <span class="badge rounded-pill bg-label-success px-3 py-1.5 fw-semibold" style="font-size: 11px; border: 1px solid #bbf7d0;">
+                                            <i class="mdi mdi-link-variant me-1"></i> Barang & Part Digabung
+                                        </span>
+                                    @else
+                                        <span class="badge rounded-pill bg-label-danger px-3 py-1.5 fw-semibold" style="font-size: 11px; border: 1px solid #fecaca;">
+                                            <i class="mdi mdi-link-variant-off me-1"></i> Barang & Part Dipisah
+                                        </span>
+                                    @endif
+
+                                    @if ($pendingPO->ekspidisi)
+                                        <span class="badge rounded-pill bg-label-info px-3 py-1.5 fw-semibold" style="font-size: 11px; border: 1px solid #bae6fd;">
+                                            <i class="mdi mdi-truck-outline me-1"></i> Ekspedisi: {{ $pendingPO->ekspidisi }}
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- 2 Address Cards --}}
+                            <div class="row g-3" style="font-size: 12px;">
+                                {{-- Alamat Pengiriman Barang / Unit --}}
+                                <div class="col-md-6">
+                                    <div class="p-3.5 rounded-3 h-100" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                        <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom" style="border-color: #e2e8f0 !important;">
+                                            <span class="fw-bold text-dark text-uppercase small" style="font-size: 11px; letter-spacing: 0.4px;">
+                                                <i class="mdi mdi-map-marker-outline text-danger me-1 fs-6"></i> Alamat Pengiriman Barang / Unit
+                                            </span>
+                                            @if (($pendingPO->shipping_address_type ?? 'customer') === 'customer')
+                                                <span class="badge bg-white text-muted border" style="font-size: 9.5px; font-weight: 500;">Sesuai Customer</span>
+                                            @else
+                                                <span class="badge bg-warning text-dark" style="font-size: 9.5px; font-weight: 600;">Manual</span>
+                                            @endif
+                                        </div>
+                                        <p class="mb-2 text-dark fw-medium" style="line-height: 1.5; font-size: 12.5px;">
+                                            @if (($pendingPO->shipping_address_type ?? 'customer') === 'customer')
+                                                {{ $quote->client->address ?? '-' }}
+                                            @else
+                                                {{ $pendingPO->shipping_address_manual ?: ($quote->client->address ?? '-') }}
+                                            @endif
+                                        </p>
+                                        @if ($pendingPO->shipping_recipient)
+                                            <div class="pt-2 mt-2 border-top text-muted d-flex align-items-center justify-content-between" style="border-color: #e2e8f0 !important; font-size: 11.5px;">
+                                                <span><i class="mdi mdi-account-outline me-1 text-primary"></i>Penerima: <strong class="text-dark">{{ $pendingPO->shipping_recipient->name_pic }}</strong></span>
+                                                @if ($pendingPO->shipping_recipient->phone)
+                                                    <span class="text-primary fw-semibold"><i class="mdi mdi-phone-outline me-1"></i>{{ $pendingPO->shipping_recipient->phone }}</span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Alamat Pengiriman Dokumen / Invoice --}}
+                                <div class="col-md-6">
+                                    <div class="p-3.5 rounded-3 h-100" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                                        <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom" style="border-color: #e2e8f0 !important;">
+                                            <span class="fw-bold text-dark text-uppercase small" style="font-size: 11px; letter-spacing: 0.4px;">
+                                                <i class="mdi mdi-file-document-outline text-primary me-1 fs-6"></i> Alamat Pengiriman Dokumen
+                                            </span>
+                                            @if (($pendingPO->doc_address_type ?? 'customer') === 'customer')
+                                                <span class="badge bg-white text-muted border" style="font-size: 9.5px; font-weight: 500;">Sesuai Customer</span>
+                                            @else
+                                                <span class="badge bg-warning text-dark" style="font-size: 9.5px; font-weight: 600;">Manual</span>
+                                            @endif
+                                        </div>
+                                        <p class="mb-2 text-dark fw-medium" style="line-height: 1.5; font-size: 12.5px;">
+                                            @if (($pendingPO->doc_address_type ?? 'customer') === 'customer')
+                                                {{ $quote->client->address ?? '-' }}
+                                            @else
+                                                {{ $pendingPO->doc_address_manual ?: ($quote->client->address ?? '-') }}
+                                            @endif
+                                        </p>
+                                        @if ($pendingPO->doc_recipient)
+                                            <div class="pt-2 mt-2 border-top text-muted d-flex align-items-center justify-content-between" style="border-color: #e2e8f0 !important; font-size: 11.5px;">
+                                                <span><i class="mdi mdi-account-outline me-1 text-primary"></i>Penerima: <strong class="text-dark">{{ $pendingPO->doc_recipient->name_pic }}</strong></span>
+                                                @if ($pendingPO->doc_recipient->phone)
+                                                    <span class="text-primary fw-semibold"><i class="mdi mdi-phone-outline me-1"></i>{{ $pendingPO->doc_recipient->phone }}</span>
+                                                @endif
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="card-body d-grid gap-2">
-                        @if ($quote->deliveries->isNotEmpty())
-                            @foreach ($quote->deliveries as $d)
-                                <a href="{{ route('delivery.show', $d->id) }}"
-                                   class="btn btn-outline-info btn-sm w-100 waves-effect">
-                                    <i class="mdi mdi-file-document-outline me-1"></i> Lihat Surat Jalan #{{ $d->id }}
-                                </a>
-                            @endforeach
-                        @endif
+                @endif
+
+                {{-- 1. Progress Pengiriman Barang (Parsial Tracker) --}}
+                <div class="card mb-4 border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-3 d-flex align-items-center justify-content-between">
+                        <h6 class="card-title mb-0 fw-bold text-dark">
+                            <i class="mdi mdi-chart-box-outline me-2 text-primary fs-5"></i> Progress Pengiriman Item (Shipment Tracker)
+                        </h6>
                         @php
-                            $hasRemaining = $quote->details->where('type', '!=', 'header')->sum('remaining_qty') > 0;
+                            $totalOrdered = $quote->details->where('type', '!=', 'header')->sum('qty');
+                            $totalRemaining = $quote->details->where('type', '!=', 'header')->sum('remaining_qty');
+                            $totalDelivered = max(0, $totalOrdered - $totalRemaining);
+                            $percentDelivered = $totalOrdered > 0 ? round(($totalDelivered / $totalOrdered) * 100) : 0;
                         @endphp
-                        @if ($quote->status === 'po_received' && $hasRemaining)
-                            <button type="button" class="btn btn-outline-success w-100 waves-effect"
-                                data-bs-toggle="modal" data-bs-target="#modalSJUnit">
-                                <i class="mdi mdi-truck-delivery-outline me-1"></i> Buat Surat Jalan
-                            </button>
-                        @elseif ($quote->status === 'po_received')
-                            <span class="badge bg-label-success w-100 py-2">Semua Item Sudah Terkirim</span>
+                        <span class="badge {{ $totalRemaining == 0 ? 'bg-success' : ($totalDelivered > 0 ? 'bg-warning' : 'bg-secondary') }} py-1.5 px-3 fs-7">
+                            {{ $totalRemaining == 0 ? 'Terkirim Semua (100%)' : ($totalDelivered > 0 ? "Terkirim Parsial ({$percentDelivered}%)" : 'Belum Ada Pengiriman') }}
+                        </span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0" style="font-size:12px;">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="text-center" style="width:5%;">No</th>
+                                        <th>Deskripsi Barang / Sparepart</th>
+                                        <th class="text-center" style="width:12%;">Qty Pesan</th>
+                                        <th class="text-center" style="width:12%;">Terkirim</th>
+                                        <th class="text-center" style="width:12%;">Sisa Qty</th>
+                                        <th class="text-center" style="width:18%;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $itemNo = 1; @endphp
+                                    @foreach ($quote->details as $item)
+                                        @if ($item->type === 'header')
+                                            <tr style="background:#f4f4fe;">
+                                                <td colspan="6" class="fw-bold text-uppercase py-2 px-3 text-primary" style="font-size:11px; letter-spacing:0.5px;">
+                                                    <i class="mdi mdi-bookmark-outline me-1"></i> {{ $item->label }}
+                                                </td>
+                                            </tr>
+                                        @else
+                                            @php
+                                                if ($item->id_equivalent && $item->equivalent) {
+                                                    $spParts = array_filter([
+                                                        $item->equivalent->brand ?? '',
+                                                        $item->equivalent->pn ?? '',
+                                                        $item->label ?: optional($item->equivalent->product)->description ?: $item->description
+                                                    ]);
+                                                    $itemDescStr = implode(' — ', $spParts);
+                                                } elseif ($item->type === 'unit' && $item->unit) {
+                                                    $itemDescStr = $item->label ?: trim($item->unit->brand . ' ' . $item->unit->sku . ($item->unit->model ? ' — ' . $item->unit->model : ''));
+                                                } else {
+                                                    $itemDescStr = $item->label ?: $item->description;
+                                                }
+                                                $deliveredQty = max(0, $item->qty - $item->remaining_qty);
+                                            @endphp
+                                            <tr>
+                                                <td class="text-center fw-semibold">{{ $itemNo++ }}</td>
+                                                <td class="fw-semibold text-dark">{{ $itemDescStr }}</td>
+                                                <td class="text-center fw-bold">{{ (float)$item->qty }} {{ $item->info_qty }}</td>
+                                                <td class="text-center text-success fw-bold">{{ (float)$deliveredQty }} {{ $item->info_qty }}</td>
+                                                <td class="text-center {{ $item->remaining_qty > 0 ? 'text-danger' : 'text-muted' }} fw-bold">{{ (float)$item->remaining_qty }} {{ $item->info_qty }}</td>
+                                                <td class="text-center">
+                                                    @if ($item->remaining_qty == 0)
+                                                        <span class="badge bg-label-success"><i class="mdi mdi-check-circle-outline me-1"></i>Terkirim Semua</span>
+                                                    @elseif ($deliveredQty > 0)
+                                                        <span class="badge bg-label-warning"><i class="mdi mdi-clock-outline me-1"></i>Sisa {{ (float)$item->remaining_qty }}</span>
+                                                    @else
+                                                        <span class="badge bg-label-secondary"><i class="mdi mdi-truck-outline me-1"></i>Belum Dikirim</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- 2. Riwayat Surat Jalan Terbuat (Delivery History Log) --}}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-transparent border-bottom py-3">
+                        <h6 class="card-title mb-0 fw-bold text-dark">
+                            <i class="mdi mdi-history me-2 text-primary fs-5"></i> Riwayat Surat Jalan Terbuat ({{ $quote->deliveries->count() }})
+                        </h6>
+                    </div>
+                    <div class="card-body p-3">
+                        @if ($quote->deliveries->isEmpty())
+                            <div class="text-center py-4 text-muted">
+                                <i class="mdi mdi-truck-delivery-outline fs-1 text-light d-block mb-2"></i>
+                                <p class="mb-1 fw-semibold">Belum Ada Surat Jalan Terbuat</p>
+                                <p class="small text-muted mb-0">Gunakan tombol <strong>"Buat Surat Jalan Baru"</strong> pada menu sebelah kanan untuk menerbitkan Surat Jalan.</p>
+                            </div>
+                        @else
+                            <div class="d-flex flex-column gap-3">
+                                @foreach ($quote->deliveries->sortByDesc('created_at') as $del)
+                                    <div class="border rounded p-3 bg-white hover-shadow transition-all">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <div class="d-flex align-items-center gap-2 mb-1">
+                                                    <h6 class="fw-bold mb-0 text-primary">Surat Jalan #{{ $del->id }}</h6>
+                                                    <span class="badge {{ strtolower($del->type) === 'ekspedisi' ? 'bg-label-info' : 'bg-label-primary' }}">
+                                                        <i class="mdi {{ strtolower($del->type) === 'ekspedisi' ? 'mdi-package-variant-closed' : 'mdi-account-hard-hat' }} me-1"></i>
+                                                        {{ ucfirst($del->type ?? 'Ekspedisi') }}
+                                                    </span>
+                                                </div>
+                                                <p class="mb-0 text-muted small">
+                                                    <i class="mdi mdi-calendar-outline me-1"></i>Tanggal: {{ \Carbon\Carbon::parse($del->date)->format('d F Y') }}
+                                                    &nbsp;|&nbsp;
+                                                    <i class="mdi mdi-map-marker-outline me-1"></i>Alamat: {{ $quote->client ? ($del->destination == '1' ? $quote->client->address : $quote->client->subAddress) : '-' }}
+                                                </p>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button type="button" class="btn btn-sm btn-outline-primary py-1 px-2.5" data-bs-toggle="modal" data-bs-target="#modal-delivery-preview-{{ $del->id }}">
+                                                    <i class="mdi mdi-eye-outline me-1"></i> Detail
+                                                </button>
+                                                <a href="{{ route('print.delivery', $del->id) }}" target="_blank" class="btn btn-sm btn-primary py-1 px-2.5">
+                                                    <i class="mdi mdi-printer-outline me-1"></i> Cetak SJ
+                                                </a>
+                                                @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
+                                                    <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 delete-delivery" data-id="{{ $del->id }}" title="Hapus Surat Jalan">
+                                                        <i class="mdi mdi-delete-outline"></i>
+                                                    </button>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        @if ($del->detail && $del->detail->isNotEmpty())
+                                            @php
+                                                $itemCountInDel = $del->detail->where('type', '!=', 'header')->count();
+                                                $totalQtyInDel = $del->detail->where('type', '!=', 'header')->sum('qty');
+                                            @endphp
+                                            <div class="border-top pt-2 mt-2 d-flex align-items-center justify-content-between text-muted small" style="font-size:11.5px;">
+                                                <span>
+                                                    <i class="mdi mdi-cube-outline me-1 text-primary"></i>Total Item Dikirim: <strong class="text-dark">{{ $itemCountInDel }} Jenis Barang</strong> (Total Qty: {{ (float)$totalQtyInDel }})
+                                                </span>
+                                                <button type="button" class="btn btn-xs btn-label-primary py-0.5 px-2 rounded" data-bs-toggle="modal" data-bs-target="#modal-delivery-preview-{{ $del->id }}">
+                                                    <i class="mdi mdi-text-box-search-outline me-1"></i>Lihat Rincian Item
+                                                </button>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
                         @endif
                     </div>
                 </div>
-            @endif
+
+            </div>
+
+            {{-- Right Sidebar Actions for Delivery Tab --}}
+            <div class="col-xl-3 col-md-4 col-12">
+                <div class="card mb-3 border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-2 px-3">
+                        <small class="text-uppercase text-muted fw-bold">Delivery Quick Actions</small>
+                    </div>
+                    <div class="card-body p-3 d-grid gap-2">
+                        @if ($quote->status === 'po_received' && $totalRemaining > 0 && (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting'))
+                            <button type="button" class="btn btn-success d-grid w-100 shadow-sm py-2" data-bs-toggle="modal" data-bs-target="#modalSJUnit">
+                                <span class="d-flex align-items-center justify-content-center gap-1 fw-bold fs-6">
+                                    <i class="mdi mdi-truck-delivery-outline fs-5"></i> Buat Surat Jalan Baru
+                                </span>
+                            </button>
+                        @elseif ($totalRemaining == 0)
+                            <div class="alert alert-success p-2 mb-0 text-center" style="font-size:12px;">
+                                <i class="mdi mdi-check-circle fs-5 d-block mb-1"></i>
+                                <strong>Pengiriman Selesai</strong><br>Seluruh item telah berhasil dikirim.
+                            </div>
+                        @endif
+                        <a href="{{ route('invoice.index') }}" class="btn btn-outline-secondary w-100 py-2">
+                            <i class="mdi mdi-arrow-left me-1"></i> Kembali ke Daftar Invoice
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </div> {{-- End Tab 2 --}}
+
+    {{-- TAB 3: BAST (BERITA ACARA SERAH TERIMA) --}}
+    @if (isset($bast) && $bast)
+        <div class="tab-pane fade" id="tab-bast" role="tabpanel">
+            <div class="row">
+                <div class="col-xl-9 col-md-8 col-12">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light py-3 d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="mdi mdi-certificate-outline text-success fs-3"></i>
+                                <div>
+                                    <h5 class="fw-bold mb-0 text-dark">Berita Acara Serah Terima (BAST)</h5>
+                                    <small class="text-muted">No. BAST: <strong class="text-primary">{{ $bast->no_bast }}</strong> &bull; Entitas: {{ $bast->entity }}</small>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('bast.print', $bast->id) }}" target="_blank" class="btn btn-primary btn-sm">
+                                    <i class="mdi mdi-printer-outline me-1"></i> Cetak BAST
+                                </a>
+                                @if (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting')
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-bast" data-id="{{ $bast->id }}">
+                                        <i class="mdi mdi-delete-outline me-1"></i> Hapus BAST
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3 mb-4 pb-3 border-bottom" style="font-size: 13px;">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded border h-100">
+                                        <span class="text-uppercase text-muted fw-bold small d-block mb-1">Pelaksana Pekerjaan</span>
+                                        <strong class="text-dark fs-6 d-block mb-1">PT {{ $bast->entity == 'Kojisha' ? 'Kojisha' : 'Reftech Jaya Optima' }}</strong>
+                                        <p class="mb-0 text-muted" style="line-height:1.4;">Taman Kopo Indah V, Soho Sommerville No. 31, Bandung – Jawa Barat 40218</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded border h-100">
+                                        <span class="text-uppercase text-muted fw-bold small d-block mb-1">Penerima Pekerjaan (Customer)</span>
+                                        <strong class="text-dark fs-6 d-block mb-1">{{ $bast->customer_name }}</strong>
+                                        <p class="mb-1 text-muted" style="line-height:1.4;"><i class="mdi mdi-clipboard-outline me-1"></i>Pekerjaan: <strong>{{ $bast->work_title }}</strong></p>
+                                        <p class="mb-0 text-muted" style="line-height:1.4;"><i class="mdi mdi-calendar-clock-outline me-1"></i>Tanggal Pekerjaan: {{ \Carbon\Carbon::parse($bast->work_date)->format('d F Y') }}</p>
+                                        @if ($bast->po_number)
+                                            <div class="mt-2 pt-2 border-top">
+                                                <span class="fw-semibold">No PO / Ref:</span> <span class="badge bg-label-primary">{{ $bast->po_number }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h6 class="fw-bold mb-2 text-dark"><i class="mdi mdi-format-list-bulleted me-1 text-success"></i> Rincian Unit / Barang Serah Terima</h6>
+                            <div class="table-responsive border rounded mb-3">
+                                <table class="table table-sm table-striped table-hover m-0" style="font-size: 12.5px;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="text-center" style="width:6%;">No</th>
+                                            <th>Nama Unit / Barang</th>
+                                            <th>No. Seri / Serial Number</th>
+                                            <th class="text-center" style="width:15%;">Qty</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if ($bast->units && $bast->units->isNotEmpty())
+                                            @foreach ($bast->units as $idx => $u)
+                                                <tr>
+                                                    <td class="text-center align-middle">{{ $idx + 1 }}</td>
+                                                    <td class="align-middle fw-medium text-dark">{{ $u->unit_name }}</td>
+                                                    <td class="align-middle text-muted">{{ $u->serial_no ?: '-' }}</td>
+                                                    <td class="text-center align-middle fw-bold text-success">{{ $u->qty }}</td>
+                                                </tr>
+                                            @endforeach
+                                        @else
+                                            <tr>
+                                                <td colspan="4" class="text-center py-3 text-muted">Tidak ada unit terdaftar.</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            @if ($bast->test_running_result)
+                                <div class="p-3 bg-light rounded border mt-3">
+                                    <h6 class="fw-bold mb-1 text-dark" style="font-size:12.5px;"><i class="mdi mdi-check-decagram-outline me-1 text-success"></i> Hasil Test Running & Catatan Serah Terima</h6>
+                                    <p class="mb-0 text-muted" style="white-space: pre-line; font-size:12px;">{{ $bast->test_running_result }}</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Sidebar BAST --}}
+                <div class="col-xl-3 col-md-4 col-12">
+                    <div class="card mb-3 border-0 shadow-sm">
+                        <div class="card-header bg-transparent border-bottom py-2 px-3">
+                            <small class="text-uppercase text-muted fw-bold">Aksi BAST</small>
+                        </div>
+                        <div class="card-body p-3 d-grid gap-2">
+                            <a href="{{ route('bast.print', $bast->id) }}" target="_blank" class="btn btn-primary d-grid w-100 shadow-sm py-2">
+                                <span class="d-flex align-items-center justify-content-center gap-1 fw-bold fs-6">
+                                    <i class="mdi mdi-printer-outline fs-5"></i> Cetak BAST
+                                </span>
+                            </a>
+                            <a href="{{ route('invoice.index') }}" class="btn btn-outline-secondary w-100 py-2">
+                                <i class="mdi mdi-arrow-left me-1"></i> Kembali ke Daftar Invoice
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+</div> {{-- End Tab Content --}}
+</div> {{-- End Nav Align Top --}}
+
+    {{-- MODALS PREVIEW SURAT JALAN (Root level to prevent backdrop z-index overlay issue) --}}
+    @if ($quote->deliveries && $quote->deliveries->isNotEmpty())
+        @foreach ($quote->deliveries as $del)
+            <div class="modal fade" id="modal-delivery-preview-{{ $del->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <div class="modal-header bg-light py-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="mdi mdi-truck-delivery-outline text-primary fs-4"></i>
+                                <div>
+                                    <h5 class="modal-title fw-bold mb-0">Surat Jalan #{{ $del->id }}</h5>
+                                    <small class="text-muted">Jenis: {{ ucfirst($del->type ?? 'Ekspedisi') }} &bull; Tanggal: {{ \Carbon\Carbon::parse($del->date)->format('d F Y') }}</small>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body p-4">
+                            {{-- Header Document Info --}}
+                            <div class="row g-3 mb-4 pb-3 border-bottom" style="font-size: 12px;">
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded border h-100">
+                                        <span class="text-uppercase text-muted fw-bold small d-block mb-1">Pengirim (Shipper)</span>
+                                        <strong class="text-dark fs-6 d-block mb-1">PT Reftech Jaya Optima</strong>
+                                        <p class="mb-0 text-muted" style="line-height:1.4;">Taman Kopo Indah V, Soho Sommerville No. 31, Bandung – Jawa Barat 40218</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="p-3 bg-light rounded border h-100">
+                                        <span class="text-uppercase text-muted fw-bold small d-block mb-1">Penerima (Deliver To)</span>
+                                        <strong class="text-dark fs-6 d-block mb-1">{{ $quote->client->company ?? '-' }}</strong>
+                                        <p class="mb-0 text-muted" style="line-height:1.4;">
+                                            <i class="mdi mdi-map-marker-outline me-1"></i>{{ $quote->client ? ($del->destination == '1' ? $quote->client->address : $quote->client->subAddress) : '-' }}
+                                        </p>
+                                        <div class="mt-2 pt-2 border-top">
+                                            <span class="fw-semibold">PO / Quote No:</span> <span class="badge bg-label-primary">{{ $quote->po_number ?: $quote->no_quote }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- Table Items --}}
+                            <h6 class="fw-bold mb-2 text-dark"><i class="mdi mdi-format-list-bulleted me-1 text-primary"></i> Daftar Item yang Dikirim</h6>
+                            <div class="table-responsive border rounded mb-3">
+                                <table class="table table-sm table-striped table-hover m-0" style="font-size: 12px;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="text-center" style="width:6%;">No</th>
+                                            <th>Deskripsi Barang</th>
+                                            <th class="text-center" style="width:20%;">Qty Dikirim</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @php $itemNoModal = 1; @endphp
+                                        @if ($del->detail && $del->detail->isNotEmpty())
+                                            @foreach ($del->detail as $dt)
+                                                @if (($dt->type ?? 'item') === 'header')
+                                                    <tr style="background:#f0f0ff;">
+                                                        <td colspan="3" class="fw-bold text-uppercase py-1.5 px-3 text-primary" style="font-size:11px;">
+                                                            <i class="mdi mdi-bookmark-outline me-1"></i> {{ $dt->desc }}
+                                                        </td>
+                                                    </tr>
+                                                @else
+                                                    <tr>
+                                                        <td class="text-center align-middle">{{ $itemNoModal++ }}</td>
+                                                        <td class="align-middle fw-medium text-dark">{{ $dt->desc }}</td>
+                                                        <td class="text-center align-middle fw-bold text-primary">{{ (float)$dt->qty }} {{ $dt->info_qty }}</td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            <tr>
+                                                <td colspan="3" class="text-center py-3 text-muted">Belum ada detail barang.</td>
+                                            </tr>
+                                        @endif
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer bg-light">
+                            <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Tutup</button>
+                            <a href="{{ route('print.delivery', $del->id) }}" target="_blank" class="btn btn-primary">
+                                <i class="mdi mdi-printer-outline me-1"></i> Cetak Surat Jalan
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @endif
 
     {{-- Modal Buat Surat Jalan --}}
     @if (($quote->status === 'po_received') && (Auth::user()->role == 'Admin' || Auth::user()->role == 'Accounting'))
@@ -853,6 +1395,20 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($quote->details as $item)
+                                            @php
+                                                if ($item->id_equivalent && $item->equivalent) {
+                                                    $spParts = array_filter([
+                                                        $item->equivalent->brand ?? '',
+                                                        $item->equivalent->pn ?? '',
+                                                        $item->label ?: optional($item->equivalent->product)->description ?: $item->description
+                                                    ]);
+                                                    $itemDisplayLabel = implode(' — ', $spParts);
+                                                } elseif ($item->type === 'unit' && $item->unit) {
+                                                    $itemDisplayLabel = $item->label ?: trim($item->unit->brand . ' ' . $item->unit->sku . ($item->unit->model ? ' — ' . $item->unit->model : ''));
+                                                } else {
+                                                    $itemDisplayLabel = $item->label ?: $item->description;
+                                                }
+                                            @endphp
                                             @if ($item->type === 'header')
                                                 <tr style="background:#f0f0ff;">
                                                     <td colspan="4" class="fw-bold text-uppercase py-1 px-2 text-primary" style="font-size:11px;">{{ $item->label }}</td>
@@ -863,7 +1419,7 @@
                                                         <input class="form-check-input item-check" type="checkbox" name="item_ids[]"
                                                             value="{{ $item->id }}" data-target="qty-{{ $item->id }}" checked>
                                                     </td>
-                                                    <td class="align-middle">{{ $item->label }}</td>
+                                                    <td class="align-middle fw-medium">{{ $itemDisplayLabel }}</td>
                                                     <td class="text-center align-middle">{{ $item->remaining_qty }} {{ $item->info_qty }}</td>
                                                     <td class="align-middle">
                                                         <input type="number" step="any" min="0" max="{{ $item->remaining_qty }}"
@@ -876,7 +1432,7 @@
                                                     <td class="text-center align-middle">
                                                         <input type="checkbox" class="form-check-input" disabled>
                                                     </td>
-                                                    <td class="align-middle text-decoration-line-through">{{ $item->label }}</td>
+                                                    <td class="align-middle text-decoration-line-through">{{ $itemDisplayLabel }}</td>
                                                     <td class="text-center align-middle">0</td>
                                                     <td class="align-middle"><span class="badge bg-label-success">Terkirim Semua</span></td>
                                                 </tr>
@@ -1420,5 +1976,279 @@
             }
         });
     });
+
+    // Delete Delivery / Surat Jalan
+    $(document).on('click', '.delete-delivery', function (e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        Swal.fire({
+            title: 'Hapus Surat Jalan #' + id + '?',
+            text: 'Item yang ada di Surat Jalan ini akan dikembalikan ke sisa Qty pengiriman.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                confirmButton: 'btn btn-danger me-3 waves-effect',
+                cancelButton: 'btn btn-label-secondary waves-effect',
+            },
+            buttonsStyling: false,
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/delivery/' + id,
+                    type: 'POST',
+                    data: { '_method': 'DELETE', '_token': '{{ csrf_token() }}' },
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Surat Jalan Dihapus!',
+                            customClass: { confirmButton: 'btn btn-success waves-effect' },
+                        });
+                        setTimeout(function () {
+                            window.location.hash = 'tab-delivery';
+                            location.reload();
+                        }, 1200);
+                    },
+                    error: function () {
+                        Swal.fire('Oops...', 'Gagal menghapus Surat Jalan.', 'error');
+                    }
+                });
+            }
+        });
+    });
+
+    // Auto switch tab if URL hash exists (e.g. #tab-delivery)
+    function activateTabFromHash() {
+        if (window.location.hash) {
+            var activeTab = document.querySelector(`button[data-bs-target="${window.location.hash}"]`);
+            if (activeTab) {
+                var tab = new bootstrap.Tab(activeTab);
+                tab.show();
+            }
+        }
+    }
+    activateTabFromHash();
+
+    // Sync URL hash when switching tabs
+    $(document).on('shown.bs.tab', 'button[data-bs-toggle="tab"]', function (e) {
+        var target = $(e.target).attr('data-bs-target');
+        if (target) {
+            history.replaceState(null, null, target);
+        }
+    });
+
+    // Switch to BAST tab
+    window.switchToBastTab = function() {
+        var btn = document.getElementById('btn-tab-bast');
+        if (btn) {
+            var tab = new bootstrap.Tab(btn);
+            tab.show();
+        }
+    };
+
+    // BAST Form Submit
+    $('#formCreateBast').on('submit', function (e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+        $.ajax({
+            url: '{{ route("bast.store") }}',
+            type: 'POST',
+            data: formData,
+            success: function (res) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'BAST Berhasil Dibuat!',
+                    text: res.message || '',
+                    customClass: { confirmButton: 'btn btn-success waves-effect' },
+                });
+                setTimeout(function () {
+                    window.location.hash = 'tab-bast';
+                    location.reload();
+                }, 1200);
+            },
+            error: function (xhr) {
+                var msg = xhr.responseJSON ? xhr.responseJSON.message : 'Gagal membuat BAST.';
+                Swal.fire('Oops...', msg, 'error');
+            }
+        });
+    });
+
+    // Add BAST Unit Row
+    $(document).on('click', '#btnAddBastUnitRow', function () {
+        var rowIdx = $('#tableBastUnits tbody tr').length;
+        var newRow = `<tr>
+            <td><input type="text" name="units[${rowIdx}][unit_name]" class="form-control form-control-sm" placeholder="Nama Unit / Barang" required></td>
+            <td><input type="text" name="units[${rowIdx}][serial_no]" class="form-control form-control-sm" placeholder="No Seri (Opsional)"></td>
+            <td><input type="number" name="units[${rowIdx}][qty]" class="form-control form-control-sm text-center" value="1" min="1"></td>
+            <td class="text-center"><button type="button" class="btn btn-xs btn-outline-danger remove-bast-unit-row"><i class="mdi mdi-delete-outline"></i></button></td>
+        </tr>`;
+        $('#tableBastUnits tbody').append(newRow);
+    });
+
+    // Remove BAST Unit Row
+    $(document).on('click', '.remove-bast-unit-row', function () {
+        if ($('#tableBastUnits tbody tr').length > 1) {
+            $(this).closest('tr').remove();
+        } else {
+            Swal.fire('Info', 'Minimal harus ada 1 unit barang.', 'info');
+        }
+    });
+
+    // Delete BAST
+    $(document).on('click', '.delete-bast', function (e) {
+        e.preventDefault();
+        var id = $(this).data('id');
+        Swal.fire({
+            title: 'Hapus BAST ini?',
+            text: 'Data Berita Acara Serah Terima akan dihapus.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal',
+            customClass: {
+                confirmButton: 'btn btn-danger me-3 waves-effect',
+                cancelButton: 'btn btn-label-secondary waves-effect',
+            },
+            buttonsStyling: false,
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/bast/' + id,
+                    type: 'POST',
+                    data: { '_method': 'DELETE', '_token': '{{ csrf_token() }}' },
+                    success: function () {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'BAST Dihapus!',
+                            customClass: { confirmButton: 'btn btn-success waves-effect' },
+                        });
+                        setTimeout(function () {
+                            window.location.hash = 'tab-invoice';
+                            location.reload();
+                        }, 1200);
+                    },
+                    error: function () {
+                        Swal.fire('Oops...', 'Gagal menghapus BAST.', 'error');
+                    }
+                });
+            }
+        });
+    });
 </script>
+
+{{-- Modal Buat BAST (Berita Acara Serah Terima) --}}
+@if (!isset($bast) || !$bast)
+    <div class="modal fade" id="modalCreateBast" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <form id="formCreateBast">
+                @csrf
+                <input type="hidden" name="id_kanban_task" value="{{ $monitoringTask ? $monitoringTask->id : '' }}">
+                <input type="hidden" name="id_quotation" value="{{ $quote->id }}">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-light py-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="mdi mdi-certificate-outline text-success fs-4"></i>
+                            <h5 class="modal-title fw-bold mb-0">Buat Berita Acara Serah Terima (BAST)</h5>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Entitas Perusahaan</label>
+                                <select name="entity" class="form-select" required>
+                                    <option value="Reftech" selected>Reftech</option>
+                                    <option value="Kojisha">Kojisha</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Tanggal Pekerjaan</label>
+                                <input type="date" name="work_date" class="form-control" value="{{ \Carbon\Carbon::today()->toDateString() }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Nomor PO / Ref</label>
+                                <input type="text" name="po_number" class="form-control" value="{{ $quote->po_number ?: $quote->no_quote }}">
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nama Customer (Penerima)</label>
+                                <input type="text" name="customer_name" class="form-control" value="{{ $quote->client->company ?? '' }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Nama Pekerjaan (Title)</label>
+                                <input type="text" name="work_title" class="form-control" value="{{ $quote->title ?: ($quote->no_quote ?? '') }}" required>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold mb-2 text-dark mt-4"><i class="mdi mdi-format-list-bulleted me-1 text-success"></i> Rincian Unit / Barang</h6>
+                        <div class="table-responsive border rounded mb-3">
+                            <table class="table table-sm align-middle m-0" id="tableBastUnits">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Nama Unit / Barang</th>
+                                        <th style="width:30%;">No. Seri (Serial Number)</th>
+                                        <th style="width:15%;" class="text-center">Qty</th>
+                                        <th style="width:8%;" class="text-center">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if ($quote->details && $quote->details->isNotEmpty())
+                                        @foreach ($quote->details as $idx => $item)
+                                            @php
+                                                $unitName = '';
+                                                if ($item->details_type === 'Unit' && $item->unit) {
+                                                    $unitName = trim(($item->unit->brand ? $item->unit->brand->name . ' ' : '') . $item->unit->name);
+                                                } else {
+                                                    $unitName = $item->label ?: $item->description;
+                                                }
+                                            @endphp
+                                            <tr>
+                                                <td>
+                                                    <input type="text" name="units[{{ $idx }}][unit_name]" class="form-control form-control-sm" value="{{ $unitName }}" required>
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="units[{{ $idx }}][serial_no]" class="form-control form-control-sm" placeholder="S/N (Opsional)">
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="units[{{ $idx }}][qty]" class="form-control form-control-sm text-center" value="{{ (int)($item->qty ?? 1) }}" min="1">
+                                                </td>
+                                                <td class="text-center">
+                                                    <button type="button" class="btn btn-xs btn-outline-danger remove-bast-unit-row"><i class="mdi mdi-delete-outline"></i></button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr>
+                                            <td><input type="text" name="units[0][unit_name]" class="form-control form-control-sm" placeholder="Nama Unit" required></td>
+                                            <td><input type="text" name="units[0][serial_no]" class="form-control form-control-sm" placeholder="S/N"></td>
+                                            <td><input type="number" name="units[0][qty]" class="form-control form-control-sm text-center" value="1" min="1"></td>
+                                            <td class="text-center"><button type="button" class="btn btn-xs btn-outline-danger remove-bast-unit-row"><i class="mdi mdi-delete-outline"></i></button></td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="button" class="btn btn-xs btn-outline-success mb-3" id="btnAddBastUnitRow">
+                            <i class="mdi mdi-plus me-1"></i> Tambah Baris Unit
+                        </button>
+
+                        <div class="mb-2">
+                            <label class="form-label fw-semibold">Hasil Test Running / Catatan Serah Terima</label>
+                            <textarea name="test_running_result" class="form-control" rows="3" placeholder="Contoh: Unit telah terpasang, dites running dengan hasil baik & berfungsi normal."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light py-2">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success fw-bold">
+                            <i class="mdi mdi-check me-1"></i> Simpan BAST
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+@endif
 @endpush

@@ -1,82 +1,87 @@
 @extends('layouts.sales.app')
 @section('title', 'Quotation')
 @section('content')
-    <div class="card mb-4">
-        <div class="card-widget-separator-wrapper">
-            <div class="card-body card-widget-separator">
-                <div class="row gy-4 gy-sm-1">
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex justify-content-between align-items-start card-widget-1 border-end pb-3 pb-sm-0">
-                            <div>
-                                <p class="mb-2">Quotation</p>
-                                <h4 class="mb-2">Rp
-                                    <span id="card-forecast-sum">{{ number_format(Auth::user()->role == 'Admin' ? $forecastAdmin : $forecast, 2, ',', '.') }}</span>
-                                </h4>
-                                <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-success" id="card-forecast-count">{{ Auth::user()->role == 'Admin' ? $forecastAdminCount : $forecastCount }}</span>
-                                </p>
-                            </div>
-                            <div class="avatar me-sm-4">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-home-outline mdi-24px"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <hr class="d-none d-sm-block d-lg-none me-4">
-                    </div>
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex justify-content-between align-items-start card-widget-2 border-end pb-3 pb-sm-0">
-                            <div>
-                                <p class="mb-2">Hot Prospect</p>
-                                <h4 class="mb-2">Rp
-                                    <span id="card-prospect-sum">{{ number_format(Auth::user()->role == 'Admin' ? $prospectAdmin : $prospect, 2, ',', '.') }}</span>
-                                </h4>
-                                <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-success" id="card-prospect-count">{{ Auth::user()->role == 'Admin' ? $prospectAdminCount : $prospectCount }}</span>
-                                </p>
-                            </div>
-                            <div class="avatar me-lg-4">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-laptop mdi-24px"></i>
-                                </span>
-                            </div>
-                        </div>
-                        <hr class="d-none d-sm-block d-lg-none">
-                    </div>
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex justify-content-between align-items-start border-end pb-3 pb-sm-0 card-widget-3">
-                            <div>
-                                <p class="mb-2">Purchase Order</p>
-                                <h4 class="mb-2">Rp
-                                    <span id="card-po-sum">{{ number_format(Auth::user()->role == 'Admin' ? $poAdmin : $po, 2, ',', '.') }}</span></h4>
-                                <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-success" id="card-po-count">{{ Auth::user()->role == 'Admin' ? $poAdminCount : $poCount }}</span>
-                                </p>
-                            </div>
-                            <div class="avatar me-sm-4">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-wallet-giftcard mdi-24px"></i>
-                                </span>
-                            </div>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm custom-stat-card">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted fw-semibold small text-uppercase tracking-wider">Quotation</span>
+                        <div class="avatar avatar-sm">
+                            <span class="avatar-initial rounded-3 bg-label-primary shadow-xs">
+                                <i class="mdi mdi-file-document-outline mdi-20px"></i>
+                            </span>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <p class="mb-2">Loss Order</p>
-                                <h4 class="mb-2">Rp
-                                    <span id="card-loss-sum">{{ number_format(Auth::user()->role == 'Admin' ? $lossAdmin : $loss, 2, ',', '.') }}</span>
-                                </h4>
-                                <p class="mb-0"><span
-                                        class="badge rounded-pill bg-label-danger" id="card-loss-count">{{ Auth::user()->role == 'Admin' ? $lossAdminCount : $lossCount }}</span>
-                                </p>
-                            </div>
-                            <div class="avatar">
-                                <span class="avatar-initial rounded bg-label-secondary">
-                                    <i class="mdi mdi-currency-usd mdi-24px"></i>
-                                </span>
-                            </div>
+                    <h4 class="mb-2 fw-bold text-dark">Rp
+                        <span id="card-forecast-sum">{{ number_format(Auth::user()->role == 'Admin' ? $forecastAdmin : $forecast, 2, ',', '.') }}</span>
+                    </h4>
+                    <div class="d-flex align-items-center gap-1">
+                        <span class="badge bg-label-primary rounded-pill fw-semibold" id="card-forecast-count">{{ Auth::user()->role == 'Admin' ? $forecastAdminCount : $forecastCount }}</span>
+                        <span class="text-muted small">Total Quotation</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm custom-stat-card">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted fw-semibold small text-uppercase tracking-wider">Hot Prospect</span>
+                        <div class="avatar avatar-sm">
+                            <span class="avatar-initial rounded-3 bg-label-warning shadow-xs">
+                                <i class="mdi mdi-fire mdi-20px"></i>
+                            </span>
                         </div>
+                    </div>
+                    <h4 class="mb-2 fw-bold text-dark">Rp
+                        <span id="card-prospect-sum">{{ number_format(Auth::user()->role == 'Admin' ? $prospectAdmin : $prospect, 2, ',', '.') }}</span>
+                    </h4>
+                    <div class="d-flex align-items-center gap-1">
+                        <span class="badge bg-label-warning rounded-pill fw-semibold" id="card-prospect-count">{{ Auth::user()->role == 'Admin' ? $prospectAdminCount : $prospectCount }}</span>
+                        <span class="text-muted small">Prospek Aktif</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm custom-stat-card">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted fw-semibold small text-uppercase tracking-wider">Purchase Order</span>
+                        <div class="avatar avatar-sm">
+                            <span class="avatar-initial rounded-3 bg-label-success shadow-xs">
+                                <i class="mdi mdi-cart-check mdi-20px"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <h4 class="mb-2 fw-bold text-dark">Rp
+                        <span id="card-po-sum">{{ number_format(Auth::user()->role == 'Admin' ? $poAdmin : $po, 2, ',', '.') }}</span>
+                    </h4>
+                    <div class="d-flex align-items-center gap-1">
+                        <span class="badge bg-label-success rounded-pill fw-semibold" id="card-po-count">{{ Auth::user()->role == 'Admin' ? $poAdminCount : $poCount }}</span>
+                        <span class="text-muted small">PO Goal</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card h-100 border-0 shadow-sm custom-stat-card">
+                <div class="card-body p-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="text-muted fw-semibold small text-uppercase tracking-wider">Loss Order</span>
+                        <div class="avatar avatar-sm">
+                            <span class="avatar-initial rounded-3 bg-label-danger shadow-xs">
+                                <i class="mdi mdi-close-circle-outline mdi-20px"></i>
+                            </span>
+                        </div>
+                    </div>
+                    <h4 class="mb-2 fw-bold text-dark">Rp
+                        <span id="card-loss-sum">{{ number_format(Auth::user()->role == 'Admin' ? $lossAdmin : $loss, 2, ',', '.') }}</span>
+                    </h4>
+                    <div class="d-flex align-items-center gap-1">
+                        <span class="badge bg-label-danger rounded-pill fw-semibold" id="card-loss-count">{{ Auth::user()->role == 'Admin' ? $lossAdminCount : $lossCount }}</span>
+                        <span class="text-muted small">Order Loss</span>
                     </div>
                 </div>
             </div>
@@ -104,7 +109,7 @@
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-unit-quotation" type="button">
-                        <i class="mdi mdi-file-document-outline me-1"></i>Quotation Unit
+                        <i class="mdi mdi-sparkles me-1 text-warning"></i>Smart Quote
                         <span class="badge rounded-pill bg-primary ms-1" id="badge-unit-quotation">-</span>
                     </button>
                 </li>
@@ -280,7 +285,7 @@
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" data-bs-toggle="tab" data-bs-target="#admin-tab-unit-quotation" type="button">
-                        <i class="mdi mdi-file-document-outline me-1"></i>Quotation Unit
+                        <i class="mdi mdi-sparkles me-1 text-warning"></i>Smart Quote
                         <span class="badge rounded-pill bg-primary ms-1" id="admin-badge-unit-quotation">-</span>
                     </button>
                 </li>
@@ -413,6 +418,20 @@
 
 @push('after-style')
     <style>
+        .custom-stat-card {
+            border-radius: 12px !important;
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05) !important;
+        }
+        .custom-stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08) !important;
+        }
+        .tracking-wider {
+            letter-spacing: 0.5px;
+            font-size: 0.725rem;
+        }
         .tooltip-quote-no .tooltip-inner {
             max-width: 320px;
             font-size: 13px;

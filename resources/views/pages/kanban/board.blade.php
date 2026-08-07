@@ -1026,6 +1026,26 @@
                         applyKanbanFilters();
 
                         $('[data-toggle="tooltip"]').tooltip();
+
+                        // Auto-open task modal if URL has ?task_id=X or ?open_task=X
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const autoTaskId = urlParams.get('task_id') || urlParams.get('open_task');
+                        if (autoTaskId && !window.autoTaskOpened) {
+                            window.autoTaskOpened = true;
+                            setTimeout(function() {
+                                const contentEl = document.querySelector(`.kanban-item-content[data-task-id="${autoTaskId}"]`);
+                                if (contentEl) {
+                                    try {
+                                        const task = JSON.parse(contentEl.getAttribute('data-task'));
+                                        openTaskSidebar(task);
+                                    } catch (err) {
+                                        openTaskSidebar({ id: autoTaskId });
+                                    }
+                                } else {
+                                    openTaskSidebar({ id: autoTaskId });
+                                }
+                            }, 350);
+                        }
                     }
                 });
             }

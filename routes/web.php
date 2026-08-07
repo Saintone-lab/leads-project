@@ -62,6 +62,7 @@ use App\Http\Controllers\SuoController;
 use App\Http\Controllers\ProjectMonitoringController;
 use App\Http\Controllers\WarehouseController;
 use App\Http\Controllers\WatermarkController;
+use App\Http\Controllers\SalesPaymentTemplateController;
 use App\Models\Account;
 use App\Models\Activities;
 use App\Models\ChangeWarehouse;
@@ -161,7 +162,13 @@ Route::group(["middleware" => "auth"], function () {
     })->name('under-maintenance');
     // Route User
     Route::resource('/profile', UserController::class);
-    Route::resource('/profile', UserController::class);
+
+    // Route Sales Payment Templates
+    Route::get('/sales-payment-templates', [SalesPaymentTemplateController::class, 'index'])->name('sales-payment-templates.index');
+    Route::post('/sales-payment-templates', [SalesPaymentTemplateController::class, 'store'])->name('sales-payment-templates.store');
+    Route::put('/sales-payment-templates/{id}', [SalesPaymentTemplateController::class, 'update'])->name('sales-payment-templates.update');
+    Route::delete('/sales-payment-templates/{id}', [SalesPaymentTemplateController::class, 'destroy'])->name('sales-payment-templates.destroy');
+    Route::post('/sales-payment-templates/{id}/set-default', [SalesPaymentTemplateController::class, 'setDefault'])->name('sales-payment-templates.set-default');
 
     // Route Reports
     Route::get('/reports', [ReportsController::class, 'index']);
@@ -194,6 +201,8 @@ Route::group(["middleware" => "auth"], function () {
     Route::post('/forecast/generate-default', [ForecastController::class, 'generateDefaultForecast'])->name('forecast.generate-default');
     Route::get('/forecast/prices', [ForecastController::class, 'managePrices'])->name('forecast.prices');
     Route::post('/forecast/prices', [ForecastController::class, 'updatePrices'])->name('forecast.prices.update');
+    Route::post('/forecast/prices/template', [ForecastController::class, 'updateStandardTemplate'])->name('forecast.prices.template');
+    Route::delete('/forecast/prices/{id}', [ForecastController::class, 'deletePrices'])->name('forecast.prices.delete');
     Route::get('/forecast/contracts', [ForecastController::class, 'manageContracts'])->name('forecast.contracts');
     Route::post('/forecast/contracts/store', [ForecastController::class, 'storeContract'])->name('forecast.contracts.store');
     Route::post('/forecast/contracts/{id}/schedule', [ForecastController::class, 'storeContractSchedule'])->name('forecast.contracts.schedule');
@@ -379,14 +388,13 @@ Route::group(["middleware" => "auth"], function () {
     Route::resource('/unit', UnitController::class);
     Route::get('/unit-global', [UnitController::class, 'indexGlobal'])->name('unit-global.index');
     Route::get('/unit-global/check-sku', [UnitController::class, 'checkSku'])->name('unit-global.check-sku');
+    Route::get('/unit-global/search', [UnitController::class, 'searchGlobal'])->name('unit-global.search');
     Route::post('/unit-global', [UnitController::class, 'storeGlobal'])->name('unit-global.store');
-    Route::post('/store/sparepart/{id}', [UnitController::class, 'storeSparepart'])->name('unit-sparepart.store');
-    Route::delete('/delete/sparepart/{id}', [UnitController::class, 'deleteSparepart'])->name('unit-sparepart.delete');
-    Route::patch('/update/sparepart/{id}', [UnitController::class, 'updateSparepart'])->name('unit-sparepart.update');
     Route::patch('/unit-reftech/{id}', [UnitController::class, 'updateUnitReftech'])->name('unit-reftech.edit');
     Route::get('/unit-global/{id}', [UnitController::class, 'showGlobal'])->name('unit-global.show');
     Route::patch('/unit-global/{id}/price', [UnitController::class, 'updatePrice'])->name('unit-global.update-price');
     Route::get('/unit-global/{id}/pm-template', [UnitController::class, 'pmTemplate'])->name('unit-global.pm-template');
+    Route::post('/unit-global/{id}/pm-template', [UnitController::class, 'pmTemplateSave'])->name('unit-global.pm-template.save');
     Route::get('/cor-factor/calculator', [UnitController::class, 'corfac'])->name('calculator.correction');
 
     // Catalog Unit

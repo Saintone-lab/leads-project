@@ -799,13 +799,13 @@
                                                     <td>{{ $i + 1 }}</td>
                                                     <td class="text-start">
                                                         <div class="form-floating form-floating-outline mb-2">
-                                                            <select class="select2 form-select" data-allow-clear="true" name="equivalent[]">
+                                                            <select class="form-select select2-equivalent-ajax" data-allow-clear="true" name="equivalent[]" style="width:100%">
                                                                 <option value="0"> ---- Choose Equivalent Here ---- </option>
-                                                                @foreach ($serial as $replacement)
-                                                                    <option value="{{ $replacement->id }}" {{ $item->id_equivalent == $replacement->id ? 'selected' : '' }}>
-                                                                        {{ $replacement->brand }} {{ $replacement->pn }} - {{ $replacement->product?->go == 'Replacement' ? 'R' : 'G' }}
+                                                                @if ($item->equivalent)
+                                                                    <option value="{{ $item->equivalent->id }}" selected>
+                                                                        {{ $item->equivalent->brand }} {{ $item->equivalent->pn }} - {{ $item->equivalent->product?->go == 'Replacement' ? 'R' : 'G' }}
                                                                     </option>
-                                                                @endforeach
+                                                                @endif
                                                             </select>
                                                             <label class="mb-2">Equivalent</label>
                                                         </div>
@@ -887,13 +887,8 @@
                                             <tr>
                                                 <td class="text-start">
                                                     <div class="form-floating form-floating-outline mb-2">
-                                                        <select class="select2 form-select" data-allow-clear="true" name="id_equivalent">
+                                                        <select class="form-select select2-equivalent-ajax" data-allow-clear="true" name="id_equivalent" style="width:100%">
                                                             <option value="0"> ---- Choose Equivalent Here ---- </option>
-                                                            @foreach ($serial as $replacement)
-                                                                <option value="{{ $replacement->id }}">
-                                                                    {{ $replacement->brand }} {{ $replacement->pn }} - {{ $replacement->product?->go == 'Replacement' ? 'R' : 'G' }}
-                                                                </option>
-                                                            @endforeach
                                                         </select>
                                                         <label class="mb-2">Equivalent</label>
                                                     </div>
@@ -1164,6 +1159,36 @@
 
         $('.select2').each(function () {
             $(this).select2({ dropdownParent: $(this).closest('.modal') });
+        });
+
+        // Dropdown Equivalent (Update Status Barang & Purchase Request) — search AJAX ke master
+        // product, bukan embed ribuan <option> statis (dulu bikin memory exhausted karena
+        // di-render ulang per baris item).
+        $('.select2-equivalent-ajax').each(function () {
+            var $sel = $(this);
+            $sel.select2({
+                dropdownParent: $sel.closest('.modal'),
+                placeholder: '---- Choose Equivalent Here ----',
+                allowClear: true,
+                width: '100%',
+                minimumInputLength: 1,
+                ajax: {
+                    url: '/db/equivalent/search',
+                    dataType: 'json',
+                    delay: 300,
+                    data: function (params) { return { q: params.term }; },
+                    processResults: function (data) {
+                        var items = Array.isArray(data) ? data : (data.data || []);
+                        return {
+                            results: $.map(items, function (eq) {
+                                var id = eq.id_equivalent || eq.id;
+                                var text = (eq.brand || '') + ' ' + (eq.pn || '') + ' - ' + (eq.genuine_status === 'Replacement' ? 'R' : 'G');
+                                return { id: id, text: text };
+                            })
+                        };
+                    }
+                }
+            });
         });
 
         $(document).on('click', '.clear-return-unit', function (e) {
