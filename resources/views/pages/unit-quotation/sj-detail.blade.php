@@ -26,7 +26,7 @@
                                     <p class="mb-0">
                                         <i class="mdi mdi-phone-outline me-1 text-primary"></i>022 54417653
                                         &nbsp;|&nbsp;
-                                        <i class="mdi mdi-email-outline me-1 text-primary"></i>info@reftech.id
+                                        <i class="mdi mdi-email-outline me-1 text-primary"></i>accounting@reftech.id
                                     </p>
                                 </div>
                             </div>
@@ -67,7 +67,6 @@
                                         <th class="text-center" style="width:6%; font-size:12px;">No.</th>
                                         <th style="font-size:12px;">Description</th>
                                         <th class="text-center" style="width:16%; font-size:12px;">Qty</th>
-                                        <th class="text-center" style="width:10%; font-size:12px;">Tampil</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -75,7 +74,7 @@
                                     @foreach ($dDelivery as $item)
                                         @if (($item->type ?? 'item') === 'header')
                                             <tr style="background:#f0f0ff; border-top:1.5px solid #d0d0ff; border-bottom:1.5px solid #d0d0ff;">
-                                                <td colspan="4" class="fw-bold text-uppercase py-2 px-3 text-primary" style="font-size:12px; letter-spacing:0.5px;">
+                                                <td colspan="3" class="fw-bold text-uppercase py-2 px-3 text-primary" style="font-size:12px; letter-spacing:0.5px;">
                                                     <i class="mdi mdi-bookmark-outline me-1"></i> {{ $item->desc }}
                                                 </td>
                                             </tr>
@@ -83,15 +82,9 @@
                                             <tr style="font-size: 13px" class="item-view-row" data-item-id="{{ $item->id }}">
                                                 <td class="align-top text-center">{{ $itemNo++ }}</td>
                                                 <td class="align-top">
-                                                    <p class="mb-0 fw-medium item-desc" style="font-size:12px; {{ $item->view == '1' ? 'opacity:.45; text-decoration:line-through;' : '' }}">{{ $item->desc }}</p>
+                                                    <p class="mb-0 fw-medium item-desc" style="font-size:12px;">{{ $item->desc }}</p>
                                                 </td>
                                                 <td class="align-top text-center" style="white-space:nowrap;">{{ (float) $item->qty }} {{ $item->info_qty }}</td>
-                                                <td class="align-top text-center">
-                                                    <div class="form-check form-switch d-flex justify-content-center m-0">
-                                                        <input class="form-check-input item-view-toggle" type="checkbox" role="switch"
-                                                            data-id="{{ $item->id }}" {{ $item->view == '0' ? 'checked' : '' }}>
-                                                    </div>
-                                                </td>
                                             </tr>
                                         @endif
                                     @endforeach
@@ -118,7 +111,7 @@
                             <table class="table table-bordered m-0" style="border: 1px solid rgb(60, 60, 60)">
                                 <tbody>
                                     <tr>
-                                        <td colspan="4" class="py-1">
+                                        <td colspan="3" class="py-1">
                                             <div class="row">
                                                 <div class="col-8">
                                                     <h5 class="fw-bold mb-0">Delivery Order</h5>
@@ -131,7 +124,7 @@
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td colspan="4" class="py-0">
+                                        <td colspan="3" class="py-0">
                                             <div class="row">
                                                 <div class="col-6">
                                                     <div class="d-flex justify-content-between flex-xl-row flex-md-column flex-sm-row flex-column">
@@ -151,7 +144,7 @@
                                                                 <p class="mb-1">Bandung – Jawa Barat 40218</p>
                                                                 <p class="mb-1">
                                                                     <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                                                                    {{ '   ' }}<i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
+                                                                    {{ '   ' }}<i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>accounting@reftech.id
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -180,30 +173,23 @@
                                         <th class="text-center">No</th>
                                         <th class="text-center">Qty</th>
                                         <th class="text-center" style="width: 70%">Description</th>
-                                        <th class="text-center">Tampil</th>
                                     </tr>
                                     @php $itemNo = 1; @endphp
                                     @foreach ($dDelivery as $item)
                                         @if (($item->type ?? 'item') === 'header')
                                             <tr style="background:#f0f0ff;">
-                                                <td colspan="4" class="fw-bold text-uppercase py-1" style="font-size:12px;">{{ $item->desc }}</td>
+                                                <td colspan="3" class="fw-bold text-uppercase py-1" style="font-size:12px;">{{ $item->desc }}</td>
                                             </tr>
                                         @else
                                             <tr style="font-size: 13px;" class="item-view-row" data-item-id="{{ $item->id }}">
                                                 <td class="align-top py-1">{{ $itemNo++ }}</td>
                                                 <td class="align-top py-1">{{ $item->qty }} {{ $item->info_qty }}</td>
-                                                <td class="align-top py-1 item-desc" style="{{ $item->view == '1' ? 'opacity:.45; text-decoration:line-through;' : '' }}">{{ $item->desc }}</td>
-                                                <td class="align-top py-1 text-center">
-                                                    <div class="form-check form-switch d-flex justify-content-center m-0">
-                                                        <input class="form-check-input item-view-toggle" type="checkbox" role="switch"
-                                                            data-id="{{ $item->id }}" {{ $item->view == '0' ? 'checked' : '' }}>
-                                                    </div>
-                                                </td>
+                                                <td class="align-top py-1 item-desc">{{ $item->desc }}</td>
                                             </tr>
                                         @endif
                                     @endforeach
                                     <tr>
-                                        <td colspan="4">
+                                        <td colspan="3">
                                             <div class="row mb-3">
                                                 <div class="col-4 mt-5 text-center">
                                                     <div class="pb-5"></div>

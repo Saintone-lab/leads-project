@@ -187,6 +187,46 @@
                     <button type="button" class="btn btn-sm btn-outline-info" id="btn-add-header">
                         <i class="mdi mdi-format-header-1 me-1"></i> Add Head Title
                     </button>
+                    <button type="button" class="btn btn-sm btn-outline-success ms-md-auto" data-bs-toggle="modal" data-bs-target="#modal-load-pm-template">
+                        <i class="mdi mdi-file-document-multiple-outline me-1"></i> Load Template PM
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- MODAL: Load Template PM (Unit Global) --}}
+        <div class="modal fade" id="modal-load-pm-template" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Load Template PM dari Unit Global</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-muted small">Pilih unit dan level PM — item template yang sudah disusun di Unit Global akan ditambahkan ke line items quotation ini.</p>
+                        <div class="mb-3">
+                            <label class="form-label small fw-semibold">Unit</label>
+                            <select class="select2 form-select" id="pm-load-unit-select" style="width:100%">
+                                <option value="">Cari unit (SKU / Brand / Model)...</option>
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-semibold">Level PM</label>
+                            <div class="d-flex flex-wrap gap-2" id="pm-load-level-group">
+                                <button type="button" class="btn btn-sm rounded-pill px-3 pm-load-level-btn" data-level="PM1">PM1</button>
+                                <button type="button" class="btn btn-sm rounded-pill px-3 pm-load-level-btn" data-level="PM2">PM2</button>
+                                <button type="button" class="btn btn-sm rounded-pill px-3 pm-load-level-btn" data-level="PM3">PM3</button>
+                                <button type="button" class="btn btn-sm rounded-pill px-3 pm-load-level-btn" data-level="PM4">PM4</button>
+                            </div>
+                        </div>
+                        <div id="pm-load-preview" class="small text-muted mt-3" style="display:none;"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-label-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="button" class="btn btn-primary" id="btn-pm-load-confirm" disabled>
+                            <i class="mdi mdi-plus me-1"></i> Tambahkan ke Quotation
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -224,10 +264,40 @@
                                 <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="pricing">Price</label>
                                 <div class="col-sm-8">
                                     <input type="text" id="pricing" class="form-control form-control-sm" name="pricing"
-                                        value="{{ old('pricing', 'Franco FACTORY ( BEKASI )') }}">
+                                        value="{{ old('pricing', 'Franco Factory') }}">
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
+                                <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="payment-select">Payment</label>
+                                <div class="col-sm-8">
+                                    <select class="form-select form-select-sm" id="payment-select">
+                                        @if(isset($paymentTemplates) && count($paymentTemplates) > 0)
+                                            <optgroup label="Template Sales">
+                                                @foreach($paymentTemplates as $pt)
+                                                    <option value="{{ $pt->payment_term }}" {{ $pt->is_default ? 'selected' : '' }}>
+                                                        {{ $pt->name }} {{ $pt->client ? '('.$pt->client->company.')' : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </optgroup>
+                                        @endif
+                                        <optgroup label="Standar System">
+                                            <option value="Cash Before Delivery">Cash Before Delivery</option>
+                                            <option value="DP 50% & BP 50%">DP 50% & BP 50%</option>
+                                            <option value="DP 30% & BP 70%">DP 30% & BP 70%</option>
+                                            <option value="14 Days after invoice release">14 Days after invoice release</option>
+                                            <option value="30 Days after invoice release">30 Days after invoice release</option>
+                                        </optgroup>
+                                        <option value="manual">-- Custom (Isi Sendiri) --</option>
+                                    </select>
+                                    <input type="hidden" name="payment" id="input-payment-hidden" value="{{ old('payment', 'Cash Before Delivery') }}">
+                                </div>
+                            </div>
+                            <div class="row mb-3 align-items-center" id="manual-payment-wrapper" style="display: none;">
+                                <div class="col-sm-8 offset-sm-4">
+                                    <input type="text" class="form-control form-control-sm" id="input-payment-manual" placeholder="Ketik custom payment term...">
+                                </div>
+                            </div>
+                            <div class="row mb-3 align-items-center" id="warranty-wrapper">
                                 <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="warranty">Warranty</label>
                                 <div class="col-sm-8">
                                     <input type="text" id="warranty" class="form-control form-control-sm" name="warranty"
@@ -237,15 +307,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="delivery">Delivery Process</label>
                                 <div class="col-sm-8">
-                                    <input type="text" id="delivery" class="form-control form-control-sm" name="delivery_process"
-                                        value="{{ old('delivery_process', 'Ready stock') }}">
-                                </div>
-                            </div>
-                            <div class="row mb-3 align-items-center">
-                                <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="payment">Payment</label>
-                                <div class="col-sm-8">
-                                    <input type="text" id="payment" class="form-control form-control-sm" name="payment"
-                                        value="{{ old('payment', 'Cash Before Delivery') }}">
+                                    <textarea id="delivery" class="form-control form-control-sm" name="delivery_process" rows="1" style="resize: vertical;">{{ old('delivery_process', 'Ready stock') }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -333,7 +395,6 @@
             </button>
         </div>
     </form>
-
     {{-- TEMPLATES (hidden, cloned by JS) --}}
     <template id="tmpl-unit-row">
         <div class="unit-row border-bottom p-3" data-type="unit">
@@ -343,7 +404,10 @@
             <input type="hidden" name="items[__IDX__][id_equivalent]" class="field-id-equivalent">
             <input type="hidden" name="items[__IDX__][spec_visible]" class="field-spec-visible">
 
-            <div class="mb-2">
+            <div class="d-flex align-items-center mb-2">
+                <div class="btn-drag-handle text-muted me-2" title="Geser (drag & drop) untuk memindahkan posisi">
+                    <i class="mdi mdi-drag-vertical fs-4"></i>
+                </div>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input unit-source-radio" type="radio" name="unit_source___IDX__"
                         value="sparepart" checked>
@@ -407,9 +471,15 @@
                     <span class="field-amount fw-semibold text-primary">Rp 0</span>
                 </div>
                 <div class="col-md-1 text-end">
-                    <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row">
-                        <i class="mdi mdi-delete-outline"></i>
-                    </button>
+                    <div class="d-inline-flex align-items-center gap-1">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-xs btn-outline-secondary btn-move-up" title="Geser ke atas"><i class="mdi mdi-arrow-up"></i></button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary btn-move-down" title="Geser ke bawah"><i class="mdi mdi-arrow-down"></i></button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row" title="Hapus Baris">
+                            <i class="mdi mdi-delete-outline"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -443,19 +513,24 @@
             <input type="hidden" name="items[__IDX__][type]" value="custom">
 
             <div class="row g-3 align-items-start">
-                {{-- Left: Item Title & Description (30%) --}}
-                <div class="col-md-4" style="flex: 0 0 30%; max-width: 30%;">
-                    <div class="mb-2">
-                        <input type="text" class="form-control form-control-sm fw-bold field-label"
-                            name="items[__IDX__][label]" placeholder="Item Title *" required>
+                {{-- Left: Drag Handle + Item Title & Description (30%) --}}
+                <div class="col-md-4 d-flex align-items-start" style="flex: 0 0 30%; max-width: 30%;">
+                    <div class="btn-drag-handle text-muted me-2 mt-1" title="Geser (drag & drop) untuk memindahkan posisi">
+                        <i class="mdi mdi-drag-vertical fs-4"></i>
                     </div>
-                    <div>
-                        <textarea class="form-control form-control-sm field-description"
-                            name="items[__IDX__][description]" rows="2" placeholder="Description (optional)"></textarea>
+                    <div class="w-100">
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm fw-bold field-label"
+                                name="items[__IDX__][label]" placeholder="Item Title *" required>
+                        </div>
+                        <div>
+                            <textarea class="form-control form-control-sm field-description"
+                                name="items[__IDX__][description]" rows="2" placeholder="Description (optional)"></textarea>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Right: Qty, Price, Disc, Nominal, Remove (70%) --}}
+                {{-- Right: Qty, Price, Disc, Nominal, Move Up/Down, Remove (70%) --}}
                 <div class="col-md-8" style="flex: 0 0 70%; max-width: 70%;">
                     <div class="row g-2 align-items-center h-100 pt-1">
                         <div class="col-md-3">
@@ -494,9 +569,15 @@
                             <span class="field-amount fw-semibold text-primary">Rp 0</span>
                         </div>
                         <div class="col-md-1 text-end">
-                            <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row">
-                                <i class="mdi mdi-delete-outline"></i>
-                            </button>
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-xs btn-outline-secondary btn-move-up" title="Geser ke atas"><i class="mdi mdi-arrow-up"></i></button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary btn-move-down" title="Geser ke bawah"><i class="mdi mdi-arrow-down"></i></button>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row" title="Hapus Baris">
+                                    <i class="mdi mdi-delete-outline"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -508,14 +589,23 @@
         <div class="unit-row border-bottom p-3 bg-light" data-type="header">
             <input type="hidden" name="items[__IDX__][type]" value="header">
             <div class="d-flex align-items-center gap-2">
+                <div class="btn-drag-handle text-muted" title="Geser (drag & drop) untuk memindahkan posisi">
+                    <i class="mdi mdi-drag-vertical fs-4"></i>
+                </div>
                 <span class="badge bg-primary text-uppercase" style="font-size:10px;">Head Title</span>
                 <div class="flex-grow-1">
                     <input type="text" class="form-control form-control-sm fw-bold text-primary field-label"
                         name="items[__IDX__][label]" placeholder="Head Title (e.g. A. SCOPE OF WORK, B. PIPING SYSTEM) *" required>
                 </div>
-                <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row">
-                    <i class="mdi mdi-delete-outline"></i>
-                </button>
+                <div class="d-flex align-items-center gap-1">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-xs btn-outline-secondary btn-move-up" title="Geser ke atas"><i class="mdi mdi-arrow-up"></i></button>
+                        <button type="button" class="btn btn-xs btn-outline-secondary btn-move-down" title="Geser ke bawah"><i class="mdi mdi-arrow-down"></i></button>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row" title="Hapus Baris">
+                        <i class="mdi mdi-delete-outline"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </template>
@@ -523,28 +613,21 @@
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
+    <style>
+        .bg-light-primary { background-color: #f0f0ff !important; border: 2px dashed #696cff !important; }
+        .btn-drag-handle { cursor: grab; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
+        .btn-drag-handle:hover { background: #e8e8ff; color: #696cff !important; }
+        .btn-drag-handle:active { cursor: grabbing; }
+    </style>
 @endpush
 
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/sortablejs/sortable.js"></script>
+    <script src="{{ asset('assets') }}/includes/form-unit-quotation.js"></script>
 @endpush
 
 @push('page-script')
-    <script>
-        // Draft item dari "Generate ke Quotation" di halaman Unit Global (Template Penawaran PM)
-        (function () {
-            var raw = sessionStorage.getItem('pm_template_items');
-            if (raw) {
-                try {
-                    window.PM_TEMPLATE_ITEMS = JSON.parse(raw);
-                } catch (e) {
-                    window.PM_TEMPLATE_ITEMS = null;
-                }
-                sessionStorage.removeItem('pm_template_items');
-            }
-        })();
-    </script>
-    <script src="{{ asset('assets') }}/includes/form-unit-quotation.js"></script>
     <script>
         (function () {
             const inputDate    = document.getElementById('input-date');

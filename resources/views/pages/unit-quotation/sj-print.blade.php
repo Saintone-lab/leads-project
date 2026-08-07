@@ -23,7 +23,7 @@
                     <div style="font-size: 12px; color: #555;">
                         <p class="mb-0">Taman Kopo Indah V, Soho Sommerville No. 31</p>
                         <p class="mb-0">Bandung – Jawa Barat 40218</p>
-                        <p class="mb-0"><i class="mdi mdi-phone-outline me-1" style="font-size:11px;"></i>022 54417653 &nbsp;|&nbsp; <i class="mdi mdi-email-outline me-1" style="font-size:11px;"></i>info@reftech.id &nbsp;|&nbsp; <i class="mdi mdi-web me-1" style="font-size:11px;"></i>www.reftech.id</p>
+                        <p class="mb-0"><i class="mdi mdi-phone-outline me-1" style="font-size:11px;"></i>022 54417653 &nbsp;|&nbsp; <i class="mdi mdi-email-outline me-1" style="font-size:11px;"></i>accounting@reftech.id &nbsp;|&nbsp; <i class="mdi mdi-web me-1" style="font-size:11px;"></i>www.reftech.id</p>
                     </div>
                 </div>
                 <div class="text-end">
@@ -139,7 +139,7 @@
                                                     <p class="mb-1">Bandung – Jawa Barat 40218</p>
                                                     <p class="mb-1">
                                                         <i class="mdi mdi-phone-outline scaleX-n1-rtl me-1 mdi-14px"></i>022 54417653
-                                                        {{ '   ' }}<i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>admin@reftech.id
+                                                        {{ '   ' }}<i class="mdi mdi-email-outline scaleX-n1-rtl me-1 mdi-14px"></i>accounting@reftech.id
                                                     </p>
                                                 </div>
                                             </div>

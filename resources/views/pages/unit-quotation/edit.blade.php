@@ -235,6 +235,25 @@
                                 </div>
                             </div>
                             <div class="row mb-3 align-items-center">
+                                <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="payment-select">Payment</label>
+                                <div class="col-sm-8">
+                                    <select class="form-select form-select-sm" id="payment-select">
+                                        <option value="Cash Before Delivery">Cash Before Delivery</option>
+                                        <option value="DP 50% & BP 50%">DP 50% & BP 50%</option>
+                                        <option value="DP 30% & BP 70%">DP 30% & BP 70%</option>
+                                        <option value="14 Days after invoice release">14 Days after invoice release</option>
+                                        <option value="30 Days after invoice release">30 Days after invoice release</option>
+                                        <option value="manual">-- Custom (Isi Sendiri) --</option>
+                                    </select>
+                                    <input type="hidden" name="payment" id="input-payment-hidden" value="{{ old('payment', $quote->payment) }}">
+                                </div>
+                            </div>
+                            <div class="row mb-3 align-items-center" id="manual-payment-wrapper" style="display: none;">
+                                <div class="col-sm-8 offset-sm-4">
+                                    <input type="text" class="form-control form-control-sm" id="input-payment-manual" placeholder="Ketik custom payment term...">
+                                </div>
+                            </div>
+                            <div class="row mb-3 align-items-center" id="warranty-wrapper" style="{{ empty(old('warranty', $quote->warranty)) ? 'display: none;' : '' }}">
                                 <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="warranty">Warranty</label>
                                 <div class="col-sm-8">
                                     <input type="text" id="warranty" class="form-control form-control-sm" name="warranty"
@@ -244,15 +263,7 @@
                             <div class="row mb-3 align-items-center">
                                 <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="delivery">Delivery Process</label>
                                 <div class="col-sm-8">
-                                    <input type="text" id="delivery" class="form-control form-control-sm" name="delivery_process"
-                                        value="{{ old('delivery_process', $quote->delivery_process) }}">
-                                </div>
-                            </div>
-                            <div class="row mb-3 align-items-center">
-                                <label class="col-sm-4 col-form-label text-muted small fw-semibold" for="payment">Payment</label>
-                                <div class="col-sm-8">
-                                    <input type="text" id="payment" class="form-control form-control-sm" name="payment"
-                                        value="{{ old('payment', $quote->payment) }}">
+                                    <textarea id="delivery" class="form-control form-control-sm" name="delivery_process" rows="1" style="resize: vertical;">{{ old('delivery_process', $quote->delivery_process) }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -351,7 +362,10 @@
             <input type="hidden" name="items[__IDX__][id_equivalent]" class="field-id-equivalent">
             <input type="hidden" name="items[__IDX__][spec_visible]" class="field-spec-visible">
 
-            <div class="mb-2">
+            <div class="d-flex align-items-center mb-2">
+                <div class="btn-drag-handle text-muted me-2" title="Geser (drag & drop) untuk memindahkan posisi">
+                    <i class="mdi mdi-drag-vertical fs-4"></i>
+                </div>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input unit-source-radio" type="radio" name="unit_source___IDX__"
                         value="sparepart" checked>
@@ -415,9 +429,15 @@
                     <span class="field-amount fw-semibold text-primary">Rp 0</span>
                 </div>
                 <div class="col-md-1 text-end">
-                    <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row">
-                        <i class="mdi mdi-delete-outline"></i>
-                    </button>
+                    <div class="d-inline-flex align-items-center gap-1">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-xs btn-outline-secondary btn-move-up" title="Geser ke atas"><i class="mdi mdi-arrow-up"></i></button>
+                            <button type="button" class="btn btn-xs btn-outline-secondary btn-move-down" title="Geser ke bawah"><i class="mdi mdi-arrow-down"></i></button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row" title="Hapus Baris">
+                            <i class="mdi mdi-delete-outline"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -450,19 +470,24 @@
             <input type="hidden" name="items[__IDX__][type]" value="custom">
 
             <div class="row g-3 align-items-start">
-                {{-- Left: Item Title & Description (30%) --}}
-                <div class="col-md-4" style="flex: 0 0 30%; max-width: 30%;">
-                    <div class="mb-2">
-                        <input type="text" class="form-control form-control-sm fw-bold field-label"
-                            name="items[__IDX__][label]" placeholder="Item Title *" required>
+                {{-- Left: Drag Handle + Item Title & Description (30%) --}}
+                <div class="col-md-4 d-flex align-items-start" style="flex: 0 0 30%; max-width: 30%;">
+                    <div class="btn-drag-handle text-muted me-2 mt-1" title="Geser (drag & drop) untuk memindahkan posisi">
+                        <i class="mdi mdi-drag-vertical fs-4"></i>
                     </div>
-                    <div>
-                        <textarea class="form-control form-control-sm field-description"
-                            name="items[__IDX__][description]" rows="2" placeholder="Description (optional)"></textarea>
+                    <div class="w-100">
+                        <div class="mb-2">
+                            <input type="text" class="form-control form-control-sm fw-bold field-label"
+                                name="items[__IDX__][label]" placeholder="Item Title *" required>
+                        </div>
+                        <div>
+                            <textarea class="form-control form-control-sm field-description"
+                                name="items[__IDX__][description]" rows="2" placeholder="Description (optional)"></textarea>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Right: Qty, Price, Disc, Nominal, Remove (70%) --}}
+                {{-- Right: Qty, Price, Disc, Nominal, Move Up/Down, Remove (70%) --}}
                 <div class="col-md-8" style="flex: 0 0 70%; max-width: 70%;">
                     <div class="row g-2 align-items-center h-100 pt-1">
                         <div class="col-md-3">
@@ -501,9 +526,15 @@
                             <span class="field-amount fw-semibold text-primary">Rp 0</span>
                         </div>
                         <div class="col-md-1 text-end">
-                            <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row">
-                                <i class="mdi mdi-delete-outline"></i>
-                            </button>
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-xs btn-outline-secondary btn-move-up" title="Geser ke atas"><i class="mdi mdi-arrow-up"></i></button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary btn-move-down" title="Geser ke bawah"><i class="mdi mdi-arrow-down"></i></button>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row" title="Hapus Baris">
+                                    <i class="mdi mdi-delete-outline"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -515,14 +546,23 @@
         <div class="unit-row border-bottom p-3 bg-light" data-type="header">
             <input type="hidden" name="items[__IDX__][type]" value="header">
             <div class="d-flex align-items-center gap-2">
+                <div class="btn-drag-handle text-muted" title="Geser (drag & drop) untuk memindahkan posisi">
+                    <i class="mdi mdi-drag-vertical fs-4"></i>
+                </div>
                 <span class="badge bg-primary text-uppercase" style="font-size:10px;">Head Title</span>
                 <div class="flex-grow-1">
                     <input type="text" class="form-control form-control-sm fw-bold text-primary field-label"
                         name="items[__IDX__][label]" placeholder="Head Title (e.g. A. SCOPE OF WORK, B. PIPING SYSTEM) *" required>
                 </div>
-                <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row">
-                    <i class="mdi mdi-delete-outline"></i>
-                </button>
+                <div class="d-flex align-items-center gap-1">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-xs btn-outline-secondary btn-move-up" title="Geser ke atas"><i class="mdi mdi-arrow-up"></i></button>
+                        <button type="button" class="btn btn-xs btn-outline-secondary btn-move-down" title="Geser ke bawah"><i class="mdi mdi-arrow-down"></i></button>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-icon btn-label-danger btn-remove-row" title="Hapus Baris">
+                        <i class="mdi mdi-delete-outline"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </template>
@@ -530,10 +570,17 @@
 
 @push('after-style')
     <link rel="stylesheet" href="{{ asset('assets') }}/vendor/libs/select2/select2.css" />
+    <style>
+        .bg-light-primary { background-color: #f0f0ff !important; border: 2px dashed #696cff !important; }
+        .btn-drag-handle { cursor: grab; padding: 2px 4px; border-radius: 4px; transition: background 0.15s; }
+        .btn-drag-handle:hover { background: #e8e8ff; color: #696cff !important; }
+        .btn-drag-handle:active { cursor: grabbing; }
+    </style>
 @endpush
 
 @push('after-script')
     <script src="{{ asset('assets') }}/vendor/libs/select2/select2.js"></script>
+    <script src="{{ asset('assets') }}/vendor/libs/sortablejs/sortable.js"></script>
 @endpush
 
 @push('page-script')
@@ -543,6 +590,7 @@
         window.EDIT_PIC_ID = {{ $quote->id_pic ?? 'null' }};
         window.EDIT_PLANT_ID = {{ $quote->id_plant ?? 'null' }};
         window.EDIT_ADDRESS = @json($quote->address ?? '');
+        window.EDIT_PAYMENT = @json($quote->payment ?? '');
     </script>
     <script src="{{ asset('assets') }}/includes/form-unit-quotation.js"></script>
     <script>

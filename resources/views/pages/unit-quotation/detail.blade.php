@@ -60,11 +60,13 @@
                     </div>
                     <div class="text-end">
                         <h3 class="fw-bold mb-1" style="letter-spacing:2px; color:#696cff;">QUOTATION</h3>
-                        <p class="mb-1 fw-semibold" style="font-size:14px;">#{{ $quote->no_quote }}</p>
-                        <div class="mb-1">
+                        <p class="mb-1 fw-bold text-dark" style="font-size:16px;">#{{ $quote->no_quote }}</p>
+                        <p class="mb-1 fw-bold" style="font-size:13px; color:#0f172a !important;">
+                            <i class="mdi mdi-calendar-blank-outline me-1 text-primary"></i>{{ $quote->date?->format('d-m-Y') }}
+                        </p>
+                        <div class="mb-1 mt-1">
                             <span class="badge bg-{{ $st['color'] }} px-3 py-1 fs-6">{{ $st['label'] }}</span>
                         </div>
-                        <p class="mb-0 text-muted" style="font-size:12px;">{{ $quote->date?->format('d F Y') }}</p>
                         @if ($quote->no_pr)
                             <p class="mb-0 text-muted" style="font-size:11px;">No. PR: {{ $quote->no_pr }}</p>
                         @endif
@@ -107,9 +109,9 @@
                             </p>
                         @endif
                         @if ($quote->address || $quote->plant)
-                            <p class="mb-0" style="font-size:11.5px; color:#222;">
-                                <i class="mdi mdi-map-marker-outline me-1" style="font-size:11px; color:#444;"></i><span style="font-weight:500;">{{ $quote->address ?? $quote->plant?->address }} {{ $quote->plant ? '(' . $quote->plant->name . ')' : '' }}</span>
-                            </p>
+                            <div class="mb-0" style="display:flex; align-items:flex-start; font-size:11.5px; color:#222;">
+                                <i class="mdi mdi-map-marker-outline me-1" style="font-size:11px; color:#444; line-height:1.4; flex-shrink:0;"></i><span style="font-weight:500; line-height:1.4;">{{ $quote->address ?? $quote->plant?->address }} {{ $quote->plant ? '(' . $quote->plant->name . ')' : '' }}</span>
+                            </div>
                         @endif
                     </div>
                     <div style="min-width:240px; display:flex; flex-direction:column; align-self:stretch; border:1px solid #dcdcdc; border-radius:6px; padding:10px 14px; background:#fafafa;">
@@ -133,7 +135,7 @@
                 </div>
 
                 <p class="mb-3" style="font-size:12px; color:#777; font-style:italic;">
-                    Sir/Madam, We are pleased to offer the under-mentioned as per conditions and details described as following:
+                    Dear Sir/Madam, Please find bellow our price quotation for the following :
                 </p>
 
                 {{-- Items Table --}}
@@ -217,23 +219,66 @@
                                                  @if ($item->equivalent)
                                                      @php
                                                          $brandPn = trim(($item->equivalent->brand ?? '') . ($item->equivalent->pn ? ' - ' . $item->equivalent->pn : ''));
-                                                         $subDesc = $item->label;
+                                                         $subDesc = preg_replace('/^[\s\-\*\•]+/u', '', $item->label);
                                                          if (empty($subDesc) || $subDesc === $brandPn) {
                                                              $subDesc = optional($item->equivalent->product)->description ?? optional($item->equivalent->product)->name;
                                                          }
+                                                         $prod = optional($item->equivalent)->product;
+                                                         $stkBdg = (int) ($prod->stock ?? 0);
+                                                         $stkBks = (int) ($prod->warehouse_stock ?? 0);
+                                                         $stkPend = (int) ($prod->pending_stock ?? 0);
+                                                         $totalStk = $stkBdg + $stkBks;
+                                                         $popoverContent = "<div class='text-start small p-1'><div><span class='badge bg-label-primary me-1'>BDG: $stkBdg</span> Stok Bandung</div><div class='mt-1'><span class='badge bg-label-info me-1'>BKS: $stkBks</span> Stok Bekasi</div><div class='mt-1'><span class='badge bg-label-warning me-1'>Pend: $stkPend</span> Pending PO</div></div>";
                                                      @endphp
-                                                     <p class="mb-0 fw-bold text-dark" style="font-size: 12px">{{ $brandPn ?: $item->label }}</p>
+                                                     <div class="d-inline-flex align-items-center flex-wrap gap-1">
+                                                         <p class="mb-0 fw-bold text-dark" style="font-size: 12px">{{ $brandPn ?: preg_replace('/^[\s\-\*\•]+/u', '', $item->label) }}</p>
+                                                         @if ($prod)
+                                                             <span class="badge bg-label-info ms-2 cursor-pointer stock-popover"
+                                                                   data-bs-toggle="tooltip"
+                                                                   data-bs-placement="top"
+                                                                   data-bs-html="true"
+                                                                   title="<b>BDG:</b> {{ $stkBdg }} &nbsp;|&nbsp; <b>BKS:</b> {{ $stkBks }} &nbsp;|&nbsp; <b>Pend:</b> {{ $stkPend }}"
+                                                                   data-bs-trigger="hover focus"
+                                                                   style="font-size: 9.5px; font-weight: 600; padding: 2px 6px;">
+                                                                 <i class="mdi mdi-cube-outline me-1"></i>Stok: {{ $totalStk }}
+                                                             </span>
+                                                         @endif
+                                                     </div>
                                                      @if ($subDesc && $subDesc !== $brandPn)
-                                                         <div style="font-size: 12px; color: #333333; font-weight: 500; margin-top: 2px; line-height: 1.4;">{{ $subDesc }}</div>
+                                                         <div style="font-size: 12px; color: #333333; font-weight: 500; margin-top: 2px; line-height: 1.4;">{{ preg_replace('/^[\s\-\*\•]+/u', '', $subDesc) }}</div>
                                                      @endif
                                                  @else
-                                                     <p class="mb-0 fw-bold text-dark" style="font-size: 12px">{{ $item->label }}</p>
+                                                     <p class="mb-0 fw-bold text-dark" style="font-size: 12px">{{ preg_replace('/^[\s\-\*\•]+/u', '', $item->label) }}</p>
                                                  @endif
                                             @else
-                                                <p class="mb-0 fw-bold text-dark" style="font-size: 12px">{{ $item->label }}</p>
+                                                <p class="mb-0 fw-bold text-dark" style="font-size: 12px">{{ preg_replace('/^[\s\-\*\•]+/u', '', $item->label) }}</p>
                                                 @if ($item->description)
-                                                    <div class="text-muted" style="font-size:11px; white-space:pre-line; margin-top:2px;">{{ $item->description }}</div>
-                                                @endif
+                                                     @php
+                                                         $descLines = explode("\n", str_replace("\r", "", $item->description));
+                                                     @endphp
+                                                     <div class="text-muted" style="font-size:11px; margin-top:3px; line-height:1.4;">
+                                                         @foreach ($descLines as $dLine)
+                                                             @php
+                                                                 $trimmedDLine = trim($dLine);
+                                                             @endphp
+                                                             @if (empty($trimmedDLine))
+                                                                 <div style="height:2px;"></div>
+                                                             @else
+                                                                 @php
+                                                                     $hasBullet = preg_match('/^([•\-\*]|\d+[\.\)])\s*(.*)/u', $trimmedDLine, $dMatches);
+                                                                 @endphp
+                                                                 @if ($hasBullet && !empty($dMatches[1]) && !empty($dMatches[2]))
+                                                                     <div style="display:flex; align-items:flex-start; margin-bottom:2px;">
+                                                                         <span style="flex-shrink:0; min-width:14px; color:#696cff; font-weight:600;">{{ $dMatches[1] }}</span>
+                                                                         <span style="flex:1;">{{ $dMatches[2] }}</span>
+                                                                     </div>
+                                                                 @else
+                                                                     <div style="margin-bottom:2px; font-weight:600; color:#222;">{{ $dLine }}</div>
+                                                                 @endif
+                                                             @endif
+                                                         @endforeach
+                                                     </div>
+                                                 @endif
                                             @endif
                                         </td>
                                         <td class="text-center align-top py-2">{{ (int) $item->qty }} {{ $item->info_qty ?? 'Unit' }}</td>
@@ -294,9 +339,33 @@
 
                 {{-- Note (Remarks) --}}
                 @if ($quote->note)
-                <div style="border:1px solid #e0e0e0; border-left:3px solid #696cff; border-radius:6px; padding:10px 14px; font-size:12px; color:#333; margin-bottom:14px; background:#fafafa;">
+                <div style="border:1px solid #e0e0e0; border-left:3px solid #696cff; border-radius:6px; padding:10px 14px; font-size:11px; color:#333; margin-bottom:14px; background:#fafafa;">
                     <p class="mb-1 fw-semibold text-uppercase" style="font-size:10px; color:#888; letter-spacing:.5px;">Remarks / Note</p>
-                    <p class="mb-0" style="white-space:pre-wrap; line-height:1.6;">{{ $quote->note }}</p>
+                    @php
+                        $noteLines = explode("\n", str_replace("\r", "", $quote->note));
+                    @endphp
+                    <div style="font-size:11px; color:#222; line-height:1.5;">
+                        @foreach ($noteLines as $line)
+                            @php
+                                $trimmed = trim($line);
+                            @endphp
+                            @if (empty($trimmed))
+                                <div style="height:3px;"></div>
+                            @else
+                                @php
+                                    $hasBullet = preg_match('/^([•\-\*]|\d+[\.\)])\s*(.*)/u', $trimmed, $matches);
+                                @endphp
+                                @if ($hasBullet && !empty($matches[1]) && !empty($matches[2]))
+                                    <div style="display:flex; align-items:flex-start; margin-bottom:3px;">
+                                        <span style="flex-shrink:0; min-width:20px; color:#696cff; font-weight:600;">{{ $matches[1] }}</span>
+                                        <span style="flex:1;">{{ $matches[2] }}</span>
+                                    </div>
+                                @else
+                                    <div style="margin-bottom:3px;">{{ $line }}</div>
+                                @endif
+                            @endif
+                        @endforeach
+                    </div>
                 </div>
                 @endif
 
@@ -314,12 +383,18 @@
                         </tr>
                         <tr>
                             <td style="padding:3px 0; color:#555; vertical-align:top;">Delivery Process</td>
-                            <td style="padding:3px 0; vertical-align:top;">: {{ $quote->delivery_process ?? '-' }}</td>
+                            <td style="padding:3px 0; vertical-align:top; white-space:pre-line;">: {{ $quote->delivery_process ?? '-' }}</td>
                         </tr>
                         <tr>
                             <td style="padding:3px 0; color:#555; vertical-align:top;">Payment</td>
                             <td style="padding:3px 0; vertical-align:top;">: {{ $quote->payment ?? '-' }}</td>
                         </tr>
+                        @if (!empty($quote->warranty))
+                        <tr>
+                            <td style="padding:3px 0; color:#555; vertical-align:top;">Warranty</td>
+                            <td style="padding:3px 0; vertical-align:top;">: {{ $quote->warranty }}</td>
+                        </tr>
+                        @endif
                     </table>
                 </div>
 
@@ -406,7 +481,7 @@
                     
                     {{-- Upload / View PO --}}
                     @if (Auth::user()->role === 'Sales' && $quote->status !== 'po_received')
-                        <button type="button" class="btn btn-sm btn-label-success d-grid w-100 mb-2 btn-upload-po-unit fw-semibold"
+                        <button type="button" class="btn btn-sm btn-label-success d-flex align-items-center justify-content-center w-100 mb-2 btn-upload-po-unit fw-semibold"
                             data-npwp="{{ $quote->client->npwp ?? '' }}"
                             data-client-url="{{ $quote->client->role == 'Leads' ? route('detail.leads', $quote->client->id) : route('existing.show', $quote->client->id) }}">
                             <i class="mdi mdi-file-upload-outline me-1"></i> Upload PO
@@ -414,7 +489,7 @@
                     @endif
                     @if ($quote->po_file)
                         <a href="#" onclick="openPdfViewer('{{ Storage::url($quote->po_file) }}', 'File PO {{ $quote->no_quote ?? '' }}'); return false;"
-                           class="btn btn-sm btn-label-secondary d-grid w-100 mb-2 fw-semibold">
+                           class="btn btn-sm btn-label-secondary d-flex align-items-center justify-content-center w-100 mb-2 fw-semibold">
                             <i class="mdi mdi-file-pdf-box text-danger me-1"></i> Lihat File PO
                         </a>
                     @endif
@@ -437,11 +512,11 @@
                                     <i class="mdi mdi-clock-outline me-1"></i> Wait Kontrak
                                 </div>
                             @elseif (Auth::user()->role === 'Sales' && $quote->status !== 'po_received')
-                                <a href="#" data-id="{{ $quote->id }}" class="btn btn-sm btn-label-primary d-grid w-100 fw-semibold px-1 text-truncate request-selling-unit" title="Request Selling Contract">
+                                <a href="#" data-id="{{ $quote->id }}" class="btn btn-sm btn-label-primary d-flex align-items-center justify-content-center w-100 fw-semibold px-1 text-truncate request-selling-unit" title="Request Selling Contract">
                                     <i class="mdi mdi-file-sign me-1"></i> Selling Contract
                                 </a>
                             @elseif (Auth::user()->role === 'Admin' || Auth::user()->role === 'Accounting')
-                                <button type="button" class="btn btn-sm btn-label-primary d-grid w-100 fw-semibold px-1 text-truncate"
+                                <button type="button" class="btn btn-sm btn-label-primary d-flex align-items-center justify-content-center w-100 fw-semibold px-1 text-truncate"
                                     data-bs-toggle="modal" data-bs-target="#modalSellingContractUnit" title="Create Selling Contract">
                                     <i class="mdi mdi-file-plus-outline me-1"></i> Selling Contract
                                 </button>
@@ -451,14 +526,14 @@
                         {{-- SUO Column --}}
                         <div class="col-6">
                             @if ($quote->suo)
-                                <a class="btn btn-sm btn-outline-info d-grid w-100 fw-semibold px-1 text-truncate"
+                                <a class="btn btn-sm btn-outline-info d-flex align-items-center justify-content-center w-100 fw-semibold px-1 text-truncate"
                                     href="{{ route('suo.show', $quote->suo->id) }}" title="Lihat SUO ({{ $quote->suo->no_suo }})">
                                     <i class="mdi mdi-eye-outline me-1"></i> SUO ({{ $quote->suo->no_suo }})
                                 </a>
                             @elseif ($quote->status !== 'po_received')
                                 @if (Auth::user()->role === 'Sales' || Auth::user()->role === 'Admin')
                                     <a href="#" data-id="{{ $quote->id }}"
-                                        class="btn btn-sm btn-outline-dark d-grid w-100 fw-semibold px-1 text-truncate ajukan-suo-unit" title="Ajukan SUO">
+                                        class="btn btn-sm btn-outline-dark d-flex align-items-center justify-content-center w-100 fw-semibold px-1 text-truncate ajukan-suo-unit" title="Ajukan SUO">
                                         <i class="mdi mdi-truck-fast-outline me-1"></i> Ajukan SUO
                                     </a>
                                 @endif
@@ -568,7 +643,7 @@
 
                 {{-- 5. Change Status Option --}}
                 @if (Auth::user()->role === 'Sales' && $quote->status !== 'po_received')
-                    <button type="button" class="btn btn-sm btn-outline-secondary d-grid w-100 py-1.5"
+                    <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center justify-content-center w-100 py-1.5"
                         data-bs-toggle="modal" data-bs-target="#modalChangeStatus">
                         <i class="mdi mdi-swap-horizontal me-1"></i> Change Status
                     </button>
@@ -577,7 +652,7 @@
                 {{-- 5b. Post to Sales Order (hanya saat po_received & pendingPo sudah dibuat) --}}
                 @if ($quote->status === 'po_received' && $pendingPo)
                     <button type="button"
-                        class="btn btn-sm btn-outline-primary d-grid w-100 mt-2 fw-semibold"
+                        class="btn btn-sm btn-outline-primary d-flex align-items-center justify-content-center w-100 mt-2 fw-semibold"
                         data-bs-toggle="modal" data-bs-target="#convertPoUnit">
                         <i class="mdi mdi-truck-delivery-outline me-1"></i> Post to Sales Order
                     </button>
@@ -625,7 +700,7 @@
                         @if (Auth::user()->role === 'Sales' || Auth::user()->role === 'Admin')
                             <form action="{{ route('unit-quotation.cancel-po', $quote->id) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="btn btn-sm btn-outline-danger d-grid w-100"
+                                <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center w-100"
                                     onclick="return confirm('Batalkan PO untuk penawaran ini? Tindakan ini tidak bisa dibatalkan.')">
                                     <i class="mdi mdi-cancel me-1"></i> Cancel PO
                                 </button>
@@ -634,7 +709,7 @@
                     @endif
                 @else
                     @if (Auth::user()->role === 'Sales' || Auth::user()->role === 'Admin')
-                    <a href="#" class="btn btn-sm btn-outline-danger d-grid w-100 delete-quote"
+                    <a href="#" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center w-100 delete-quote"
                         data-id="{{ $quote->id }}">
                         <i class="mdi mdi-trash-can-outline me-1"></i> Delete Quotation
                     </a>
@@ -738,7 +813,7 @@
             @endif
             @if ($quote->status === 'po_received' && Auth::user()->role === 'Sales')
             <div class="card-footer p-3">
-                <button type="button" class="btn btn-outline-success d-grid w-100 waves-effect"
+                <button type="button" class="btn btn-outline-success d-flex align-items-center justify-content-center w-100 waves-effect"
                     data-bs-toggle="modal" data-bs-target="#modalAddPayment">
                     <i class="mdi mdi-cash-plus me-1"></i> Tambah Payment
                 </button>
@@ -1549,5 +1624,15 @@
             $('.timeline-feed-item.item-status, .timeline-feed-item.item-comment').hide();
         }
     });
+
+    // Initialize Tooltips for Stock Badges
+    if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            new bootstrap.Tooltip(el);
+        });
+    }
+    if (typeof $.fn.tooltip !== 'undefined') {
+        $('[data-bs-toggle="tooltip"]').tooltip({ html: true });
+    }
 </script>
 @endpush
