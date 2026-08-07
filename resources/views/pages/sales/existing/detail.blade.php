@@ -934,14 +934,11 @@
                                             $servicePrices = \App\Models\PowerServicePrice::where('power', $normalizedPower)->first();
                                         }
                                         
-                                        // Load consumable spare parts only
+                                        // Load PM template items (manually-curated per unit + level)
                                         $spareparts = collect();
                                         if ($machine->unit && $machine->unit->unit) {
-                                            $spareparts = \App\Models\Sparepart::join('serial_product as sp', 'sp.id', '=', 'sparepart.id_equivalent')
-                                                ->join('product as p', 'p.id', '=', 'sp.id_product')
-                                                ->where('p.category', 'Consumable Part')
-                                                ->where('sparepart.id_unit', $machine->unit->unit->id)
-                                                ->select('sparepart.*')
+                                            $spareparts = \App\Models\UnitPmTemplateItem::where('id_unit', $machine->unit->unit->id)
+                                                ->where('type', 'part')
                                                 ->with('equivalent')
                                                 ->get();
                                         }
@@ -962,23 +959,18 @@
                                             $partsTotal = 0;
                                             $includedParts = [];
                                             foreach($spareparts as $sp) {
-                                                $isApplicable = false;
-                                                $spPm = $sp->pm_level ?? 'PM1';
-                                                if ($pmLevel == 'PM1' && $spPm == 'PM1') $isApplicable = true;
-                                                if ($pmLevel == 'PM2' && in_array($spPm, ['PM1', 'PM2'])) $isApplicable = true;
-                                                if ($isApplicable && $sp->equivalent) {
-                                                    $sub = ($sp->qty * ($sp->equivalent->price ?? 0));
-                                                    $partsTotal += $sub;
-                                                    $includedParts[] = [
-                                                        'pn' => $sp->equivalent->pn ?? '-',
-                                                        'brand' => $sp->equivalent->brand ?? '-',
-                                                        'description' => $sp->equivalent->product->detail_desc ?? '-',
-                                                        'qty' => $sp->qty,
-                                                        'price' => $sp->equivalent->price ?? 0,
-                                                        'subtotal' => $sub,
-                                                        'pm_level' => $spPm
-                                                    ];
-                                                }
+                                                if ($sp->level != $pmLevel) continue;
+                                                $sub = ($sp->qty * $sp->price);
+                                                $partsTotal += $sub;
+                                                $includedParts[] = [
+                                                    'pn' => $sp->equivalent->pn ?? '-',
+                                                    'brand' => $sp->equivalent->brand ?? '-',
+                                                    'description' => $sp->description ?: $sp->label,
+                                                    'qty' => $sp->qty,
+                                                    'price' => $sp->price,
+                                                    'subtotal' => $sub,
+                                                    'pm_level' => $sp->level
+                                                ];
                                             }
                                             
                                             // Calculate service
